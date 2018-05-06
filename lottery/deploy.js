@@ -9,7 +9,6 @@ const nodeUrl = 'https://rinkeby.infura.io/yB159JcQBkEA3EnqlXON';
 const provider = new HDWalletProvider(Config.metamask, nodeUrl, 1);
 const web3 = new Web3(provider);
 
-const INITIAL_STRING = 'Hi there!';
 let deployedContract = '',
   accounts = '';
 
@@ -28,7 +27,8 @@ const deploy = async () => {
     console.log('Error while deploying', e);
   }
 
-  console.log('Contract deployed to', deployedContract.options.address);
+  console.log('Contracts interface: ', interface);
+  console.log('Contract deployed to ', deployedContract.options.address);
 };
 
 deploy();
