@@ -2,11 +2,10 @@ const HDWalletProvider = require('truffle-hdwallet-provider');
 const Web3 = require('web3');
 const { interface, bytecode } = require('./compile');
 
-const Config = require('./config');
-const nodeUrl = 'https://rinkeby.infura.io/yB159JcQBkEA3EnqlXON';
+const { nodeUrl, metamask } = require('./config');
 
 // accounts number 1 !
-const provider = new HDWalletProvider(Config.metamask, nodeUrl, 1);
+const provider = new HDWalletProvider(metamask, nodeUrl, 1);
 const web3 = new Web3(provider);
 
 const INITIAL_STRING = 'Hi there!';

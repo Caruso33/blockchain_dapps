@@ -28,7 +28,6 @@ const deploy = async () => {
     console.log('Error while deploying', e);
   }
 
-  console.log('Contracts interface: ', compiledFactory.interface);
   console.log('Contract deployed to ', deployedContract.options.address);
 };
 
