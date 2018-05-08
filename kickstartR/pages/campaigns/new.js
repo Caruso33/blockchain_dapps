@@ -3,6 +3,7 @@ import Layout from '../../components/Layout';
 import { Button, Form, Input, Message } from 'semantic-ui-react';
 import factory from '../../ethereum/factory';
 import web3 from '../../ethereum/web3';
+import { Router } from '../../routes';
 
 class CampaignNew extends Component {
   state = { minimumContribution: '', errorMessage: '', loading: false };
@@ -18,6 +19,8 @@ class CampaignNew extends Component {
         // metamask will guess the amount of gas needed
         // and will apply it to the send, so no need to do it yourself
         .send({ from: accounts[0] });
+
+      Router.pushRoute('/');
     } catch (e) {
       console.error(e);
       this.setState({ errorMessage: e.message });
