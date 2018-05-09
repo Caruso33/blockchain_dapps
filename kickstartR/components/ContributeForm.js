@@ -27,7 +27,6 @@ class ContributeForm extends Component {
 
     // refresh the page
     Router.replaceRoute(`/campaigns/${this.props.address}`);
-    return {};
   };
 
   render() {

@@ -1,0 +1,6 @@
+request money > contract balance
+
+more than 1 contribution of single address -> votin for approval gives
+only one count but contributer count is two
+
+redirect after contribution not implemented
