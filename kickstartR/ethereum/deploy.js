@@ -2,10 +2,18 @@ const HDWalletProvider = require('truffle-hdwallet-provider');
 const Web3 = require('web3');
 const compiledFactory = require('./build/CampaignFactory.json');
 
-const { nodeUrl, metamask } = require('./config');
+let nodeUrlCon, metamask;
+
+if (process.env.NODE_ENV === 'production') {
+  nodeUrlCon = process.env.NODE_URL;
+  metamask = process.env.METAMASK;
+} else {
+  const { nodeUrl, metamask } = require('./config.js');
+  nodeUrlCon = nodeUrl;
+}
 
 // accounts number 1 !
-const provider = new HDWalletProvider(metamask, nodeUrl, 1);
+const provider = new HDWalletProvider(metamask, nodeUrlCon, 1);
 const web3 = new Web3(provider);
 
 let deployedContract = '',
