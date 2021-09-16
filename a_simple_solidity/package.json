@@ -1,0 +1,26 @@
+{
+  "name": "solidity",
+  "version": "1.0.0",
+  "description": "following along [Build your first blockchain app using ethereum smart contracts and solidity](https://www.youtube.com/watch?v=coQ5dg8wM2o)",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "truffle": "^5.4.10",
+    "truffle-contract": "^4.0.31"
+  },
+  "devDependencies": {
+    "bootstrap": "^5.1.1",
+    "chai": "^4.3.4",
+    "lite-server": "^2.6.1",
+    "nodemon": "^2.0.12"
+  },
+  "scripts": {
+    "dev": "lite-server",
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
