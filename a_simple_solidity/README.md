@@ -18,7 +18,7 @@ following along [Build your first blockchain app using ethereum smart contracts 
 
 `npx truffle migrate # --network development #--reset`
 
-`npx truffle console`
+`npx truffle console` # npx truffle develop is only for testing without specific accounts!
 
 ```
  todoList = await TodoList.deployed()
