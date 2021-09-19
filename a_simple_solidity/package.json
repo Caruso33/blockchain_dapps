@@ -18,7 +18,11 @@
   },
   "scripts": {
     "dev": "lite-server",
-    "test": "mocha"
+    "compile": "truffle compile",
+    "migrate": "truffle migrate --network development",
+    "migrate_fresh": "truffle migrate --network development --reset",
+    "console": "truffle console",
+    "test": "truffle test --network development"
   },
   "keywords": [],
   "author": "",
