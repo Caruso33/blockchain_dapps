@@ -113,6 +113,15 @@ App = {
     }
   },
 
+  createTask: async () => {
+    App.setLoading(true)
+    const content = $("#newTask").val()
+
+    await App.todoList.createTask(content, { from: App.accounts[0] })
+
+    window.location.reload()
+  },
+
   toggleCompleted: async () => {},
   setLoading: (isLoading) => {
     App.loading = isLoading
