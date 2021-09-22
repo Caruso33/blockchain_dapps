@@ -99,7 +99,7 @@ App = {
         .find("input")
         .prop("name", taskId)
         .prop("checked", taskCompleted)
-        .prop("click", App.toggleCompleted)
+        .on("click", App.toggleCompleted)
 
       // put task in correct list
       if (taskCompleted) {
@@ -122,7 +122,13 @@ App = {
     window.location.reload()
   },
 
-  toggleCompleted: async () => {},
+  toggleCompleted: async (e) => {
+    console.log('e', e.target)
+    await App.todoList.toggleCompleted(e.target?.name)
+
+    window.location.reload()
+  },
+
   setLoading: (isLoading) => {
     App.loading = isLoading
     const loader = $("#loader")
