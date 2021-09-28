@@ -4,6 +4,8 @@ const Web3 = require("web3")
 const dotenv = require("dotenv")
 dotenv.config()
 
+const contracts = require("./compile")
+
 const contractName = "Lottery"
 const inboxContract = contracts[contractName]
 
