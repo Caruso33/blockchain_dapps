@@ -2,14 +2,14 @@
 pragma solidity ^0.8.7;
 
 contract CampaignFactory {
-    address[] public deployedCampaigns;
+    Campaign[] public deployedCampaigns;
 
     function createCampaign(uint256 minimum) public {
-        address newCampaign = new Campaign(minimum, msg.sender);
+        Campaign newCampaign = new Campaign(minimum, msg.sender);
         deployedCampaigns.push(newCampaign);
     }
 
-    function getDeployedCampaigns() public view returns (address[]) {
+    function getDeployedCampaigns() public view returns (Campaign[] memory) {
         return deployedCampaigns;
     }
 }
@@ -18,13 +18,15 @@ contract Campaign {
     struct Request {
         string description;
         uint256 value;
-        address recipient;
+        address payable recipient;
         bool complete;
-        uint256 approvalCount;
+        uint256 approvalsCount;
         mapping(address => bool) approvals;
     }
 
-    Request[] public requests;
+    // Request[] public requests;
+    uint256 numRequests;
+    mapping(uint256 => Request) requests;
     address public manager;
     uint256 public minimumContribution;
     mapping(address => bool) public approvers;
@@ -35,7 +37,7 @@ contract Campaign {
         _;
     }
 
-    constructor(uint256 minimum, address creator) public {
+    constructor(uint256 minimum, address creator) {
         manager = creator;
         minimumContribution = minimum;
     }
@@ -48,23 +50,16 @@ contract Campaign {
     }
 
     function createRequest(
-        string description,
+        string memory description,
         uint256 value,
-        address recipient
+        address payable recipient
     ) public restricted {
-        Request memory newRequest = Request({
-            description: description,
-            value: value,
-            recipient: recipient,
-            complete: false,
-            approvalCount: 0
-        });
-
-        // Request(description, value, recipient, false);
-        // ! alternative but bad practice, because order
-        // must not change ever!
-
-        requests.push(newRequest);
+        Request storage r = requests[numRequests++];
+        r.description = description;
+        r.value = value;
+        r.recipient = recipient;
+        r.complete = false;
+        r.approvalsCount = 0;
     }
 
     function approveRequest(uint256 index) public {
@@ -74,13 +69,13 @@ contract Campaign {
         require(!request.approvals[msg.sender]);
 
         request.approvals[msg.sender] = true;
-        request.approvalCount++;
+        request.approvalsCount++;
     }
 
     function finalizeRequest(uint256 index) public restricted {
         Request storage request = requests[index];
 
-        require(request.approvalCount > (approversCount / 2));
+        require(request.approvalsCount > (approversCount / 2));
         require(!request.complete);
 
         request.recipient.transfer(request.value);
@@ -101,13 +96,13 @@ contract Campaign {
         return (
             minimumContribution,
             address(this).balance,
-            requests.length,
+            numRequests,
             approversCount,
             manager
         );
     }
 
     function getRequestsCount() public view returns (uint256) {
-        return requests.length;
+        return numRequests;
     }
 }
