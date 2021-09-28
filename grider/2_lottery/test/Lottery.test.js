@@ -65,9 +65,9 @@ describe("Lottery", () => {
   it("requires a minimum amount of ether to enter", async () => {
     try {
       await lottery.methods.enter().send({ from: accounts[0], value: 200 })
-      assert(false)
+      assert(false) // failing assertion, if we ever come to this line
     } catch (e) {
-      assert(e)
+      assert(e) // asserts that error was thrown
     }
   })
   it("only manager can call pickWinner", async () => {

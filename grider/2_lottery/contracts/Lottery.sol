@@ -18,7 +18,7 @@ contract Lottery {
     function random() internal view returns (uint256) {
         return
             uint256(
-                keccak256(
+                keccak256( // or sha3(
                     abi.encodePacked(block.difficulty, block.timestamp, players)
                 )
             );
@@ -27,7 +27,7 @@ contract Lottery {
     function pickWinner() public restricted {
         uint256 index = random() % players.length;
         players[index].transfer(address(this).balance);
-        players = new address payable[](0);
+        players = new address payable[](0); // initial size of 0
     }
 
     function getPlayers() public view returns (address payable[] memory) {
@@ -36,6 +36,6 @@ contract Lottery {
 
     modifier restricted() {
         require(msg.sender == manager);
-        _;
+        _; // function which uses modifier has it's content placed at '_'
     }
 }
