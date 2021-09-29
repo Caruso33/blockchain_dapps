@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react"
 import "./App.css"
 import Greeter from "./artifacts/contracts/Greeter.sol/Greeter.json"
 
-const greeterAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+const greeterAddress = "0x2e590d65Dd357a7565EfB5ffB329F8465F18c494" // ropsten address
+// "0x5FbDB2315678afecb367f032d93F642f64180aa3" // local address
 
 function App() {
   const [greeting, setGreetingValue] = useState("")
@@ -41,7 +42,7 @@ function App() {
   async function setGreeting() {
     if (!greeting) return
     if (!provider.current) return
-  
+
     await requestAccount()
 
     const signer = provider.current.getSigner()
