@@ -17,7 +17,7 @@ const web3 = new Web3(provider)
 let deployedContract = "",
   accounts = ""
 
-const deploy = async () => {
+;(async function () {
   try {
     accounts = await web3.eth.getAccounts()
 
@@ -26,14 +26,18 @@ const deploy = async () => {
     deployedContract = await new web3.eth.Contract(abi)
       .deploy({
         data: `0x${evm.bytecode.object}`,
-        arguments: [INITIAL_STRING],
+        arguments: [],
       })
       .send({ gas: "1000000", from: accounts[0] })
   } catch (e) {
     console.log("Error while deploying", e)
+    return
   }
 
   console.log("Contract deployed to ", deployedContract.options.address)
-}
 
-deploy()
+  process.exit(0)
+})()
+
+// deployed to
+// 0x53D4D0FFf2d9c62Ac51f15856eaB323802845A6b

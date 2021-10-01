@@ -1,42 +1,52 @@
-const HDWalletProvider = require('truffle-hdwallet-provider');
-const Web3 = require('web3');
-const compiledFactory = require('./build/CampaignFactory.json');
+const HDWalletProvider = require("@truffle/hdwallet-provider")
+const Web3 = require("web3")
 
-let nodeUrlCon, metamask;
+const dotenv = require("dotenv")
+dotenv.config()
 
-if (process.env.NODE_ENV === 'production') {
-  nodeUrlCon = process.env.NODE_URL;
-  metamask = process.env.METAMASK;
-} else {
-  const { nodeUrl, metamask } = require('./config.js');
-  nodeUrlCon = nodeUrl;
-}
+const contracts = require("./compile")
+const contractNames = ["CampaignFactory"]
 
-// accounts number 1 !
-const provider = new HDWalletProvider(metamask, nodeUrlCon, 1);
-const web3 = new Web3(provider);
+const deploy = async (web3, { evm, abi }) => {
+  let deployedContract = "",
+    accounts = ""
 
-let deployedContract = '',
-  accounts = '';
-
-const deploy = async () => {
   try {
-    accounts = await web3.eth.getAccounts();
+    accounts = await web3.eth.getAccounts()
 
-    console.log('Deploy from accounts', accounts[0]);
+    console.log("Deploy from accounts", accounts[0])
 
-    deployedContract = await new web3.eth.Contract(
-      JSON.parse(compiledFactory.interface)
-    )
+    deployedContract = await new web3.eth.Contract(abi)
       .deploy({
-        data: `0x${compiledFactory.bytecode}`
+        data: `0x${evm.bytecode.object}`,
+        arguments: [],
       })
-      .send({ gas: '1000000', from: accounts[0] });
+      .send({ gas: "1000000", from: accounts[0] })
   } catch (e) {
-    console.log('Error while deploying', e);
+    console.log("Error while deploying", e)
+    return
   }
 
-  console.log('Contract deployed to ', deployedContract.options.address);
-};
+  console.log("Contract deployed to ", deployedContract.options.address)
+}
 
-deploy();
+;(async function () {
+  for (const contractName of contractNames) {
+    const inboxContract = contracts[contractName]
+
+    const { evm, abi } = inboxContract
+
+    const provider = new HDWalletProvider(
+      process.env.mnemonic,
+      process.env.network
+    )
+    const web3 = new Web3(provider)
+
+    await deploy(web3, { evm, abi })
+  }
+
+  process.exit(0)
+})()
+
+// deployed to
+// 0x148B94D622c2Ac3abfb550AEaF48F25F105EA18b

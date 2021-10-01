@@ -1,19 +1,19 @@
-import Web3 from 'web3';
+import Web3 from "web3"
 
-let nodeUrlCon, web3;
+let web3 = null
 
-if (typeof window !== 'undefined' && typeof window.web3 !== 'undefined') {
-  web3 = new Web3(window.web3.currentProvider);
+if (typeof windows !== "undefined" && window.ethereum) {
+  // browser environment and metamask
+  web3 = new Web3(ethereum)
+} else if (typeof windows !== "undefined" && window.web3.currentProvider) {
+  // browser environment and old metamask
+  web3 = new Web3(window.web3.currentProvider)
 } else {
-  // we are on server *OR* user is not running metamask
-  if (process.env.NODE_ENV === 'production') {
-    nodeUrlCon = process.env.NODE_URL;
-  } else {
-    const { nodeUrl } = require('./config.js');
-    nodeUrlCon = nodeUrl;
-  }
-  const provider = new Web3.providers.HttpProvider(nodeUrlCon);
-  web3 = new Web3(provider);
+  // we are on the server
+
+  // create own provider through infura.io
+  const provider = new Web3.providers.HttpProvider(process.env.network)
+  web3 = new Web3(provider)
 }
 
-export default web3;
+export default web3

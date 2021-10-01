@@ -3,7 +3,7 @@ const fs = require("fs")
 const solc = require("solc")
 
 const contractsPath = "contracts"
-const contractsBinPath = path.join(contractsPath, "/bin")
+const contractsBinPath = path.join(__dirname, contractsPath, "bin")
 const contractName = "Lottery.sol"
 
 const contractPath = path.resolve(__dirname, contractsPath, contractName)
@@ -22,7 +22,7 @@ const compiledContracts = JSON.parse(solc.compile(JSON.stringify(input), {}))
 
 console.log("compiledContracts", compiledContracts, "\n")
 
-fs.promises.mkdir(contractsBinPath, { recursive: true }).catch(console.error)
+fs.mkdirSync(contractsBinPath, { recursive: true })
 
 const contracts = {}
 
@@ -37,7 +37,7 @@ for (let compiledContractName in compiledContracts.contracts[contractName]) {
   console.log(compiledContractName, abi)
 
   fs.writeFileSync(
-    `${contractsBinPath}/${compiledContractName}_abi.json`,
+    path.join(contractsBinPath, `${compiledContractName}_abi.json`),
     JSON.stringify(abi)
   )
 }

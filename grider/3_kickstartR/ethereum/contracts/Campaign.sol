@@ -29,7 +29,7 @@ contract Campaign {
     mapping(uint256 => Request) requests;
     address public manager;
     uint256 public minimumContribution;
-    mapping(address => bool) public approvers;
+    mapping(address => bool) approvers;
     uint256 public approversCount;
 
     modifier restricted() {

@@ -36,6 +36,7 @@ const deploy = async () => {
       .send({ gas: "1000000", from: accounts[0] })
   } catch (e) {
     console.log("Error while deploying", e)
+    return
   }
 
   console.log("Contract deployed to", deployedContract.options.address)
@@ -43,5 +44,5 @@ const deploy = async () => {
 
 deploy()
 
-// was deployed to 
+// deployed to
 // 0xEf6d29dDFf75C3aC09C7AA37B3ea58aA2Bb24EB5
