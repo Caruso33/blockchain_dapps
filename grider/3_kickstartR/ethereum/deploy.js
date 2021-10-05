@@ -49,4 +49,4 @@ const deploy = async (web3, { evm, abi }) => {
 })()
 
 // deployed to
-// 0x148B94D622c2Ac3abfb550AEaF48F25F105EA18b
+// 0x10d7526150f4134d9B6631c8C4A6d812a91dFfA7
