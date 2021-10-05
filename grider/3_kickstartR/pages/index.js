@@ -9,14 +9,14 @@ class Index extends Component {
     const items = this.props.campaigns.map((address) => ({
       header: address,
       description: (
-        <Link route={`/campaigns/${address}`}>
+        <Link href={`/campaigns/${address}`}>
           <a>View Campaign</a>
         </Link>
       ),
       fluid: true,
     }))
 
-    return <Card.Group items={items} />
+    return <Card.Group items={items} style={{ lineBreak: "anywhere" }} />
   }
 
   render() {
@@ -46,17 +46,13 @@ class Index extends Component {
 export default Index
 
 export async function getServerSideProps() {
-  const address = process.env.factory_address
-
-  console.log({ address })
+  const address = process.env.NEXT_PUBLIC_FACTORY_ADDRESS
 
   const factory = getFactory(address)
 
   // method is nextjs specific
   // because componentDidMount is not called in server-side rendering
   const campaigns = await factory.methods.getDeployedCampaigns().call()
-
-  console.log({ campaigns })
 
   return { props: { campaigns } } // is provided as props
 }
