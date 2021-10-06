@@ -1,44 +1,73 @@
-import React, { Component } from 'react';
-import { Table, Button } from 'semantic-ui-react';
-import web3 from '../ethereum/web3';
-import Campaign from '../ethereum/campaign';
+import { withRouter } from "next/router"
+import React, { Component } from "react"
+import { Button, Table } from "semantic-ui-react"
+import getCampaign from "../ethereum/campaign"
+import web3 from "../ethereum/web3"
 
 class RequestRow extends Component {
-  onApprove = async () => {
-    const campaign = Campaign(this.props.address);
-    const accounts = await web3.eth.getAccounts();
+  state = { campaign: getCampaign(this.props.address) }
 
-    await campaign.methods
-      .approveRequest(this.props.id)
-      .send({ from: accounts[0] });
-  };
+  async getAccounts() {
+    const accounts = await web3.eth.requestAccounts()
+    return accounts
+  }
+
+  onApprove = async () => {
+    const { campaign } = this.state
+
+    this.props.setError("")
+
+    try {
+      const accounts = await this.getAccounts()
+
+      await campaign.methods
+        .approveRequest(this.props.id)
+        .send({ from: accounts[0] })
+
+      this.props.router.replace(`/campaigns/${this.props.address}/requests`)
+    } catch (error) {
+      console.error(error)
+
+      this.props.setError(error.message)
+    }
+  }
 
   onFinalize = async () => {
-    const campaign = Campaign(this.props.address);
-    const accounts = await web3.eth.getAccounts();
+    const { campaign } = this.state
 
-    await campaign.methods
-      .finalizeRequest(this.props.id)
-      .send({ from: accounts[0] });
-  };
+    this.props.setError("")
+
+    try {
+      const accounts = await this.getAccounts()
+
+      await campaign.methods
+        .finalizeRequest(this.props.id)
+        .send({ from: accounts[0] })
+
+      this.props.router.replace(`/campaigns/${this.props.address}/requests`)
+    } catch (error) {
+      console.error(error)
+
+      this.props.setError(error.message)
+    }
+  }
+
   render() {
-    const {
-      id,
-      address,
-      approversCount,
-      request: { description, value, recipient, approvalCount, complete }
-    } = this.props;
-    const { Row, Cell } = Table;
-    const readyToFinalize = approvalCount > approversCount / 2;
+    const { id, approversCount, request } = this.props
+
+    const { description, value, recipient, approvalsCount, complete } = request
+
+    const { Row, Cell } = Table
+    const readyToFinalize = approvalsCount > approversCount / 2
 
     return (
       <Row disabled={complete} positive={readyToFinalize && !complete}>
         <Cell>{id}</Cell>
         <Cell>{description}</Cell>
-        <Cell>{web3.utils.fromWei(value, 'ether')}</Cell>
+        <Cell>{web3.utils.fromWei(value, "ether")}</Cell>
         <Cell>{recipient}</Cell>
         <Cell>
-          {approvalCount}/{approversCount}
+          {approvalsCount}/{approversCount}
         </Cell>
         <Cell>
           {complete ? null : (
@@ -49,14 +78,19 @@ class RequestRow extends Component {
         </Cell>
         <Cell>
           {complete ? null : (
-            <Button color="teal" basic onClick={this.onFinalize}>
+            <Button
+              color="teal"
+              basic
+              onClick={this.onFinalize}
+              disabled={!readyToFinalize}
+            >
               Finalize
             </Button>
           )}
         </Cell>
       </Row>
-    );
+    )
   }
 }
 
-export default RequestRow;
+export default withRouter(RequestRow)
