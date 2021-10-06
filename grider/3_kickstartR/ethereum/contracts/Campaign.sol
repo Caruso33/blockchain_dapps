@@ -23,7 +23,7 @@ contract Campaign {
         uint256 approvalsCount;
         mapping(address => bool) approvals;
     }
-    
+
     mapping(uint256 => Request) public requests;
     uint256 public requestsCount;
 
