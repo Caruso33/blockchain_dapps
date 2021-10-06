@@ -85,30 +85,28 @@ export async function getServerSideProps(props) {
   const campaign = getCampaign(address)
 
   try {
-    const requestCount = await campaign.methods.requestsCount().call()
-    const approversCount = await campaign.methods.approversCount().call()
+    const [requestCount, approversCount] = await Promise.all([
+      campaign.methods.requestsCount().call(),
+      campaign.methods.approversCount().call(),
+    ])
 
-    const requests = await Promise.all(
+    const reqs = await Promise.all(
       Array(parseInt(requestCount))
         .fill()
-        .map((_, index) => {
-          const requestPromise = campaign.methods.requests(index).call()
+        .map((_, index) => campaign.methods.requests(index).call())
+    )
 
-          return requestPromise
-        })
-    ).then((reqs) => {
-      const requests = []
-      for (const req of reqs) {
-        requests.push({
-          description: req.description,
-          value: req.value,
-          recipient: req.recipient,
-          complete: req.complete,
-          approvalsCount: req.approvalsCount,
-        })
-      }
-      return requests
-    })
+    const requests = []
+
+    for (const req of reqs) {
+      requests.push({
+        description: req.description,
+        value: req.value,
+        recipient: req.recipient,
+        complete: req.complete,
+        approvalsCount: req.approvalsCount,
+      })
+    }
 
     return {
       props: {
