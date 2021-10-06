@@ -23,17 +23,18 @@ contract Campaign {
         uint256 approvalsCount;
         mapping(address => bool) approvals;
     }
+    
+    mapping(uint256 => Request) public requests;
+    uint256 public requestsCount;
 
-    // Request[] public requests;
-    uint256 numRequests;
-    mapping(uint256 => Request) requests;
     address public manager;
     uint256 public minimumContribution;
+
     mapping(address => bool) approvers;
     uint256 public approversCount;
 
     modifier restricted() {
-        require(msg.sender == manager);
+        require(msg.sender == manager, "Sender must be the owner!");
         _;
     }
 
@@ -43,10 +44,15 @@ contract Campaign {
     }
 
     function contribute() public payable {
-        require(msg.value > minimumContribution);
+        require(
+            msg.value >= minimumContribution,
+            "Value must be at least the minimum contribution!"
+        );
 
-        approvers[msg.sender] = true;
-        approversCount++;
+        if (!approvers[msg.sender]) {
+            approvers[msg.sender] = true;
+            approversCount++;
+        }
     }
 
     function createRequest(
@@ -54,7 +60,7 @@ contract Campaign {
         uint256 value,
         address payable recipient
     ) public restricted {
-        Request storage r = requests[numRequests++];
+        Request storage r = requests[requestsCount++];
         r.description = description;
         r.value = value;
         r.recipient = recipient;
@@ -65,8 +71,11 @@ contract Campaign {
     function approveRequest(uint256 index) public {
         Request storage request = requests[index];
 
-        require(approvers[msg.sender]);
-        require(!request.approvals[msg.sender]);
+        require(
+            approvers[msg.sender],
+            "Sender is no approver, contribute first!"
+        );
+        require(!request.approvals[msg.sender], "Sender has already approved!");
 
         request.approvals[msg.sender] = true;
         request.approvalsCount++;
@@ -75,8 +84,16 @@ contract Campaign {
     function finalizeRequest(uint256 index) public restricted {
         Request storage request = requests[index];
 
-        require(request.approvalsCount > (approversCount / 2));
-        require(!request.complete);
+        require(
+            address(this).balance >= request.value,
+            "Insufficient funds for request!"
+        );
+
+        require(
+            request.approvalsCount > (approversCount / 2),
+            "Not enough approvals!"
+        );
+        require(!request.complete, "Request already completed!");
 
         request.recipient.transfer(request.value);
         request.complete = true;
@@ -96,13 +113,9 @@ contract Campaign {
         return (
             minimumContribution,
             address(this).balance,
-            numRequests,
+            requestsCount,
             approversCount,
             manager
         );
-    }
-
-    function getRequestsCount() public view returns (uint256) {
-        return numRequests;
     }
 }
