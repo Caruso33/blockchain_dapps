@@ -47,5 +47,6 @@ main()
     process.exit(1)
   })
 
-// deployed on rinkeby
+// deployed on rinkeby - from new to old
+// 0x142918CA2E8a74d92cfD40276a48FE817D928c4F
 // 0xefC5373AfBf66D8CD367A0575Fd1B62b6C4b43a4
