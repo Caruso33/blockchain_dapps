@@ -1,7 +1,7 @@
 async function main() {
   const contractFactory = await hre.ethers.getContractFactory("EpicNFTGame")
 
-  const args = [
+  const characters = [
     ["Goku", "Aang", "Naruto"], // Names
     [
       "https://i.imgur.com/LG7T4kC.jpeg", // Images
@@ -11,6 +11,10 @@ async function main() {
     [100, 200, 250], // HP values
     [200, 100, 250], // Attack damage values
   ]
+
+  const boss = ["Frieza", "https://i.imgur.com/0UpxKpK.jpeg", 10000, 50]
+
+  const args = [...characters, ...boss]
 
   const contract = await contractFactory.deploy(...args)
   await contract.deployed()
