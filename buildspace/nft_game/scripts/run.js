@@ -16,15 +16,15 @@ async function main() {
   // We get the contract to deploy
   const NftGame = await hre.ethers.getContractFactory("EpicNFTGame")
 
-  args = [
-    ["Leo", "Aang", "Pikachu"], // Names
+  const args = [
+    ["Goku", "Aang", "Naruto"], // Names
     [
-      "https://i.imgur.com/pKd5Sdk.png", // Images
+      "https://i.imgur.com/LG7T4kC.jpeg", // Images
       "https://i.imgur.com/xVu4vFL.png",
-      "https://i.imgur.com/WMB6g9u.png",
+      "https://i.imgur.com/h1pN57c.jpeg",
     ],
-    [100, 200, 300], // HP values
-    [100, 50, 25], // Attack damage values
+    [100, 200, 250], // HP values
+    [200, 100, 250], // Attack damage values
   ]
 
   const nftGame = await NftGame.deploy(...args)
@@ -32,6 +32,16 @@ async function main() {
   await nftGame.deployed()
 
   console.log("NftGame deployed to:", nftGame.address)
+
+  let txn
+  // We only have three characters.
+  // an NFT w/ the character at index 2 of our array.
+  txn = await nftGame.mintCharacterNFT(2)
+  await txn.wait()
+
+  // Get the value of the NFT's URI.
+  const returnedTokenUri = await nftGame.tokenURI(1)
+  console.log("Token URI:", returnedTokenUri)
 }
 
 // We recommend this pattern to be able to use async/await everywhere
