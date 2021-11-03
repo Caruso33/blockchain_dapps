@@ -1,0 +1,14 @@
+{
+  "name": "cryptobot-advanced",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "coinbase-pro": "^0.9.0",
+    "commander": "^8.3.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  }
+}
