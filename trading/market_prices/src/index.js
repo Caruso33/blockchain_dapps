@@ -9,10 +9,8 @@ const CoinGeckoClient = new CoinGecko()
 
 //3. Make calls
 var write = async () => {
-  const ping = await CoinGeckoClient.ping()
-
-  const pages = 1
-  const perPage = 1
+  const pages = 1,
+    perPage = 250
 
   const classedCoins = []
   for (let page of Array(pages)
@@ -67,10 +65,12 @@ var write = async () => {
 async function read() {
   const coins = await db.getData("/coins")
 
+  console.log(`Found ${Object.keys(coins).length} coins.`)
+
   for (let coin of Object.keys(coins)) {
     const classedCoin = Coin.deserialize(coins[coin])
 
-    console.log(classedCoin)
+    // console.log(classedCoin)
   }
 }
 

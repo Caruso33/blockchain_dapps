@@ -116,7 +116,7 @@ class Coin {
       last_updated,
     } = JSON.parse(json)
 
-    return new Coin(
+    return new Coin({
       id,
       symbol,
       name,
@@ -142,8 +142,8 @@ class Coin {
       atl_change_percentage,
       atl_date,
       roi,
-      last_updated
-    )
+      last_updated,
+    })
   }
 }
 
