@@ -38,6 +38,14 @@ async function main() {
   console.log("Minted NFT #4")
 
   console.log("Done deploying and minting!")
+  
+  txn = await contract.attackBoss();
+  await txn.wait();
+  
+  txn = await contract.attackBoss();
+  await txn.wait();
+
+  console.log("Done attacking!")
 }
 
 main()
@@ -48,5 +56,6 @@ main()
   })
 
 // deployed on rinkeby - from new to old
+// 0x717ab48149C1aE01CF4E23fDb577B058C9b630a0
 // 0x142918CA2E8a74d92cfD40276a48FE817D928c4F
 // 0xefC5373AfBf66D8CD367A0575Fd1B62b6C4b43a4
