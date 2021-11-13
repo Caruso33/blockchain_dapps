@@ -120,7 +120,7 @@ const SelectCharacter = ({ setCharacterNFT }) => {
       <h2>Mint Your Hero. Choose wisely.</h2>
 
       {/* Only show this when there are characters in state */}
-      {(
+      {characters.length > 0 && (
         <div className="character-grid">{renderCharacters()}</div>
       )}
     </div>
