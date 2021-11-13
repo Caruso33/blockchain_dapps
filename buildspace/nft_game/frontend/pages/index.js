@@ -136,6 +136,7 @@ const App = () => {
           <p className="header gradient-text">🌐 Web3 to the win! 🌐️</p>
 
           <p className="sub-text">Team up to protect the Metaverse!</p>
+
           <div className="connect-wallet-container">Ï{renderContent()}</div>
         </div>
         <div className="footer-container">

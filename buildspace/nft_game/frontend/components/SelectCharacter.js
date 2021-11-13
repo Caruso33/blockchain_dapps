@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react"
-// import "./SelectCharacter.css"
 import { ethers } from "ethers"
 import { CONTRACT_ADDRESS, transformCharacterData } from "../constants"
 import ContractArtifact from "../utils/ContractArtifact.json"
@@ -42,7 +41,6 @@ const SelectCharacter = ({ setCharacterNFT }) => {
         )
 
         setCharacters(characters)
-        charactersRef.current = characters
       } catch (error) {
         console.error("Something went wrong fetching characters:", error)
       }
@@ -92,11 +90,13 @@ const SelectCharacter = ({ setCharacterNFT }) => {
         <div className="name-container">
           <p>{character.name}</p>
         </div>
+
         <img src={character.imageURI} alt={character.name} />
+
         <button
           type="button"
           className="character-mint-button"
-          onClick={mintCharacterNFTAction(index)}
+          onClick={() => mintCharacterNFTAction(index)}
         >{`Mint ${character.name}`}</button>
       </div>
     ))
@@ -114,13 +114,13 @@ const SelectCharacter = ({ setCharacterNFT }) => {
     }
   }
 
-  console.log("Chars", characters)
-
   return (
     <div className="select-character-container">
+      {console.log("Chars in render", characters)}
       <h2>Mint Your Hero. Choose wisely.</h2>
+
       {/* Only show this when there are characters in state */}
-      {characters.length > 0 && (
+      {(
         <div className="character-grid">{renderCharacters()}</div>
       )}
     </div>
