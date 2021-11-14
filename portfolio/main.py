@@ -1,5 +1,5 @@
-from binance_api.main import get_account_assets as binance_get_account_assets
+from src.binance_api.main import main
 
 if __name__ == "__main__":
-    binance_assets = binance_get_account_assets()
+    binance_assets = main()
     print(binance_assets)

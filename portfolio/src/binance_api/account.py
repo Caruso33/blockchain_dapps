@@ -27,3 +27,7 @@ def get_account_assets():
             assets.append(asset)
 
     return assets
+
+
+if __name__ == "__main__":
+    get_account_assets()
