@@ -35,4 +35,14 @@ def get_exchange_symbols():
 if __name__ == "__main__":
     exchange_symbols = get_exchange_symbols()
 
-    print(exchange_symbols)
+    # print(exchange_symbols)
+
+    for symbol in exchange_symbols:
+        print(symbol)
+        symbols_as_base = filter(
+            lambda x: x.base_asset == symbol.base_asset, exchange_symbols
+        )
+
+        if "USDT" not in [x.quote_asset for x in symbols_as_base]:
+            print(f"{symbol.symbol}!!!!!!!!!!!!!!!!!")
+            break
