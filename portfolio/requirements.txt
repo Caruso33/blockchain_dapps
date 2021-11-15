@@ -27,6 +27,10 @@ chardet==4.0.0
     # via requests
 click==8.0.3
     # via black
+colorama==0.4.4
+    # via
+    #   click
+    #   pylint
 constantly==15.1.0
     # via twisted
 cryptography==35.0.0
@@ -64,6 +68,8 @@ pyasn1==0.4.8
     #   service-identity
 pyasn1-modules==0.2.8
     # via service-identity
+pycoingecko==2.2.0
+    # via -r requirements.in
 pycparser==2.21
     # via cffi
 pylint==2.11.1
@@ -75,7 +81,9 @@ python-dotenv==0.19.2
 regex==2021.11.10
     # via black
 requests==2.25.1
-    # via binance-connector
+    # via
+    #   binance-connector
+    #   pycoingecko
 service-identity==21.1.0
     # via binance-connector
 six==1.16.0
@@ -89,6 +97,8 @@ tomli==1.2.2
     # via black
 twisted==21.2.0
     # via binance-connector
+twisted-iocpsupport==1.0.2
+    # via twisted
 txaio==21.2.1
     # via autobahn
 typing-extensions==3.10.0.2

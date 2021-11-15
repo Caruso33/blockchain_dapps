@@ -1,4 +1,5 @@
 binance-connector
 black
+pycoingecko
 pylint
 python-dotenv
