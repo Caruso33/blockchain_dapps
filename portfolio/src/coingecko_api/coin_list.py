@@ -11,7 +11,11 @@ def request_coin_list():
     coins = []
     for coin in coins_list:
         coins.append(
-            Asset(symbol=coin["symbol"], coingecko_id=coin["id"], name=coin["name"])
+            Asset(
+                symbol=coin["symbol"].upper(),
+                coingecko_id=coin["id"],
+                name=coin["name"],
+            )
         )
 
     return coins
@@ -31,3 +35,5 @@ def get_asset_list():
         coins_list = data["coins_list"]
 
         coins_list = [Asset.deserialize(x) for x in data["coins_list"]]
+
+    return coins_list

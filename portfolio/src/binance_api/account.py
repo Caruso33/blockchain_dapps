@@ -23,7 +23,7 @@ def get_account_assets():
         amount = float(balance["free"]) + float(balance["locked"])
         asset = Asset(symbol=balance["asset"], amount=amount, exchange="binance")
 
-        if int(asset.amount) > 0:
+        if int(asset.amount * 1e18) > 0:
             assets.append(asset)
 
     return assets
