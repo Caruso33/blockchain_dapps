@@ -3,7 +3,7 @@ import os
 import dotenv
 from binance.spot import Spot
 
-from .models import Asset
+from ..models import Asset
 
 dotenv.load_dotenv()
 
@@ -21,7 +21,7 @@ def get_account_assets():
     assets = []
     for balance in balances:
         amount = float(balance["free"]) + float(balance["locked"])
-        asset = Asset(balance["asset"], amount)
+        asset = Asset(symbol=balance["asset"], amount=amount, exchange="binance")
 
         if int(asset.amount) > 0:
             assets.append(asset)

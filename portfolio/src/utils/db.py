@@ -2,15 +2,6 @@ import json
 from os.path import exists
 
 
-# from sqlalchemy import create_engine
-# from sqlalchemy.ext.declarative import declarative_base
-
-# def create_db_engine():
-#     engine = create_engine("sqlite+pysqlite:///crypto.db", echo=True, future=True)
-
-#     return engine
-
-
 def read_database():
     file_exists = exists("db.json")
 
