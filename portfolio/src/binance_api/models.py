@@ -6,6 +6,8 @@ from typing import Union
 class QuoteAsset:
     symbol: str
     price_usd: float
+
+
 @dataclass
 class Asset:
     symbol: str
