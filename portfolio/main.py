@@ -13,18 +13,9 @@ if __name__ == "__main__":
     asset_prices = get_prices(list(asset_holdings.keys()), "usd")
 
 
-    asset_total_value = assets.calculated_total_values(asset_prices, "usd")
+    asset_total_value_by_symbol = assets.calculated_total_values_by_symbol(asset_prices, "usd")
+    asset_total_value_by_exchange = assets.calculated_total_values_by_exchange(asset_prices, "usd")
 
-    print(asset_total_value)
-
-
-    for asset_holding in asset_holdings:
-        asset = asset_holdings[asset_holding]
-
-        print(
-            asset_holding,
-            asset["total_amount"],
-            asset["total_value"],
-            round(asset["total_value"] / total_value,2),
-            total_value
-        )
+    print("Assets by symbol: ", asset_total_value_by_symbol)
+    print()
+    print("Assets by exchange: ", asset_total_value_by_exchange)

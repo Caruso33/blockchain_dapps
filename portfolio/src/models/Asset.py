@@ -87,12 +87,10 @@ class Assets:
         return assets_by_symbol_and_exchange
 
 
-    def calculated_total_values(self, asset_prices_by_symbol: dict, vs_currency: str) -> dict:
-        # total_amount_by_symbol = self.total_amount_by_symbol
-        assets_by_exchange = self.assets_by_exchange
-
+    def calculated_total_values_by_symbol(self, asset_prices_by_symbol: dict, vs_currency: str) -> dict:
+        
         assets_total_value = {}
-        # by symbol
+        
         for asset_symbol in asset_prices_by_symbol.keys():
             asset_price = asset_prices_by_symbol[asset_symbol][vs_currency]
             asset_total_amount = sum([asset.amount for asset in self.assets_by_symbol[asset_symbol]])            
@@ -101,11 +99,17 @@ class Assets:
 
         assets_total_value["total_value"] = sum(assets_total_value.values())
 
-        # by exchange
-        for asset_exchange in assets_by_exchange.keys():
-            assets = assets_by_exchange[asset_exchange]
+        return assets_total_value
 
-            for asset in assets:
+
+    def calculated_total_values_by_exchange(self, asset_prices_by_symbol: dict, vs_currency: str) -> dict:
+        assets_by_exchange = self.assets_by_exchange
+
+        assets_total_value = {}
+
+        for asset_exchange in assets_by_exchange.keys():
+            
+            for asset in assets_by_exchange[asset_exchange]:
                 
                 asset_price = asset_prices_by_symbol[asset.symbol][vs_currency]
 
@@ -117,11 +121,11 @@ class Assets:
                     assets_total_value[asset_exchange] = {asset.symbol: asset_total_value}
 
         for asset_exchange in assets_by_exchange.keys():
-            assets = assets_by_exchange[asset_exchange]
-
             assets_total_value[asset_exchange]["total_value"] = sum(asset_total_value for asset_total_value in assets_total_value[asset_exchange].values())
-        
+            
 
+        assets_total_value["total_value"] = sum([exchange_assets["total_value"] for exchange_assets in assets_total_value.values()])
+        
         return assets_total_value
 
 
