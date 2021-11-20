@@ -3,3 +3,4 @@ black
 pycoingecko
 pylint
 python-dotenv
+python-kucoin

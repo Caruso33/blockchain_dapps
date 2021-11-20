@@ -78,12 +78,15 @@ pyopenssl==19.0.0
     # via binance-connector
 python-dotenv==0.19.2
     # via -r requirements.in
+python-kucoin==2.1.3
+    # via -r requirements.in
 regex==2021.11.10
     # via black
 requests==2.25.1
     # via
     #   binance-connector
     #   pycoingecko
+    #   python-kucoin
 service-identity==21.1.0
     # via binance-connector
 six==1.16.0
@@ -105,6 +108,8 @@ typing-extensions==3.10.0.2
     # via black
 urllib3==1.26.7
     # via requests
+websockets==10.1
+    # via python-kucoin
 wrapt==1.13.3
     # via astroid
 zope.interface==5.4.0
