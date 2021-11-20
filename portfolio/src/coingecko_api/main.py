@@ -20,9 +20,12 @@ def main(symbols: list[str], vs_currencies: Union[None, str]) -> dict:
 
     symbol_prices = get_prices(symbol_ids, vs_currencies)
 
-    prices = []
-    for symbol_id in symbol_ids:
-        prices.append(symbol_prices[symbol_id])
+    prices = {}
+    for symbol_i, symbol_id in enumerate(symbol_ids):
+        symbol = symbols[symbol_i]
+        price = symbol_prices[symbol_id]
+
+        prices[symbol] = price
 
     return prices
 
