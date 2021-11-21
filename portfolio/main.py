@@ -1,13 +1,15 @@
 from src.binance_api.main import main as get_binance_assets
+from src.kucoin_api.main import main as get_kucoin_assets
 from src.coingecko_api.main import main as get_prices
 from src.models import Assets
 
 if __name__ == "__main__":
     binance_assets = get_binance_assets()
+    kucoin_assets = get_kucoin_assets()
     # print(binance_assets)
 
     # combine all exchange holdings
-    assets = Assets([*binance_assets])
+    assets = Assets([*binance_assets, *kucoin_assets])
 
     asset_holdings = assets.assets_by_symbol_and_exchange
     asset_prices = get_prices(list(asset_holdings.keys()), "usd")

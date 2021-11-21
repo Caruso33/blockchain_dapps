@@ -1,2 +1,12 @@
+from .get_account_assets import get_account_assets
+
+def main():
+    assets = get_account_assets()
+
+    return assets
+
+
 if __name__ == '__main__':
-    print("HA")
+    assets = main()
+
+    print(assets)
