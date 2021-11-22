@@ -22,6 +22,10 @@ class Asset:
 
     asset_type: str = AssetType.cryptocurrency.value
 
+    @property
+    def is_crypto(self):
+        return self.asset_type == AssetType.cryptocurrency.value
+
     def serialize(self) -> dict:
         return asdict(self)
 
@@ -37,20 +41,20 @@ class Asset:
 
 @dataclass
 class Assets:
-    assets: list[Asset] = field(default_factory=list)
+    list: list[Asset] = field(default_factory=list)
 
     def get_assets_by_symbol(self, symbol: str) -> Asset:
-        return list(filter(lambda x: x.symbol == symbol, self.assets))
+        return list(filter(lambda x: x.symbol == symbol, self.list))
 
     @property
     def all_symbols_held(self):
-        return list(set([asset.symbol for asset in self.assets]))
+        return list(set([asset.symbol for asset in self.list]))
 
     @property
     def assets_by_symbol(self) -> list[Asset]:
         assets_by_symbol = {}
 
-        for asset in self.assets:
+        for asset in self.list:
             if asset.symbol not in assets_by_symbol:
                 assets_by_symbol[asset.symbol] = [asset]
             else:
@@ -62,7 +66,7 @@ class Assets:
     def assets_by_exchange(self) -> list[Asset]:
         assets_by_exchange = {}
 
-        for asset in self.assets:
+        for asset in self.list:
             if asset.exchange not in assets_by_exchange:
                 assets_by_exchange[asset.exchange] = [asset]
             else:
@@ -74,7 +78,7 @@ class Assets:
     def assets_by_symbol_and_exchange(self) -> list[Asset]:
         assets_by_symbol_and_exchange = {}
 
-        for asset in self.assets:
+        for asset in self.list:
             if asset.symbol not in assets_by_symbol_and_exchange:
                 assets_by_symbol_and_exchange[asset.symbol] = {asset.exchange: asset}
             else:
@@ -138,14 +142,14 @@ class Assets:
         return assets_total_value
 
     def ignore_symbols(self, ignored_symbols: list[str]) -> Assets:
-        self.assets = list(
-            filter(lambda asset: asset.symbol not in ignored_symbols, self.assets)
+        self.list = list(
+            filter(lambda asset: asset.symbol not in ignored_symbols, self.list)
         )
 
         return self
 
     def serialize(self) -> list[dict]:
-        return [asset.serialize() for asset in self.assets]
+        return [asset.serialize() for asset in self.list]
 
     @classmethod
     def deserialize(self, data: list[dict]) -> Assets:

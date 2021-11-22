@@ -1,58 +1,42 @@
-import os
 from typing import Union
+
+from ..models.Asset import AssetType, Assets
+
+from ..utils.get_cash_symbols import get_cash_symbols
 from .utils import get_coin_id
 from .coin_list import get_asset_list
 from .get_prices import get_prices
 
-def get_cash_symbols_against_usd() -> list:
-    
-    cash_symbols_against_usd = os.environ["cash_symbols_against_usd"]
-    cash_symbols_against_usd = cash_symbols_against_usd.split(",")
-    cash_symbols_against_usd = [
-        symbol_usd_value.split("=") for symbol_usd_value in cash_symbols_against_usd
-    ]
 
-    return cash_symbols_against_usd
-
-
-def main(symbols: list[str], vs_currencies: Union[None, str]) -> dict:
-    if not isinstance(symbols, list):
-        raise TypeError(f"Symbols must be a list, is {type(symbols)}")
-
-    cash_symbols_against_usd = get_cash_symbols_against_usd()
+def main(assets: Assets, vs_currencies: Union[None, str]) -> dict:
 
     asset_list = get_asset_list()
 
-    symbols_without_cash = [symbol for symbol in symbols if symbol not in [symbol_usd_value[0] for symbol_usd_value in cash_symbols_against_usd]]
+    symbol_ids = [
+        get_coin_id(
+            asset_list,
+            asset.symbol
+            if asset.is_crypto
+            else f"{asset.symbol}T",  # use tether for cash symbols
+        )
+        for asset in assets.list
+    ]
 
-    symbol_ids = [get_coin_id(asset_list, symbol) for symbol in symbols_without_cash]
-
-
-    if any(
-        [
-            id == -1
-            for i, id in enumerate(symbol_ids)
-        ]
-    ):
+    if any([id == -1 for i, id in enumerate(symbol_ids)]):
         idxs = [symbol_ids.index(id) for id in symbol_ids if id == -1]
 
         raise ValueError(
-            f"One or more symbols not found in asset list {[symbols[idx] for idx in idxs]}"
+            f"One or more symbols not found in asset list {[assets.list[idx] for idx in idxs]}"
         )
 
     symbol_prices = get_prices(symbol_ids, vs_currencies)
 
     prices = {}
     for symbol_i, symbol_id in enumerate(symbol_ids):
-        symbol = symbols[symbol_i]
+        asset = assets.list[symbol_i]
         price = symbol_prices[symbol_id]
 
-        prices[symbol] = price
-
-        if symbol == "USD":
-            prices[symbol] = {"usd": 1.0}
-        elif symbol == "EUR":
-            prices[symbol] = {"usd": float(os.environ["eurusd"])}
+        prices[asset.symbol] = price
 
     return prices
 

@@ -54,20 +54,10 @@ krakenex==2.1.0
     # via -r requirements.in
 lazy-object-proxy==1.6.0
     # via astroid
-lxml==4.6.4
-    # via yfinance
 mccabe==0.6.1
     # via pylint
-multitasking==0.0.10
-    # via yfinance
 mypy-extensions==0.4.3
     # via black
-numpy==1.21.4
-    # via
-    #   pandas
-    #   yfinance
-pandas==1.3.4
-    # via yfinance
 pathspec==0.9.0
     # via black
 platformdirs==2.4.0
@@ -88,14 +78,10 @@ pylint==2.11.1
     # via -r requirements.in
 pyopenssl==19.0.0
     # via binance-connector
-python-dateutil==2.8.2
-    # via pandas
 python-dotenv==0.19.2
     # via -r requirements.in
 python-kucoin==2.1.3
     # via -r requirements.in
-pytz==2021.3
-    # via pandas
 regex==2021.11.10
     # via black
 requests==2.25.1
@@ -104,14 +90,12 @@ requests==2.25.1
     #   krakenex
     #   pycoingecko
     #   python-kucoin
-    #   yfinance
 service-identity==21.1.0
     # via binance-connector
 six==1.16.0
     # via
     #   automat
     #   pyopenssl
-    #   python-dateutil
     #   service-identity
 toml==0.10.2
     # via pylint
@@ -131,8 +115,6 @@ websockets==10.1
     # via python-kucoin
 wrapt==1.13.3
     # via astroid
-yfinance==0.1.67
-    # via -r requirements.in
 zope.interface==5.4.0
     # via twisted
 

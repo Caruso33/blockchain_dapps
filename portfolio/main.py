@@ -18,11 +18,8 @@ if __name__ == "__main__":
     ignored_symbols = os.environ["ignored_symbols"].split(",")
     assets = assets.ignore_symbols(ignored_symbols)
 
-    asset_holdings = assets.assets_by_symbol_and_exchange
-
-    asset_prices = get_prices(list(asset_holdings.keys()), "usd")
-    print(asset_prices)
-
+    asset_prices = get_prices(assets, "usd")
+    
     asset_total_value_by_symbol = assets.calculated_total_values_by_symbol(
         asset_prices, "usd"
     )
