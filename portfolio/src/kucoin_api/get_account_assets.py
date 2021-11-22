@@ -10,19 +10,23 @@ dotenv.load_dotenv()
 
 def get_account_assets():
 
-    client = Client( os.environ["kucoin_key"], os.environ["kucoin_secret"], os.environ["kucoin_passphrase"] )
+    client = Client(
+        os.environ["kucoin_key"],
+        os.environ["kucoin_secret"],
+        os.environ["kucoin_passphrase"],
+    )
 
     balances = client.get_accounts()
-    
+
     assets = []
     for balance in balances:
         symbol = balance["currency"]
-        amount = float(balance["balance"]) 
-        exchange="kucoin"
+        amount = float(balance["balance"])
+        exchange = "kucoin"
 
         asset = Asset(symbol=symbol, amount=amount, exchange=exchange)
 
-        if int(asset.amount * 1e18) > 0:
+        if int(amount * 1e18) > 0:
             assets.append(asset)
 
     return assets

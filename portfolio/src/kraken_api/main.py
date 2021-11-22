@@ -1,7 +1,8 @@
-from .get_account_assets import get_account_assets
+from .account import get_account_assets
 
 
 def main():
+
     assets = get_account_assets()
 
     return assets

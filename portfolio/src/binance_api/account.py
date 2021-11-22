@@ -26,11 +26,13 @@ def get_account_assets():
 
         asset = Asset(symbol=symbol, amount=amount, exchange=exchange)
 
-        if int(asset.amount * 1e18) > 0:
+        if int(amount * 1e18) > 0:
             assets.append(asset)
 
     return assets
 
 
 if __name__ == "__main__":
-    get_account_assets()
+    assets = get_account_assets()
+
+    print(assets)

@@ -1,6 +1,8 @@
 binance-connector
 black
+krakenex
 pycoingecko
 pylint
 python-dotenv
 python-kucoin
+yfinance
