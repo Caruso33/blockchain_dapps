@@ -3,6 +3,7 @@ import os
 from src.binance_api.main import main as get_binance_assets
 from src.kucoin_api.main import main as get_kucoin_assets
 from src.kraken_api.main import main as get_kraken_assets
+from src.coinbase_api.main import main as get_coinbase_assets
 from src.coingecko_api.main import main as get_prices
 from src.models import Assets
 
@@ -10,8 +11,9 @@ if __name__ == "__main__":
     binance_assets = get_binance_assets()
     kucoin_assets = get_kucoin_assets()
     kraken_assets = get_kraken_assets()
+    coinbase_assets = get_coinbase_assets()
 
-    total_assets = [*binance_assets, *kucoin_assets, *kraken_assets]
+    total_assets = [*binance_assets, *kucoin_assets, *kraken_assets, *coinbase_assets]
 
     assets = Assets(total_assets)
 
@@ -19,7 +21,7 @@ if __name__ == "__main__":
     assets = assets.ignore_symbols(ignored_symbols)
 
     asset_prices = get_prices(assets, "usd")
-    
+
     asset_total_value_by_symbol = assets.calculated_total_values_by_symbol(
         asset_prices, "usd"
     )

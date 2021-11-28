@@ -1,5 +1,6 @@
 binance-connector
 black
+coinbase
 krakenex
 pycoingecko
 pylint

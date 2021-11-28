@@ -27,6 +27,8 @@ chardet==4.0.0
     # via requests
 click==8.0.3
     # via black
+coinbase==2.1.0
+    # via -r requirements.in
 colorama==0.4.4
     # via
     #   click
@@ -74,6 +76,8 @@ pycoingecko==2.2.0
     # via -r requirements.in
 pycparser==2.21
     # via cffi
+pycryptodome==3.11.0
+    # via coinbase
 pylint==2.11.1
     # via -r requirements.in
 pyopenssl==19.0.0
@@ -87,6 +91,7 @@ regex==2021.11.10
 requests==2.25.1
     # via
     #   binance-connector
+    #   coinbase
     #   krakenex
     #   pycoingecko
     #   python-kucoin
@@ -95,6 +100,7 @@ service-identity==21.1.0
 six==1.16.0
     # via
     #   automat
+    #   coinbase
     #   pyopenssl
     #   service-identity
 toml==0.10.2
