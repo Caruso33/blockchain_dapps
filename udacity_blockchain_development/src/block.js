@@ -40,33 +40,22 @@ class Block {
     return new Promise((resolve, _reject) => {
       // Save in auxiliary variable the current block hash
       const currentBlockHash = self.hash
+
       // Recalculate the hash of the Block
+      self.hash = SHA256(JSON.stringify({ ...self, hash: null })).toString()
+
       // Comparing if the hashes changed
+      const isSameHash = currentBlockHash === self.hash
       // Returning the Block is not valid
-      const newBlockHash = SHA256(
-        JSON.stringify(
-          self.height + self.body + self.time + self.previousBlockHash
-        )
-      ).toString()
-
-      if (currentBlockHash !== newBlockHash) {
-        console.log(
-          "block.js validate: Current Block Hash " +
-            currentBlockHash +
-            " != New Block Hash " +
-            newBlockHash
-        )
-        resolve(false)
-      }
-
       // Returning the Block is valid
       console.log(
-        "block.js validate: Current Block Hash " +
-          currentBlockHash +
-          " == New Block Hash " +
-          newBlockHash
+        `block.js ${
+          isSameHash ? "valid" : "invalid"
+        }: Current Block Hash, Current Block Hash${currentBlockHash}, New Block Hash ${
+          self.hash
+        }`
       )
-      resolve(true)
+      return resolve(isSameHash)
     })
   }
 
