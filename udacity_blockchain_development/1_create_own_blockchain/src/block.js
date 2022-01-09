@@ -51,7 +51,7 @@ class Block {
       console.log(
         `block.js ${
           isSameHash ? "valid" : "invalid"
-        }: Current Block Hash, Current Block Hash${currentBlockHash}, New Block Hash ${
+        }: Current Block Hash, Current Block Hash ${currentBlockHash}, New Block Hash ${
           self.hash
         }`
       )

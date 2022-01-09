@@ -65,23 +65,24 @@ class Blockchain {
     const self = this
 
     return new Promise(async (resolve, reject) => {
-      const errorLog = await self.validateChain()
-      if (errorLog.length > 0) {
-        return reject(errorLog)
-      }
-
-      block.height = self.height + 1
-
       block.time = new Date().getTime().toString().slice(0, -3)
 
       // genesis block otherwise assign hash
-      block.previousBlockHash = self.height == -1 ? null : this.hash
+      block.previousBlockHash =
+        self.height == -1 ? null : self.chain[self.height].hash
+
+      self.height += 1
+      block.height = self.height
 
       block.hash = SHA256(JSON.stringify(block)).toString()
 
       self.chain.push(block)
 
-      this.height += 1
+      const errorLog = await self.validateChain()
+      if (errorLog.length > 0) {
+        self.chain.pop()
+        return reject(errorLog)
+      }
 
       console.log("blockchain.js _addBlock: ", block)
 
@@ -202,7 +203,8 @@ class Blockchain {
   getBlockByHeight(height) {
     const self = this
     return new Promise((resolve, _reject) => {
-      let block = self.chain.filter((block) => block.height === height)[0]
+      const block = self.chain.filter((block) => block.height === height)[0]
+
       if (block) {
         resolve(block)
       } else {
@@ -219,11 +221,9 @@ class Blockchain {
    */
   getStarsByWalletAddress(address) {
     const self = this
-    const stars = []
 
-    return new Promise((resolve, _reject) => {
-      self.chain.forEach(async (block) => {
-        console.log("1")
+    const promisedStars = self.chain.map(async (block) => {
+      return new Promise(async (resolve, _reject) => {
         try {
           const blockData = await block.getBData()
 
@@ -231,13 +231,17 @@ class Blockchain {
             `blockchain.js getStarsByWalletAddress blockData: ${blockData}`
           )
 
-          if (blockData.address === address) stars.push(blockData)
+          if (blockData.address === address) resolve(blockData)
+          else resolve(null)
         } catch (error) {
           console.error(`blockchain.js getStarsByWalletAddress: ${error}`)
+          resolve(null)
         }
       })
+    })
 
-      resolve(stars)
+    return Promise.all(promisedStars).then((stars) => {
+      return stars.filter((star) => star !== null)
     })
   }
 
@@ -249,14 +253,17 @@ class Blockchain {
    */
   validateChain() {
     const self = this
-    const errorLog = []
+    const promisedErrorLogs = self.chain.map((block) => {
+      return new Promise(async (resolve, _reject) => {
+        const isValid = await block.validate()
 
-    return new Promise(async (resolve, _reject) => {
-      self.chain.forEach((block) => {
-        if (!block.validate()) errorLog.push(block)
+        if (!isValid) resolve(block)
+        else resolve(null)
       })
+    })
 
-      resolve(errorLog)
+    return Promise.all(promisedErrorLogs).then((errorLogs) => {
+      return errorLogs.filter((errorLog) => errorLog !== null)
     })
   }
 }

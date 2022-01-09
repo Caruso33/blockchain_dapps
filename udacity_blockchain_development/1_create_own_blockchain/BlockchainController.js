@@ -127,13 +127,13 @@ class BlockchainController {
 
   // this endpoint allows you to get the list of blocks in the blockchain
   validateChain() {
-    this.app.get("/validatechain", async (req, res) => {
-      const errorLog = await this.blockchain.validateChain()
+    this.app.get("/validatechain", async (_req, res) => {
+      try {
+        const errorLog = await this.blockchain.validateChain()
 
-      if (errorLog) {
         return res.status(200).json(errorLog)
-      } else {
-        return res.status(500).send("An error happened!")
+      } catch (error) {
+        return res.status(500).send(`An error happened! ${error}`)
       }
     })
   }
