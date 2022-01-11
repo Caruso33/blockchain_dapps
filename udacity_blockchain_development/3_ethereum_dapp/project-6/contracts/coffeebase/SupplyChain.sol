@@ -4,16 +4,18 @@ import "../coffeeaccesscontrol/ConsumerRole.sol";
 import "../coffeeaccesscontrol/DistributorRole.sol";
 import "../coffeeaccesscontrol/FarmerRole.sol";
 import "../coffeeaccesscontrol/RetailerRole.sol";
+import "../coffeecore/Ownable.sol";
 
 // Define a contract 'Supplychain'
 contract SupplyChain is
     ConsumerRole,
     RetailerRole,
     DistributorRole,
-    FarmerRole
+    FarmerRole,
+    Ownable
 {
     // Define 'owner'
-    address owner;
+    // address owner; // defined in Ownable.sol
 
     // Define a variable called 'upc' for Universal Product Code (UPC)
     uint256 upc;
@@ -72,10 +74,11 @@ contract SupplyChain is
     event Purchased(uint256 upc);
 
     // Define a modifer that checks to see if msg.sender == owner of the contract
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
+    // not needed because of Ownable.sol
+    // modifier onlyOwner() {
+    //     require(msg.sender == owner);
+    //     _;
+    // }
 
     // Define a modifer that verifies the Caller
     modifier verifyCaller(address _address) {
@@ -149,17 +152,18 @@ contract SupplyChain is
     // and set 'sku' to 1
     // and set 'upc' to 1
     constructor() public payable {
-        owner = msg.sender;
+        // owner = msg.sender; // defined in Ownable.sol
         sku = 1;
         upc = 1;
     }
 
     // Define a function 'kill' if required
-    function kill() public {
-        if (msg.sender == owner) {
-            selfdestruct(owner);
-        }
-    }
+    // can be transfered through Ownable.sol
+    // function kill() public {
+    //     if (msg.sender == owner) {
+    //         selfdestruct(owner);
+    //     }
+    // }
 
     // Define a function 'harvestItem' that allows a farmer to mark an item 'Harvested'
     function harvestItem(
@@ -233,6 +237,7 @@ contract SupplyChain is
     {
         // Update the appropriate fields
         items[_upc].itemState = State.ForSale;
+        items[_upc].productPrice = _price;
         // Emit the appropriate event
         emit ForSale(_upc);
     }
