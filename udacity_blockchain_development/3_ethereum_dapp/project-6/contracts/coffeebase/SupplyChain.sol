@@ -173,6 +173,7 @@ contract SupplyChain is
         string _originFarmInformation,
         string _originFarmLatitude,
         string _originFarmLongitude,
+        uint256 _productID,
         string _productNotes
     ) public {
         // Add the new item as part of Harvest
@@ -185,7 +186,7 @@ contract SupplyChain is
             _originFarmInformation,
             _originFarmLatitude,
             _originFarmLongitude,
-            upc,
+            _productID,
             _productNotes,
             0,
             defaultState,
@@ -272,7 +273,8 @@ contract SupplyChain is
         // Call modifier to check if upc has passed previous supply chain stage
         sold(_upc)
         // Call modifier to verify caller of this function
-        verifyCaller(items[_upc].originFarmerID)
+        verifyCaller(items[_upc].distributorID)
+        onlyDistributor
     {
         // Update the appropriate fields
         items[_upc].itemState = State.Shipped;
