@@ -37,7 +37,7 @@ App = {
     App.distributorID = $("#distributorID").val()
     App.retailerID = $("#retailerID").val()
     App.consumerID = $("#consumerID").val()
-    App.transferPrice = $("#transferPrice").val()
+    App.purchasePrice = $("#purchasePrice").val()
   },
 
   initWeb3: async function() {
@@ -78,6 +78,7 @@ App = {
         console.log("Error:", err)
         return
       }
+
       console.log("getMetaskID:", res)
       App.metamaskAccountID = res[0]
     })
@@ -111,46 +112,49 @@ App = {
   handleButtonClick: async function(event) {
     event.preventDefault()
 
+    var processId = parseInt($(event.target).data("id"))
+
+    if (!processId) return
+
     App.getMetaskAccountID()
 
-    var processId = parseInt($(event.target).data("id"))
     console.log("processId", processId)
 
     switch (processId) {
       case 1:
         return await App.harvestItem(event)
-        break
       case 2:
         return await App.processItem(event)
-        break
       case 3:
         return await App.packItem(event)
-        break
       case 4:
         return await App.sellItem(event)
-        break
       case 5:
         return await App.buyItem(event)
-        break
       case 6:
         return await App.shipItem(event)
-        break
       case 7:
         return await App.receiveItem(event)
-        break
       case 8:
         return await App.purchaseItem(event)
-        break
       case 9:
         return await App.fetchItemBufferOne(event)
-        break
       case 10:
         return await App.fetchItemBufferTwo(event)
-        break
+      case 11:
+        return await App.addFarmer(event)
+      case 12:
+        return await App.addDistributor(event)
+      case 13:
+        return await App.addRetailer(event)
+      case 14:
+        return await App.addConsumer(event)
     }
   },
 
   addFarmer: function(event) {
+    event.preventDefault()
+
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
         const farmerID = $("#originFarmerID").val()
@@ -160,13 +164,17 @@ App = {
         })
       })
       .then(function(result) {
+        $("#ftc-item").text(result)
         console.log("farmer added", result)
       })
       .catch(function(err) {
         console.log(err.message)
       })
   },
+
   addDistributor: function(event) {
+    event.preventDefault()
+
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
         const distributorID = $("#distributorID").val()
@@ -176,6 +184,7 @@ App = {
         })
       })
       .then(function(result) {
+        $("#ftc-item").text(result)
         console.log("distributor added", result)
       })
       .catch(function(err) {
@@ -183,6 +192,8 @@ App = {
       })
   },
   addRetailer: function(event) {
+    event.preventDefault()
+
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
         const retailerID = $("#retailerID").val()
@@ -192,13 +203,17 @@ App = {
         })
       })
       .then(function(result) {
+        $("#ftc-item").text(result)
         console.log("retailer added", result)
       })
       .catch(function(err) {
         console.log(err.message)
       })
   },
+
   addConsumer: function(event) {
+    event.preventDefault()
+
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
         const consumerID = $("#consumerID").val()
@@ -208,6 +223,7 @@ App = {
         })
       })
       .then(function(result) {
+        $("#ftc-item").text(result)
         console.log("consumer added", result)
       })
       .catch(function(err) {
@@ -217,8 +233,6 @@ App = {
 
   harvestItem: function(event) {
     event.preventDefault()
-
-    App.addFarmer()
 
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
@@ -304,11 +318,9 @@ App = {
 
     App.readForm()
 
-    App.addDistributor()
-
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
-        const walletValue = web3.toWei(App.transferPrice, "ether")
+        const walletValue = web3.toWei(App.purchasePrice, "ether")
 
         return instance.buyItem(App.upc, {
           from: App.metamaskAccountID,
@@ -347,8 +359,6 @@ App = {
 
     App.readForm()
 
-    App.addRetailer()
-
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
         return instance.receiveItem(App.upc, { from: App.metamaskAccountID })
@@ -366,8 +376,6 @@ App = {
     event.preventDefault()
 
     App.readForm()
-
-    App.addConsumer()
 
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
@@ -400,9 +408,6 @@ App = {
   },
 
   fetchItemBufferTwo: function() {
-    ///    event.preventDefault();
-    ///    var processId = parseInt($(event.target).data('id'));
-
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
         return instance.fetchItemBufferTwo.call(App.upc)
@@ -431,6 +436,8 @@ App = {
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
         var events = instance.allEvents(function(err, log) {
+          console.loglog(log, err)
+
           if (!err)
             $("#ftc-events").append(
               "<li>" + log.event + " - " + log.transactionHash + "</li>"

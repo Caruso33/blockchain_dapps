@@ -41,7 +41,7 @@
           type="text"
           id="ownerID"
           name="ownerID"
-          value="0x963865f57804b38459dd4b2da2f760211a200438"
+          value="0x27D8D15CbC94527cAdf5eC14B69519aE23288B95"
           size="50"
         /><br />
         <div class="button-div">
@@ -56,7 +56,7 @@
 
       <div class="form-break"></div>
 
-      <h2>Farm Details</h2>
+      <h2>Role Management</h2>
       <div class="form-group">
         Farmer ID
         <br />
@@ -64,10 +64,71 @@
           type="text"
           id="originFarmerID"
           name="originFarmerID"
-          value="0x27D8D15CbC94527cAdf5eC14B69519aE23288B95"
+          value="0x018C2daBef4904ECbd7118350A0c54DbeaE3549A"
           size="50"
         /><br />
-        Farm Name
+        <button class="btn-addFarmer" id="button" type="button" data-id="11">
+          Add Farmer
+        </button>
+
+        <br />
+        <br />
+
+        Distributor ID
+        <br />
+        <input
+          type="text"
+          id="distributorID"
+          name="distributorID"
+          value="0xCe5144391B4aB80668965F2Cc4f2CC102380Ef0A"
+          size="50"
+        />
+        <button
+          class="btn-addDistributor"
+          id="button"
+          type="button"
+          data-id="12"
+        >
+          Add Distributor
+        </button>
+
+        <br />
+        <br />
+
+        Retailer ID
+        <br />
+        <input
+          type="text"
+          id="retailerID"
+          name="retailerID"
+          value="0x460c31107DD048e34971E57DA2F99f659Add4f02"
+          size="50"
+        />
+        <button class="btn-addRetailer" id="button" type="button" data-id="13">
+          Add Retailer
+        </button>
+
+        <br />
+        <br />
+
+        Consumer ID
+        <br />
+        <input
+          type="text"
+          id="consumerID"
+          name="consumerID"
+          value="0xD37b7B8C62BE2fdDe8dAa9816483AeBDBd356088"
+          size="50"
+        />
+        <button class="btn-addConsumer" id="button" type="button" data-id="14">
+          Add Consumer
+        </button>
+        <br />
+      </div>
+
+      <h2>Product Details</h2>
+      <div class="form-group">
+        Farmer Name
         <br />
         <input
           type="text"
@@ -75,6 +136,7 @@
           name="originFarmName"
           value="John Doe"
         /><br />
+
         Farm Information
         <br />
         <input
@@ -83,6 +145,7 @@
           name="originFarmInformation"
           value="Yarra Valley"
         /><br />
+
         Farm Latitude
         <br />
         <input
@@ -91,6 +154,7 @@
           name="originFarmLatitude"
           value="-38.239770"
         /><br />
+
         Farm Longitude
         <br />
         <input
@@ -99,31 +163,7 @@
           name="originFarmLongitude"
           value="144.341490"
         /><br />
-        Product Price
-        <br />
-        <input
-          type="number"
-          id="productPrice"
-          name="productPrice"
-          value="1"
-        />ETH<br />
-        <br />
-        <button class="btn-harvest" id="button" type="button" data-id="1">
-          Harvest
-        </button>
-        <button class="btn-process" id="button" type="button" data-id="2">
-          Process
-        </button>
-        <button class="btn-pack" id="button" type="button" data-id="3">
-          Pack
-        </button>
-        <button class="btn-forsale" id="button" type="button" data-id="4">
-          ForSale
-        </button>
-      </div>
-      <div class="form-break"></div>
-      <h2>Product Details</h2>
-      <div class="form-group">
+
         Product Notes
         <br />
         <input
@@ -133,52 +173,62 @@
           value="Best beans for Espresso"
           size="60"
         /><br />
-        Distributor ID
+
+        <h3>Farmer Actions</h3>
+        <button class="btn-harvest" id="button" type="button" data-id="1">
+          Harvest
+        </button>
+
+        <button class="btn-process" id="button" type="button" data-id="2">
+          Process
+        </button>
+
+        <button class="btn-pack" id="button" type="button" data-id="3">
+          Pack
+        </button>
+
         <br />
-        <input
-          type="text"
-          id="distributorID"
-          name="distributorID"
-          value="0x018C2daBef4904ECbd7118350A0c54DbeaE3549A"
-          size="50"
-        />
         <br />
-        Retailer ID
-        <br />
-        <input
-          type="text"
-          id="retailerID"
-          name="retailerID"
-          value="0xCe5144391B4aB80668965F2Cc4f2CC102380Ef0A"
-          size="50"
-        /><br />
-        Distributor ID
-        <br />
-        <input
-          type="text"
-          id="consumerID"
-          name="consumerID"
-          value="0x460c31107DD048e34971E57DA2F99f659Add4f02"
-          size="50"
-        /><br />
-        Transfer Price
+
+        Product Price
+        <input type="number" id="productPrice" name="productPrice" value="1" />
+        ETH<br />
+
+        <button class="btn-forsale" id="button" type="button" data-id="4">
+          ForSale
+        </button>
+
+        <h3>Distributor Actions</h3>
+        Purchase Price
         <br />
         <input
           type="number"
-          id="transferPrice"
-          name="transferPrice"
+          id="purchasePrice"
+          name="purchasePrice"
           value="1"
-        />ETH<br />
+        />
+        ETH
         <br />
+
         <button class="btn-buy" id="button" type="button" data-id="5">
           Buy
         </button>
         <button class="btn-ship" id="button" type="button" data-id="6">
           Ship
         </button>
+
+        <br />
+        <br />
+
+        <h3>Retailer Actions</h3>
         <button class="btn-receive" id="button" type="button" data-id="7">
           Receive
         </button>
+
+        <br />
+        <br />
+
+        <h3>Consumer Actions</h3>
         <button class="btn-purchase" id="button" type="button" data-id="8">
           Purchase
         </button>
