@@ -64,8 +64,8 @@ contract("SupplyChain", function(accounts) {
     truffleAssert.eventEmitted(event, "Harvested")
 
     // Retrieve the just now saved item from blockchain by calling function fetchItem()
-    const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
-    const resultBufferTwo = await supplyChain.fetchItemBufferTwo.call(upc)
+    const resultBufferOne = await supplyChain.fetchItemBufferOne(upc)
+    const resultBufferTwo = await supplyChain.fetchItemBufferTwo(upc)
 
     // Verify the result set
     assert.equal(resultBufferOne[0], sku, "Error: Invalid item SKU")

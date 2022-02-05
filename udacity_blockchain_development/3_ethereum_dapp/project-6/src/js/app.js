@@ -157,9 +157,10 @@ App = {
 
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
+        console.log({ instance })
         const farmerID = $("#originFarmerID").val()
         console.log("farmerID", farmerID)
-        return instance.addFarmer.call(farmerID, {
+        return instance.addFarmer(farmerID, {
           from: App.metamaskAccountID,
         })
       })
@@ -179,7 +180,7 @@ App = {
       .then(function(instance) {
         const distributorID = $("#distributorID").val()
         console.log("distributorID", distributorID)
-        return instance.addDistributor.call(distributorID, {
+        return instance.addDistributor(distributorID, {
           from: App.metamaskAccountID,
         })
       })
@@ -198,7 +199,7 @@ App = {
       .then(function(instance) {
         const retailerID = $("#retailerID").val()
         console.log("retailerID", retailerID)
-        return instance.addRetailer.call(retailerID, {
+        return instance.addRetailer(retailerID, {
           from: App.metamaskAccountID,
         })
       })
@@ -218,7 +219,7 @@ App = {
       .then(function(instance) {
         const consumerID = $("#consumerID").val()
         console.log("consumerID", consumerID)
-        return instance.addConsumer.call(consumerID, {
+        return instance.addConsumer(consumerID, {
           from: App.metamaskAccountID,
         })
       })
@@ -243,7 +244,8 @@ App = {
           App.originFarmInformation,
           App.originFarmLatitude,
           App.originFarmLongitude,
-          App.productNotes
+          App.productNotes,
+          { from: App.metamaskAccountID }
         )
       })
       .then(function(result) {
@@ -435,14 +437,18 @@ App = {
 
     App.contracts.SupplyChain.deployed()
       .then(function(instance) {
-        var events = instance.allEvents(function(err, log) {
-          console.loglog(log, err)
-
-          if (!err)
-            $("#ftc-events").append(
-              "<li>" + log.event + " - " + log.transactionHash + "</li>"
-            )
-        })
+        instance.allEvents(
+          {
+            fromBlock: 0,
+            toBlock: "latest",
+          },
+          function(err, log) {
+            if (!err)
+              $("#ftc-events").append(
+                "<li>" + log.event + " - " + log.transactionHash + "</li>"
+              )
+          }
+        )
       })
       .catch(function(err) {
         console.log(err.message)
