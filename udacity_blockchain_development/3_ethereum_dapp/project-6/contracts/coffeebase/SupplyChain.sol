@@ -173,9 +173,12 @@ contract SupplyChain is
         string _originFarmInformation,
         string _originFarmLatitude,
         string _originFarmLongitude,
-        uint256 _productID,
         string _productNotes
-    ) public {
+    )
+        public
+        // Access Control List enforced by calling Smart Contract / DApp
+        onlyFarmer
+    {
         // Add the new item as part of Harvest
         items[_upc] = Item(
             sku,
@@ -186,7 +189,7 @@ contract SupplyChain is
             _originFarmInformation,
             _originFarmLatitude,
             _originFarmLongitude,
-            _productID,
+            _upc + sku,
             _productNotes,
             0,
             defaultState,
@@ -243,7 +246,7 @@ contract SupplyChain is
         emit ForSale(_upc);
     }
 
-    // Define a function 'buyItem' that allows the disributor to mark an item 'Sold'
+    // Define a function 'buyItem' that allows the distributor to mark an item 'Sold'
     // Use the above defined modifiers to check if the item is available for sale, if the buyer has paid enough,
     // and any excess ether sent is refunded back to the buyer
     function buyItem(uint256 _upc)
@@ -252,9 +255,11 @@ contract SupplyChain is
         // Call modifier to check if upc has passed previous supply chain stage
         forSale(_upc)
         // Call modifer to check if buyer has paid enough
-        paidEnough(msg.value)
+        paidEnough(items[_upc].productPrice)
         // Call modifer to send any excess ether back to buyer
         checkValue(_upc)
+        // Access Control List enforced by calling Smart Contract / DApp
+        onlyDistributor
     {
         // Update the appropriate fields - ownerID, distributorID, itemState
         items[_upc].ownerID = msg.sender;
@@ -274,7 +279,6 @@ contract SupplyChain is
         sold(_upc)
         // Call modifier to verify caller of this function
         verifyCaller(items[_upc].distributorID)
-        onlyDistributor
     {
         // Update the appropriate fields
         items[_upc].itemState = State.Shipped;
