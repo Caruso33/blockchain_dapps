@@ -25,7 +25,9 @@ contract FlightSuretyData {
         uint256 votes;
     }
 
-    uint256 activeAirlineCount = 0;
+    uint256 registeredAirlineCount = 0; // Number of airlines registered
+    uint256 activeAirlineCount = 0; // Number of airlines registered and active
+    uint256 airlineCount = 0; // Number of airlines registered
     mapping(address => Airline) airlines;
     mapping(address => mapping(address => bool)) airlineRegistrationVotes;
 
@@ -33,9 +35,14 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
-    event AirlineRegistered(address newAirline, string name);
-    event AirlineRegistrationVoted(address newAirline, address voter);
-    event AuthorizedAirline(address airline, string name);
+    event AirlineCreated(address airlineAddress, string airlineName);
+    event AirlineRegistered(address airlineAddress, string airlineName);
+    event AirlineRegistrationVoted(
+        address airlineAddress,
+        string airlineName,
+        address voter
+    );
+    event AirlineAuthorized(address airlineAddress, string airlineName);
 
     /**
      * @dev Constructor
@@ -72,15 +79,15 @@ contract FlightSuretyData {
         _;
     }
 
-    // modifier requireAirlineAuthorized () {
-    //     require(, "Airline is not authorized");
-    //     _;
-    // }
+    modifier requireAirlineAuthorized() {
+        require(airlines[msg.sender].isActive, "Airline is not authorized");
+        _;
+    }
 
     /**
      * @dev Modifier that requires the sender account to be one of the authorized accounts
      */
-    modifier isCallerAuthorized() {
+    modifier requireCallerAuthorized() {
         require(authorizedContracts[msg.sender], "Caller is not authorized");
         _;
     }
@@ -107,21 +114,21 @@ contract FlightSuretyData {
         operational = mode;
     }
 
-    function isAirlineRegistered(address potentialAirlineAddress)
+    function isAirlineRegistered(address airlineAddress)
         external
         view
         returns (bool)
     {
-        Airline memory airline = airlines[potentialAirlineAddress];
-        return airline.isRegistered && airline.isActive;
+        Airline memory airline = airlines[airlineAddress];
+        return airline.isRegistered;
     }
 
-    function isAirlineActive(address potentialAirlineAddress)
+    function isAirlineActive(address airlineAddress)
         external
         view
         returns (bool)
     {
-        Airline memory airline = airlines[potentialAirlineAddress];
+        Airline memory airline = airlines[airlineAddress];
         return airline.isRegistered && airline.isActive;
     }
 
@@ -135,7 +142,7 @@ contract FlightSuretyData {
     {
         authorizedContracts[contractAddress] = true;
         if (!authorizedContracts[contractAddress]) {
-            authorizedContractCount.add(1);
+            authorizedContractCount = authorizedContractCount.add(1);
         }
     }
 
@@ -163,43 +170,72 @@ contract FlightSuretyData {
      *      Can only be called from FlightSuretyApp contract
      *
      */
-    function registerAirline(string name, address newAirlineAccount)
+    function createAirline(string airlineName, address airlineAddress)
         external
         requireIsOperational
-        isCallerAuthorized
+        requireCallerAuthorized
     {
         require(
-            !airlines[newAirlineAccount].isRegistered,
+            airlines[airlineAddress].account == address(0),
+            "Airline already exists"
+        );
+
+        // the first 3 airlines are registered automatically
+        // after that, the voting mechanism decides which additional airline gets registered
+        bool isRegistered = registeredAirlineCount < 3 ? true : false;
+
+        Airline memory newAirline = Airline({
+            name: airlineName,
+            account: airlineAddress,
+            isRegistered: isRegistered,
+            isActive: false,
+            votes: 0
+        });
+
+        airlines[airlineAddress] = newAirline;
+
+        emit AirlineCreated(airlineAddress, airlineName);
+
+        if (isRegistered) {
+            registeredAirlineCount = registeredAirlineCount.add(1);
+            emit AirlineRegistered(airlineAddress, airlineName);
+        }
+    }
+
+    function voteForAirline(address airlineAddress)
+        external
+        requireAirlineAuthorized
+    {
+        require(
+            !airlines[airlineAddress].isRegistered,
             "Airline is already registered"
         );
         require(
-            !airlineRegistrationVotes[newAirlineAccount][msg.sender],
-            "Airline has already been voted for"
+            !airlineRegistrationVotes[airlineAddress][msg.sender],
+            "Airline has already been voted for by sender"
         );
 
-        airlineRegistrationVotes[newAirlineAccount][msg.sender] = true;
+        airlineRegistrationVotes[airlineAddress][msg.sender] = true;
 
-        // airline is not yet instantiated
-        if (airlines[newAirlineAccount].votes == 0) {
-            // the first 3 airlines are registered automatically
-            // after that, the voting mechanism decides which additional airline gets registered
-            bool isRegistered = activeAirlineCount < 4 ? true : false;
+        airlines[airlineAddress].votes = airlines[airlineAddress].votes.add(1);
 
-            Airline memory newAirline = Airline({
-                name: name,
-                account: newAirlineAccount,
-                isRegistered: isRegistered,
-                isActive: false,
-                votes: 0
-            });
+        emit AirlineRegistrationVoted(
+            airlineAddress,
+            airlines[airlineAddress].name,
+            msg.sender
+        );
 
-            airlines[newAirlineAccount] = newAirline;
+        // register if at least half or more authorizedContracts voted for the airline
+        if (airlines[airlineAddress].votes * 2 > registeredAirlineCount) {
+            airlines[airlineAddress].isRegistered = true;
 
-            emit AirlineRegistered(newAirlineAccount, name);
+            registeredAirlineCount = registeredAirlineCount.add(1);
+
+            emit AirlineRegistered(
+                airlineAddress,
+                airlines[airlineAddress].name
+            );
         }
-
-        airlines[newAirlineAccount].votes.add(1);
-        emit AirlineRegistrationVoted(newAirlineAccount, msg.sender);
     }
 
     /**
