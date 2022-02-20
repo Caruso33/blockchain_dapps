@@ -1,6 +1,7 @@
 pragma solidity ^0.4.25;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 // import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.0.1/contracts/math/SafeMath.sol";
 
 contract FlightSuretyData {
@@ -12,6 +13,8 @@ contract FlightSuretyData {
 
     address private contractOwner; // Account used to deploy contract
     bool private operational = true; // Blocks all state changes throughout the contract if false
+
+    uint256 authorizedContractCount = 0; // Number of contracts authorized to operate the contract
     mapping(address => bool) private authorizedContracts;
 
     struct Airline {
@@ -22,7 +25,7 @@ contract FlightSuretyData {
         uint256 votes;
     }
 
-    uint256 airlineCount = 0;
+    uint256 activeAirlineCount = 0;
     mapping(address => Airline) airlines;
     mapping(address => mapping(address => bool)) airlineRegistrationVotes;
 
@@ -104,6 +107,53 @@ contract FlightSuretyData {
         operational = mode;
     }
 
+    function isAirlineRegistered(address potentialAirlineAddress)
+        external
+        view
+        returns (bool)
+    {
+        Airline memory airline = airlines[potentialAirlineAddress];
+        return airline.isRegistered && airline.isActive;
+    }
+
+    function isAirlineActive(address potentialAirlineAddress)
+        external
+        view
+        returns (bool)
+    {
+        Airline memory airline = airlines[potentialAirlineAddress];
+        return airline.isRegistered && airline.isActive;
+    }
+
+    /********************************************************************************************/
+    /*                                     CALLER ACCESS MANAGEMENT                             */
+    /********************************************************************************************/
+
+    function authorizeCaller(address contractAddress)
+        external
+        requireContractOwner
+    {
+        authorizedContracts[contractAddress] = true;
+        if (!authorizedContracts[contractAddress]) {
+            authorizedContractCount.add(1);
+        }
+    }
+
+    function deauthorizeCaller(address contractAddress)
+        external
+        requireContractOwner
+    {
+        delete authorizedContracts[contractAddress];
+    }
+
+    function isAuthorizedCaller(address contractAddress)
+        external
+        view
+        returns (bool)
+    {
+        return authorizedContracts[contractAddress];
+    }
+
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
@@ -133,7 +183,7 @@ contract FlightSuretyData {
         if (airlines[newAirlineAccount].votes == 0) {
             // the first 3 airlines are registered automatically
             // after that, the voting mechanism decides which additional airline gets registered
-            bool isRegistered = airlineCount < 4 ? true : false;
+            bool isRegistered = activeAirlineCount < 4 ? true : false;
 
             Airline memory newAirline = Airline({
                 name: name,
@@ -144,7 +194,6 @@ contract FlightSuretyData {
             });
 
             airlines[newAirlineAccount] = newAirline;
-            airlineCount.add(1);
 
             emit AirlineRegistered(newAirlineAccount, name);
         }

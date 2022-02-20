@@ -5,7 +5,7 @@ var BigNumber = require("bignumber.js")
 var Config = async function (accounts) {
   // These test addresses are useful when you need to add
   // multiple users in test scripts
-  let testAddresses = [
+  const testAddresses = [
     "0x69e1CB5cFcA8A311586e3406ed0301C06fb839a2",
     "0xF014343BDFFbED8660A9d8721deC985126f189F3",
     "0x0E79EDbD6A727CfeE09A2b1d0A59F7752d5bf7C9",
@@ -17,15 +17,23 @@ var Config = async function (accounts) {
     "0x2f2899d6d35b1a48a4fbdc93a37a72f264a9fca7",
   ]
 
-  let owner = accounts[0]
-  let firstAirline = accounts[1]
+  const owner = accounts[0]
+  const firstAirline = accounts[1]
+  const secondAirline = accounts[2]
+  const thirdAirline = accounts[3]
+  const fourthAirline = accounts[4]
+  const fifthAirline = accounts[5]
 
-  let flightSuretyData = await FlightSuretyData.new()
-  let flightSuretyApp = await FlightSuretyApp.new()
+  const flightSuretyData = await FlightSuretyData.new()
+  const flightSuretyApp = await FlightSuretyApp.new()
 
   return {
-    owner: owner,
-    firstAirline: firstAirline,
+    owner,
+    firstAirline,
+    secondAirline,
+    thirdAirline,
+    fourthAirline,
+    fifthAirline,
     weiMultiple: new BigNumber(10).pow(18),
     testAddresses: testAddresses,
     flightSuretyData: flightSuretyData,
