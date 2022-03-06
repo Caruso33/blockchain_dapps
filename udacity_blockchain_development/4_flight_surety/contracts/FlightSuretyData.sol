@@ -14,35 +14,98 @@ contract FlightSuretyData {
     address private contractOwner; // Account used to deploy contract
     bool private operational = true; // Blocks all state changes throughout the contract if false
 
+    uint256 initialFunding = 10 ether;
+
     uint256 authorizedContractCount = 0; // Number of contracts authorized to operate the contract
     mapping(address => bool) private authorizedContracts;
 
     struct Airline {
         string name;
         address account;
+        // registered through voting (automatically if less than 4 airlines) and up to provide funding
         bool isRegistered;
+        // funded and active
         bool isActive;
+        // if more than 3 airlines exist, they have to vote in order to let other airlines join the contract
         uint256 votes;
     }
 
     uint256 registeredAirlineCount = 0; // Number of airlines registered
     uint256 activeAirlineCount = 0; // Number of airlines registered and active
-    uint256 airlineCount = 0; // Number of airlines registered
     mapping(address => Airline) airlines;
     mapping(address => mapping(address => bool)) airlineRegistrationVotes;
+
+    struct Insuree {
+        address account;
+        uint256 insuranceAmount;
+        bool isAlreadyCredited;
+    }
+    mapping(address => uint256) registeredPayouts;
+
+    struct Flight {
+        string name;
+        uint8 statusCode;
+        uint256 registeredTimestamp;
+        uint256 freezeTimestamp;
+        uint256 lastUpdatedTimestamp;
+        address airline;
+        uint256 insurancePrice;
+        mapping(address => Insuree) insurees;
+    }
+
+    uint256 flightCount = 0; // Number of flights
+    mapping(bytes32 => Flight) flights;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
     event AirlineCreated(address airlineAddress, string airlineName);
-    event AirlineRegistered(address airlineAddress, string airlineName);
+    event AirlineRegistered(
+        address airlineAddress,
+        string airlineName,
+        uint256 registeredAirlineCount
+    );
     event AirlineRegistrationVoted(
         address airlineAddress,
         string airlineName,
         address voter
     );
-    event AirlineAuthorized(address airlineAddress, string airlineName);
+    event AirlineFunded(address airlineAddress, string airlineName);
+
+    event FlightRegistered(
+        address airlineAddress,
+        string airlineName,
+        string flightName,
+        uint256 timestamp,
+        uint256 insurancePrice
+    );
+    event FlightFrozen(
+        address airlineAddress,
+        string airlineName,
+        string flightName,
+        uint256 timestamp
+    );
+    event FlightInsuranceBought(
+        address airlineAddress,
+        string airlineName,
+        string flightName,
+        uint256 timestamp,
+        address insureeAddress,
+        uint256 insurancePrice
+    );
+    event CreditInsuree(
+        address airlineAddress,
+        string airlineName,
+        string flightName,
+        address insureeAddress,
+        uint256 insuranceAmount
+    );
+    event PayoutInsurance(
+        string flightName,
+        address insureeAddress,
+        uint256 payoutAmount
+    );
 
     /**
      * @dev Constructor
@@ -62,8 +125,6 @@ contract FlightSuretyData {
     /**
      * @dev Modifier that requires the "operational" boolean variable to be "true"
      *      This is used on all state changing functions to pause the contract in
-     *      This is used on all state changing functions to pause the contract in
-     *      This is used on all state changing functions to pause the contract in
      *      the event there is an issue that needs to be fixed
      */
     modifier requireIsOperational() {
@@ -80,7 +141,10 @@ contract FlightSuretyData {
     }
 
     modifier requireAirlineAuthorized() {
-        require(airlines[msg.sender].isActive, "Airline is not authorized");
+        require(
+            airlines[msg.sender].isActive,
+            "Airline is not authorized, e.g. active through funding"
+        );
         _;
     }
 
@@ -184,7 +248,7 @@ contract FlightSuretyData {
         // after that, the voting mechanism decides which additional airline gets registered
         bool isRegistered = registeredAirlineCount < 3 ? true : false;
 
-        Airline memory newAirline = Airline({
+        Airline memory airline = Airline({
             name: airlineName,
             account: airlineAddress,
             isRegistered: isRegistered,
@@ -192,24 +256,30 @@ contract FlightSuretyData {
             votes: 0
         });
 
-        airlines[airlineAddress] = newAirline;
+        airlines[airlineAddress] = airline;
 
         emit AirlineCreated(airlineAddress, airlineName);
 
         if (isRegistered) {
             registeredAirlineCount = registeredAirlineCount.add(1);
-            emit AirlineRegistered(airlineAddress, airlineName);
+            emit AirlineRegistered(
+                airlineAddress,
+                airlineName,
+                registeredAirlineCount
+            );
         }
+
+        return airline
     }
 
     function voteForAirline(address airlineAddress)
         external
         requireAirlineAuthorized
     {
-        require(
-            !airlines[airlineAddress].isRegistered,
-            "Airline is already registered"
-        );
+        Airline storage airline = airlines[airlineAddress];
+
+        require(airline.account != address(0), "Airline does not exist");
+        require(!airline.isRegistered, "Airline is already registered");
         require(
             !airlineRegistrationVotes[airlineAddress][msg.sender],
             "Airline has already been voted for by sender"
@@ -217,50 +287,226 @@ contract FlightSuretyData {
 
         airlineRegistrationVotes[airlineAddress][msg.sender] = true;
 
-        airlines[airlineAddress].votes = airlines[airlineAddress].votes.add(1);
+        airline.votes = airline.votes.add(1);
 
-        emit AirlineRegistrationVoted(
-            airlineAddress,
-            airlines[airlineAddress].name,
-            msg.sender
-        );
+        emit AirlineRegistrationVoted(airlineAddress, airline.name, msg.sender);
 
         // register if at least half or more authorizedContracts voted for the airline
-        if (airlines[airlineAddress].votes * 2 > registeredAirlineCount) {
-            airlines[airlineAddress].isRegistered = true;
+        if (airline.votes * 2 > activeAirlineCount) {
+            airline.isRegistered = true;
 
             registeredAirlineCount = registeredAirlineCount.add(1);
 
             emit AirlineRegistered(
                 airlineAddress,
-                airlines[airlineAddress].name
+                airline.name,
+                registeredAirlineCount
             );
         }
+
+
+        return airline;
+
     }
-
-    /**
-     * @dev Buy insurance for a flight
-     *
-     */
-    function buy() external payable {}
-
-    /**
-     *  @dev Credits payouts to insurees
-     */
-    function creditInsurees() external pure {}
-
-    /**
-     *  @dev Transfers eligible payout funds to insuree
-     *
-     */
-    function pay() external pure {}
 
     /**
      * @dev Initial funding for the insurance. Unless there are too many delayed flights
      *      resulting in insurance payouts, the contract should be self-sustaining
      *
      */
-    function fund() public payable {}
+    function provideAirlinefunding(address airlineAddress)
+        public
+        payable
+        requireIsOperational
+    {
+        Airline storage airline = airlines[airlineAddress];
+
+        require(airline.account != address(0), "Airline does not exist");
+        require(airline.isRegistered, "Airline is not registered");
+        require(!airline.isActive, "Airline is already active");
+        require(msg.value >= initialFunding, "Insufficient funding");
+
+        airline.isActive = true;
+        airlines[airlineAddress] = airline;
+
+        activeAirlineCount = activeAirlineCount.add(1);
+        emit AirlineFunded(airlineAddress, airline.name);
+
+        if (msg.value > initialFunding) {
+            uint256 overpayedAmount = msg.value.sub(initialFunding);
+            msg.sender.transfer(overpayedAmount);
+        }
+
+        return airline;
+    }
+
+    /**
+     * @dev Registers a new flight to buy insurance for
+     *
+     */
+    function registerFlightForInsurance(
+        address airlineAddress,
+        string flightName,
+        uint256 insurancePrice
+    ) external requireIsOperational requireCallerAuthorized {
+        Airline memory airline = airlines[airlineAddress];
+        require(airline.account != address(0), "Airline does not exist");
+
+        uint256 timestamp = block.timestamp;
+        bytes32 flightKey = getFlightKey(airlineAddress, flightName, timestamp);
+
+        Flight memory flight = Flight({
+            name: flightName,
+            statusCode: 0,
+            registeredTimestamp: timestamp,
+            freezeTimestamp: 0,
+            lastUpdatedTimestamp: timestamp,
+            airline: airlineAddress,
+            insurancePrice: insurancePrice
+        });
+
+        flights[flightKey] = flight;
+
+        emit FlightRegistered(
+            airlineAddress,
+            airline.name,
+            flightName,
+            timestamp,
+            insurancePrice
+        );
+    }
+
+    function freezeFlight(
+        address airlineAddress,
+        string flightName,
+        uint256 timestamp
+    ) external requireIsOperational requireCallerAuthorized {
+        Airline memory airline = airlines[airlineAddress];
+        require(airline.account != address(0), "Airline does not exist");
+
+        bytes32 flightKey = getFlightKey(airlineAddress, flightName, timestamp);
+
+        Flight storage flight = flights[flightKey];
+
+        require(flight != 0, "Flight does not exist");
+        // require(flights[flightKey] != 0, "Flight does not exist");
+        // require(flight.name.length != "", "Flight does not exist");
+        // require(flight != address(0x0), "Flight does not exist");
+        require(flight.freezeTimestamp != 0, "Flight is already frozen");
+
+        uint256 freezeTimestamp = block.timestamp;
+
+        flight.freezeTimestamp = freezeTimestamp;
+
+        emit FlightFrozen(
+            airlineAddress,
+            airline.name,
+            flightName,
+            freezeTimestamp
+        );
+
+        return flight;
+    }
+
+    /**
+     * @dev Buy insurance for a flight
+     *
+     */
+    function buyInsuranceForFlight(
+        address airlineAddress,
+        string flightName,
+        uint256 timestamp
+    ) external payable requireIsOperational {
+        bytes32 flightKey = getFlightKey(airlineAddress, flightName, timestamp);
+
+        Flight storage flight = flights[flightKey];
+
+        // require(flight, "Flight is not registered");
+        if (flight.freezeTimestamp != 0) {
+            require(
+                flight.freezeTimestamp <= timestamp,
+                "Flight is frozen, it's too late to buy insurance for this flight"
+            );
+        }
+        require(
+            flight.insurees[msg.sender] != 0,
+            "You already bought insurance for this flight"
+        );
+        require(msg.value >= flight.insurancePrice, "Insufficient amount");
+
+        Insuree memory insuree = Insuree({
+            account: msg.sender,
+            insuranceAmount: msg.value,
+            isAlreadyCredited: false
+        });
+        flight.insurees[msg.sender] = insuree;
+
+        if (msg.value > flight.insurancePrice) {
+            uint256 overpayedAmount = msg.value.sub(flight.insurancePrice);
+            msg.sender.transfer(overpayedAmount);
+        }
+
+        emit FlightInsuranceBought(
+            airlineAddress,
+            airlines[airlineAddress].name,
+            flightName,
+            block.timestamp,
+            msg.sender,
+            flight.insurancePrice
+        );
+
+        return flight;
+    }
+
+    function creditInsurees(
+        address airlineAddress,
+        string flightName,
+        uint256 timestamp
+    ) external requireIsOperational requireCallerAuthorized {
+        bytes32 flightKey = getFlightKey(airlineAddress, flightName, timestamp);
+        Flight storage flight = flights[flightKey];
+
+        require(flight != 0, "Flight is not registered");
+        // if (flight.insurees.length == 0) {
+        //     return;
+        // }
+
+        for (uint256 i = 0; i < bytes(flight.insurees).length; i++) {
+            address insuree = flight.insurees[i];
+
+            if (!insuree.isAlreadyCredited) {
+                bytes32 policyKey = getPolicyKey(insuree.account, flightName);
+                registeredPayouts[policyKey] = insuree.insuranceAmount;
+
+                emit CreditInsuree(
+                    airlineAddress,
+                    airlines[airlineAddress].name,
+                    flightName,
+                    insuree.accunt,
+                    insuree.insuranceAmount
+                );
+            }
+        }
+    }
+
+    /**
+     *  @dev Transfers eligible payout funds to insuree
+     *
+     */
+    function payoutInsurance(string flightName, address insureeAddress)
+        external
+        pure
+    {
+        bytes32 policyKey = getPolicyKey(insureeAddress, flightName);
+        uint256 payoutAmount = registeredPayouts[policyKey];
+
+        if (payoutAmount > 0) {
+            registeredPayouts[policyKey] = 0;
+            insureeAddress.transfer(payoutAmount);
+
+            emit PayoutInsurance(flightName, insureeAddress, payoutAmount);
+        }
+    }
 
     function getFlightKey(
         address airline,
@@ -270,11 +516,19 @@ contract FlightSuretyData {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
     }
 
+    function getPolicyKey(address insureeAddress, string flight)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encodePacked(insureeAddress, flight));
+    }
+
     /**
      * @dev Fallback function for funding smart contract.
      *
      */
     function() external payable {
-        fund();
+        provideAirlinefunding();
     }
 }
