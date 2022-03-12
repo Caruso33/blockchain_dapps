@@ -1,4 +1,5 @@
 pragma solidity ^0.4.25;
+pragma experimental ABIEncoderV2;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
@@ -238,6 +239,7 @@ contract FlightSuretyData {
         external
         requireIsOperational
         requireCallerAuthorized
+        returns (Airline)
     {
         require(
             airlines[airlineAddress].account == address(0),
@@ -269,12 +271,13 @@ contract FlightSuretyData {
             );
         }
 
-        return airline
+        return airline;
     }
 
     function voteForAirline(address airlineAddress)
         external
         requireAirlineAuthorized
+        returns (Airline)
     {
         Airline storage airline = airlines[airlineAddress];
 
@@ -304,9 +307,7 @@ contract FlightSuretyData {
             );
         }
 
-
         return airline;
-
     }
 
     /**
@@ -318,6 +319,7 @@ contract FlightSuretyData {
         public
         payable
         requireIsOperational
+        returns (Airline)
     {
         Airline storage airline = airlines[airlineAddress];
 
@@ -386,7 +388,7 @@ contract FlightSuretyData {
 
         bytes32 flightKey = getFlightKey(airlineAddress, flightName, timestamp);
 
-        Flight storage flight = flights[flightKey];
+        Flight memory flight = flights[flightKey];
 
         require(flight != 0, "Flight does not exist");
         // require(flights[flightKey] != 0, "Flight does not exist");
@@ -404,8 +406,6 @@ contract FlightSuretyData {
             flightName,
             freezeTimestamp
         );
-
-        return flight;
     }
 
     /**
@@ -454,8 +454,6 @@ contract FlightSuretyData {
             msg.sender,
             flight.insurancePrice
         );
-
-        return flight;
     }
 
     function creditInsurees(
@@ -472,7 +470,7 @@ contract FlightSuretyData {
         // }
 
         for (uint256 i = 0; i < bytes(flight.insurees).length; i++) {
-            address insuree = flight.insurees[i];
+            Insuree memory insuree = flight.insurees[i];
 
             if (!insuree.isAlreadyCredited) {
                 bytes32 policyKey = getPolicyKey(insuree.account, flightName);
@@ -482,7 +480,7 @@ contract FlightSuretyData {
                     airlineAddress,
                     airlines[airlineAddress].name,
                     flightName,
-                    insuree.accunt,
+                    insuree.account,
                     insuree.insuranceAmount
                 );
             }

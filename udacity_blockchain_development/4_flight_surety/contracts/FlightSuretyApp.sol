@@ -87,9 +87,9 @@ contract FlightSuretyApp {
     function createAirline(string airlineName, address airlineAddress)
         external
         requireIsOperational
-        returns (flightSuretyData.Airline votes)
+        returns (FlightSuretyData.Airline)
     {
-        flightSuretyData.Airline memory airline = flightSuretyData
+        FlightSuretyData.Airline memory airline = flightSuretyData
             .createAirline(airlineName, airlineAddress);
 
         return airline;
@@ -98,9 +98,9 @@ contract FlightSuretyApp {
     function voteForAirline(address airlineAddress)
         external
         requireIsOperational
-        returns (flightSuretyData.Airline votes)
+        returns (FlightSuretyData.Airline)
     {
-        flightSuretyData.Airline memory airline = flightSuretyData
+        FlightSuretyData.Airline memory airline = flightSuretyData
             .voteForAirline(airlineAddress);
 
         return airline;
@@ -109,9 +109,9 @@ contract FlightSuretyApp {
     function provideAirlinefunding(address airlineAddress)
         external
         requireIsOperational
-        returns (flightSuretyData.Airline votes)
+        returns (FlightSuretyData.Airline)
     {
-        flightSuretyData.Airline memory airline = flightSuretyData
+        FlightSuretyData.Airline memory airline = flightSuretyData
             .provideAirlinefunding(airlineAddress);
 
         return airline;
@@ -125,59 +125,50 @@ contract FlightSuretyApp {
         address airlineAddress,
         string flightName,
         uint256 insurancePrice
-    ) external requireIsOperational returns (flightSuretyData.Flight flight) {
-        flightSuretyData.Flight memory flight = flightSuretyData
+    ) external requireIsOperational {
+        // FlightSuretyData.Flight memory flight = 
+        flightSuretyData
             .registerFlightForInsurance(
                 airlineAddress,
                 flightName,
                 insurancePrice
             );
-
-        return flight;
     }
 
     function freezeFlight(
         address airlineAddress,
         string flightName,
         uint256 timestamp
-    ) external requireIsOperational returns (flightSuretyData.Flight flight) {
-        flightSuretyData.Flight memory flight = flightSuretyData.freezeFlight(
+    ) external requireIsOperational {
+        // FlightSuretyData.Flight memory flight = 
+        flightSuretyData.freezeFlight(
             airlineAddress,
             flightName,
             timestamp
         );
-
-        return flight;
     }
 
     function buyInsuranceForFlight(
         address airlineAddress,
         string flightName,
         uint256 timestamp
-    )
-        external
-        payable
-        requireIsOperational
-        returns (flightSuretyData.Flight flight)
-    {
-        flightSuretyData.Flight memory flight = flightSuretyData
+    ) external payable requireIsOperational {
+        // FlightSuretyData.Flight memory flight = 
+        flightSuretyData
             .buyInsuranceForFlight(airlineAddress, flightName, timestamp);
-
-        return flight;
     }
 
     function creditInsurees(
         address airlineAddress,
         string flightName,
         uint256 timestamp
-    ) external requireIsOperational returns (flightSuretyData.Flight flight) {
-        flightSuretyData.Flight memory flight = flightSuretyData.creditInsurees(
+    ) external requireIsOperational {
+        // FlightSuretyData.Flight memory flight = 
+        flightSuretyData.creditInsurees(
             airlineAddress,
             flightName,
             timestamp
         );
-
-        return flight;
     }
 
     function payoutInsurance(string flightName, address insureeAddress)
@@ -199,26 +190,23 @@ contract FlightSuretyApp {
         uint8 statusCode
     ) internal requireIsOperational {
         bytes32 key = getFlightKey(airline, flight, timestamp);
-        require(flights[key].isRegistered, "This flight is not registered");
         require(
-            !flights[key].landed,
+            flightSuretyData.flights[key].isRegistered,
+            "This flight is not registered"
+        );
+        require(
+            !flightSuretyData.flights[key].landed,
             "The status of this flight has already been updated"
         );
-        flights[key].statusCode = statusCode;
+        flightSuretyData.flights[key].statusCode = statusCode;
         // Status other than 0 sets the flight landed variable to true
         if (statusCode != 0) {
-            flights[key].landed = true;
+            flightSuretyData.flights[key].landed = true;
         }
 
         // Passengers are credited if flight is late due to the airline
         if (statusCode == 20) {
-            flightSuretyData.creditInsurees(
-                airline,
-                flight,
-                timestamp,
-                factorNumerator,
-                factorDenominator
-            );
+            flightSuretyData.creditInsurees(airline, flight, timestamp);
         }
     }
 
