@@ -134,15 +134,12 @@ contract("Flight Surety Data Tests", async (accounts) => {
 
   describe("airline functionality", () => {
     it("not authorized caller can't create an airline", async () => {
-      const airlineName = "Airline 1"
-      const airlineAddress = config.firstAirline
-
       let accessDenied = false
       let event = null
       try {
         event = await config.flightSuretyData.createAirline(
-          airlineName,
-          airlineAddress,
+          airlines[0].name,
+          airlines[0].address,
           {
             from: config.testAddresses[0],
           }
@@ -244,7 +241,7 @@ contract("Flight Surety Data Tests", async (accounts) => {
       )
     })
 
-    it.only("(only) registered airlines can provide funding", async () => {
+    it("(only) registered airlines can provide funding", async () => {
       let event = null
 
       for (let [i, airline] of airlines.entries()) {
@@ -256,6 +253,10 @@ contract("Flight Surety Data Tests", async (accounts) => {
           }
         )
       }
+
+      const airlineBefore = await config.flightSuretyData.getAirline(
+        airlines[0].address
+      )
 
       const initialAirlineFunding =
         await config.flightSuretyData.getInitialFunding()
@@ -277,6 +278,11 @@ contract("Flight Surety Data Tests", async (accounts) => {
       )
       assert.ok(airline[2], "Airline is not registered")
       assert.ok(airline[3], "Airline is not active")
+      assert(
+        airline[5],
+        airlineBefore[5] + initialAirlineFunding,
+        "Funding of airline hasn't increased"
+      )
 
       assert(
         await config.flightSuretyData.getActiveAirlineCount(),
@@ -292,23 +298,81 @@ contract("Flight Surety Data Tests", async (accounts) => {
       )
     })
 
-    it("cannot vote for airline if caller not already active airline", async () => {
+    it.only("(only) active airlines can vote for othere airlines", async () => {
       let event = null
 
-      for (let [i, airline] of airlines.entries()) {
-        event = await config.flightSuretyData.createAirline(
+      airlines.forEach(async (airline) => {
+        await config.flightSuretyData.createAirline(
           airline.name,
           airline.address,
           {
             from: config.owner,
           }
         )
-      }
+      })
+
       await truffleAssert.reverts(
         config.flightSuretyData.voteForAirline(airlines[1].address, {
           from: airlines[0].address,
         }),
         "Airline is not authorized, i.e. active through funding"
+      )
+
+      const initialAirlineFunding =
+        await config.flightSuretyData.getInitialFunding()
+      const registeredAirlineCount =
+        await config.flightSuretyData.getRegisteredAirlineCount()
+
+      airlines.slice(0, 3).forEach(async (airline) => {
+        await config.flightSuretyData.provideAirlinefunding(airline.address, {
+          value: initialAirlineFunding,
+          from: airline.address,
+        })
+      })
+
+      const airlineBefore = await config.flightSuretyData.getAirline(
+        airlines[3].address
+      )
+
+      event = await config.flightSuretyData.voteForAirline(
+        airlines[3].address,
+        {
+          from: airlines[0].address,
+        }
+      )
+
+      truffleAssert.eventEmitted(event, "AirlineRegistrationVoted")
+
+      let airline = await config.flightSuretyData.getAirline(
+        airlines[3].address
+      )
+      assert(
+        airline[4],
+        airlineBefore[4] + 1,
+        "Votes of airlines hasn't increased"
+      )
+      assert.isNotOk(
+        airline[2],
+        "Airline shouldn't be registered yet, too few votes"
+      )
+
+      event = await config.flightSuretyData.voteForAirline(
+        airlines[3].address,
+        {
+          from: airlines[1].address,
+        }
+      )
+      airline = await config.flightSuretyData.getAirline(airlines[3].address)
+      assert.ok(
+        airline[2],
+        "Airline should be registered now, enough votes done"
+      )
+      truffleAssert.eventEmitted(event, "AirlineRegistrationVoted")
+
+      assert(
+        await config.flightSuretyData.getRegisteredAirlineCount(),
+        registeredAirlineCount + 1,
+        "Registered airlines has not increased"
       )
     })
 

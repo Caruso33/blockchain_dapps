@@ -250,17 +250,20 @@ contract FlightSuretyData {
     /********************************************************************************************/
 
     // getter functions
-    function getInitialFunding() view returns (uint256) {
+    function getInitialFunding() public view returns (uint256) {
         return initialAirlineFunding;
     }
-    function getActiveAirlineCount() view returns (uint256) {
-        return activeAirlineCount;
-    }
-    function getRegisteredAirlineCount() view returns (uint256) {
+
+    function getRegisteredAirlineCount() public view returns (uint256) {
         return registeredAirlineCount;
     }
 
+    function getActiveAirlineCount() public view returns (uint256) {
+        return activeAirlineCount;
+    }
+
     function getAirline(address airlineAddress)
+        public
         view
         returns (
             string,
@@ -351,7 +354,6 @@ contract FlightSuretyData {
         }
 
         airline.insuranceBalance = airline.insuranceBalance.add(msg.value);
-        airlines[airlineAddress] = airline;
 
         return airline.insuranceBalance;
     }
@@ -359,7 +361,6 @@ contract FlightSuretyData {
     function voteForAirline(address airlineAddress)
         external
         requireAirlineExist(airlineAddress)
-        requireAirlineRegistered(airlineAddress)
         requireAirlineAuthorized
         returns (uint256)
     {
@@ -407,44 +408,44 @@ contract FlightSuretyData {
      * @dev Registers a new flight to buy insurance for
      *
      */
-    function registerFlightForInsurance(
-        address airlineAddress,
-        string flightName,
-        uint256 insurancePrice
-    )
-        external
-        requireIsOperational
-        requireCallerAuthorized
-        requireAirlineAuthorized
-    {
-        Airline storage airline = airlines[airlineAddress];
-        require(airline.account != address(0), "Airline does not exist");
+    // function registerFlightForInsurance(
+    //     address airlineAddress,
+    //     string flightName,
+    //     uint256 insurancePrice
+    // )
+    //     external
+    //     requireIsOperational
+    //     requireCallerAuthorized
+    //     requireAirlineAuthorized
+    // {
+    //     Airline storage airline = airlines[airlineAddress];
+    //     require(airline.account != address(0), "Airline does not exist");
 
-        uint256 timestamp = block.timestamp;
-        bytes32 flightKey = getKey(airlineAddress, flightName, timestamp);
+    //     uint256 timestamp = block.timestamp;
+    //     bytes32 flightKey = getKey(airlineAddress, flightName, timestamp);
 
-        // Flight memory flight = Flight({
-        //     name: flightName,
-        //     statusCode: 0,
-        //     registeredTimestamp: timestamp,
-        //     freezeTimestamp: 0,
-        //     lastUpdatedTimestamp: timestamp,
-        //     airline: airlineAddress,
-        //     insurancePrice: insurancePrice
-        //     // insureeAddresses: address[]
-        //     // insurees: Flight.insurees
-        // });
+    // Flight memory flight = Flight({
+    //     name: flightName,
+    //     statusCode: 0,
+    //     registeredTimestamp: timestamp,
+    //     freezeTimestamp: 0,
+    //     lastUpdatedTimestamp: timestamp,
+    //     airline: airlineAddress,
+    //     insurancePrice: insurancePrice
+    //     // insureeAddresses: address[]
+    //     // insurees: Flight.insurees
+    // });
 
-        // flights[flightKey] = flight;
+    // flights[flightKey] = flight;
 
-        // emit FlightRegistered(
-        //     airlineAddress,
-        //     airline.name,
-        //     flightName,
-        //     timestamp,
-        //     insurancePrice
-        // );
-    }
+    // emit FlightRegistered(
+    //     airlineAddress,
+    //     airline.name,
+    //     flightName,
+    //     timestamp,
+    //     insurancePrice
+    // );
+    // }
 
     function freezeFlight(
         address airlineAddress,
@@ -521,37 +522,37 @@ contract FlightSuretyData {
         );
     }
 
-    function creditInsurees(
-        address airlineAddress,
-        string flightName,
-        uint256 timestamp
-    ) external requireIsOperational requireCallerAuthorized {
-        bytes32 flightKey = getKey(airlineAddress, flightName, timestamp);
-        Flight storage flight = flights[flightKey];
+    // function creditInsurees(
+    //     address airlineAddress,
+    //     string flightName,
+    //     uint256 timestamp
+    // ) external requireIsOperational requireCallerAuthorized {
+    //     bytes32 flightKey = getKey(airlineAddress, flightName, timestamp);
+    //     Flight storage flight = flights[flightKey];
 
-        // require(flight != 0, "Flight is not registered");
-        // if (flight.insurees.length == 0) {
-        //     return;
-        // }
+    // require(flight != 0, "Flight is not registered");
+    // if (flight.insurees.length == 0) {
+    //     return;
+    // }
 
-        // for (uint256 i = 0; i < flight.insureeAddresses.length; i++) {
-        //     address insureeAddress = flight.insureeAddresses[i];
-        //     Insuree storage insuree = flight.insurees[insureeAddress];
+    // for (uint256 i = 0; i < flight.insureeAddresses.length; i++) {
+    //     address insureeAddress = flight.insureeAddresses[i];
+    //     Insuree storage insuree = flight.insurees[insureeAddress];
 
-        //     if (!insuree.isCredited) {
-        //         bytes32 policyKey = getPolicyKey(insuree.account, flightName);
-        //         registeredPayouts[policyKey] = insuree.insuranceAmount;
+    //     if (!insuree.isCredited) {
+    //         bytes32 policyKey = getPolicyKey(insuree.account, flightName);
+    //         registeredPayouts[policyKey] = insuree.insuranceAmount;
 
-        //         emit CreditInsuree(
-        //             airlineAddress,
-        //             airlines[airlineAddress].name,
-        //             flightName,
-        //             insuree.account,
-        //             insuree.insuranceAmount
-        //         );
-        //     }
-        // }
-    }
+    //         emit CreditInsuree(
+    //             airlineAddress,
+    //             airlines[airlineAddress].name,
+    //             flightName,
+    //             insuree.account,
+    //             insuree.insuranceAmount
+    //         );
+    //     }
+    // }
+    // }
 
     /**
      *  @dev Transfers eligible payout funds to insuree
@@ -559,7 +560,7 @@ contract FlightSuretyData {
      */
     function payoutInsurance(string flightName, address insureeAddress)
         external
-        view
+        payable
     {
         bytes32 policyKey = getKey(insureeAddress, flightName, 0);
         uint256 payoutAmount = registeredPayouts[policyKey];
