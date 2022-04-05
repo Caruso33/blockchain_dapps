@@ -4,7 +4,7 @@ const truffleAssert = require("truffle-assertions")
 
 contract("Flight Surety Data Tests", async (accounts) => {
   let config
-  let airlines
+  let airlines = []
 
   beforeEach("setup contract", async () => {
     config = await Test.Config(accounts)
@@ -241,6 +241,74 @@ contract("Flight Surety Data Tests", async (accounts) => {
           }
         ),
         "Airline already exists"
+      )
+    })
+
+    it.only("(only) registered airlines can provide funding", async () => {
+      let event = null
+
+      for (let [i, airline] of airlines.entries()) {
+        await config.flightSuretyData.createAirline(
+          airline.name,
+          airline.address,
+          {
+            from: config.owner,
+          }
+        )
+      }
+
+      const initialAirlineFunding =
+        await config.flightSuretyData.getInitialFunding()
+      const activeAirlineCount =
+        await config.flightSuretyData.getActiveAirlineCount()
+
+      event = await config.flightSuretyData.provideAirlinefunding(
+        airlines[0].address,
+        {
+          value: initialAirlineFunding,
+          // value: web3.utils.toWei("1", "ether"),
+          from: airlines[0].address,
+        }
+      )
+      truffleAssert.eventEmitted(event, "AirlineFunded")
+
+      const airline = await config.flightSuretyData.getAirline(
+        airlines[0].address
+      )
+      assert.ok(airline[2], "Airline is not registered")
+      assert.ok(airline[3], "Airline is not active")
+
+      assert(
+        await config.flightSuretyData.getActiveAirlineCount(),
+        activeAirlineCount + 1,
+        "Active airlines has not increased"
+      )
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.provideAirlinefunding(airlines[3].address, {
+          from: airlines[3].address,
+        }),
+        "Airline is not registered"
+      )
+    })
+
+    it("cannot vote for airline if caller not already active airline", async () => {
+      let event = null
+
+      for (let [i, airline] of airlines.entries()) {
+        event = await config.flightSuretyData.createAirline(
+          airline.name,
+          airline.address,
+          {
+            from: config.owner,
+          }
+        )
+      }
+      await truffleAssert.reverts(
+        config.flightSuretyData.voteForAirline(airlines[1].address, {
+          from: airlines[0].address,
+        }),
+        "Airline is not authorized, i.e. active through funding"
       )
     })
 
