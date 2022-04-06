@@ -474,32 +474,35 @@ contract FlightSuretyData {
         );
     }
 
-    // function freezeFlight(
-    //     address airlineAddress,
-    //     string flightName,
-    //     uint256 timestamp
-    // ) external requireIsOperational requireCallerAuthorized {
-    //     Airline storage airline = airlines[airlineAddress];
-    //     require(airline.account != address(0), "Airline does not exist");
+    function freezeFlight(address airlineAddress, string flightName)
+        external
+        requireIsOperational
+        requireAirlineAuthorized
+    {
+        Airline storage airline = airlines[airlineAddress];
+        require(
+            airline.account == msg.sender,
+            "Cannot freeze flight insurance for another airline"
+        );
 
-    //     bytes32 flightKey = getKey(airlineAddress, flightName, timestamp);
+        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
 
-    //     Flight storage flight = flights[flightKey];
+        Flight storage flight = flights[flightKey];
 
-    //     // require(flight != 0, "Flight does not exist");
-    //     // require(flight.freezeTimestamp != 0, "Flight is already frozen");
+        require(flight.airline != address(0), "Flight does not exist");
+        require(flight.freezeTimestamp == 0, "Flight is already frozen");
 
-    //     uint256 freezeTimestamp = block.timestamp;
+        uint256 freezeTimestamp = block.timestamp;
 
-    //     flight.freezeTimestamp = freezeTimestamp;
+        flight.freezeTimestamp = freezeTimestamp;
 
-    //     emit FlightFrozen(
-    //         airlineAddress,
-    //         airline.name,
-    //         flightName,
-    //         freezeTimestamp
-    //     );
-    // }
+        emit FlightFrozen(
+            airlineAddress,
+            airline.name,
+            flightName,
+            freezeTimestamp
+        );
+    }
 
     // /**
     //  * @dev Buy insurance for a flight

@@ -1,6 +1,7 @@
-let Test = require("../config/testConfig.js")
-let BigNumber = require("bignumber.js")
+const Test = require("../config/testConfig.js")
+// let BigNumber = require("bignumber.js")
 const truffleAssert = require("truffle-assertions")
+const { createAirlines, voteForAirlines } = require("./utils.js")
 
 contract("Flight Surety Data Tests", async (accounts) => {
   let config
@@ -301,15 +302,7 @@ contract("Flight Surety Data Tests", async (accounts) => {
     it("(only) active airlines can vote for other airlines", async () => {
       let event = null
 
-      airlines.forEach(async (airline) => {
-        await config.flightSuretyData.createAirline(
-          airline.name,
-          airline.address,
-          {
-            from: config.owner,
-          }
-        )
-      })
+      createAirlines(config, airlines)
 
       await truffleAssert.reverts(
         config.flightSuretyData.voteForAirline(airlines[1].address, {
@@ -323,12 +316,7 @@ contract("Flight Surety Data Tests", async (accounts) => {
       const registeredAirlineCount =
         await config.flightSuretyData.getRegisteredAirlineCount()
 
-      airlines.slice(0, 3).forEach(async (airline) => {
-        await config.flightSuretyData.provideAirlinefunding(airline.address, {
-          value: initialAirlineFunding,
-          from: airline.address,
-        })
-      })
+      await voteForAirlines(config, airlines)
 
       const airlineBefore = await config.flightSuretyData.getAirline(
         airlines[3].address
@@ -336,11 +324,8 @@ contract("Flight Surety Data Tests", async (accounts) => {
 
       event = await config.flightSuretyData.voteForAirline(
         airlines[3].address,
-        {
-          from: airlines[0].address,
-        }
+        { from: airlines[0].address }
       )
-
       truffleAssert.eventEmitted(event, "AirlineRegistrationVoted")
 
       let airline = await config.flightSuretyData.getAirline(
@@ -358,9 +343,7 @@ contract("Flight Surety Data Tests", async (accounts) => {
 
       event = await config.flightSuretyData.voteForAirline(
         airlines[3].address,
-        {
-          from: airlines[1].address,
-        }
+        { from: airlines[1].address }
       )
       airline = await config.flightSuretyData.getAirline(airlines[3].address)
       assert.ok(
@@ -379,25 +362,9 @@ contract("Flight Surety Data Tests", async (accounts) => {
     it("(only) active airlines can register flights for insurance", async () => {
       let event = null
 
-      airlines.forEach(async (airline) => {
-        await config.flightSuretyData.createAirline(
-          airline.name,
-          airline.address,
-          {
-            from: config.owner,
-          }
-        )
-      })
+      createAirlines(config, airlines)
 
-      const initialAirlineFunding =
-        await config.flightSuretyData.getInitialFunding()
-
-      airlines.slice(0, 3).forEach(async (airline) => {
-        await config.flightSuretyData.provideAirlinefunding(airline.address, {
-          value: initialAirlineFunding,
-          from: airline.address,
-        })
-      })
+      await voteForAirlines(config, airlines)
 
       const flightName = "Flight 001"
       const insurancePrice = 1 // * 10 ** 18
@@ -469,6 +436,77 @@ contract("Flight Surety Data Tests", async (accounts) => {
           }
         ),
         "Airline does not exist"
+      )
+    })
+
+    it.only("(only) the owning airline can freeze a flight", async () => {
+      createAirlines(config, airlines)
+
+      await voteForAirlines(config, airlines)
+      let event
+
+      const flightName = "Flight 001"
+      const insurancePrice = 1 // * 10 ** 18
+      await config.flightSuretyData.registerFlightForInsurance(
+        airlines[0].address,
+        flightName,
+        insurancePrice,
+        {
+          from: airlines[0].address,
+        }
+      )
+
+      const flightBefore = await config.flightSuretyData.getFlight(
+        airlines[0].address,
+        flightName
+      )
+      assert(flightBefore[3], 0, "Freeze timestamp is already set")
+      event = await config.flightSuretyData.freezeFlight(
+        airlines[0].address,
+        flightName,
+        { from: airlines[0].address }
+      )
+
+      truffleAssert.eventEmitted(event, "FlightFrozen")
+
+      const flight = await config.flightSuretyData.getFlight(
+        airlines[0].address,
+        flightName
+      )
+      assert.notEqual(flight[3], 0, "Freeze timestamp hasn't been set")
+      assert.notEqual(
+        flight[4],
+        flightBefore[4],
+        "Flight last updated timestamp is not updated"
+      )
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.freezeFlight(config.owner, flightName, {
+          from: config.owner,
+        }),
+        "Airline is not authorized, i.e. active through funding"
+      )
+      await truffleAssert.reverts(
+        config.flightSuretyData.freezeFlight(airlines[1].address, flightName, {
+          from: airlines[0].address,
+        }),
+        "Cannot freeze flight insurance for another airline"
+      )
+      await truffleAssert.reverts(
+        config.flightSuretyData.freezeFlight(
+          airlines[0].address,
+          "Flight 002",
+          {
+            from: airlines[0].address,
+          }
+        ),
+        "Flight does not exist"
+      )
+      await truffleAssert.reverts(
+        config.flightSuretyData.freezeFlight(airlines[0].address, flightName, {
+          from: airlines[0].address,
+        }),
+        "Flight is already frozen"
       )
     })
   })
