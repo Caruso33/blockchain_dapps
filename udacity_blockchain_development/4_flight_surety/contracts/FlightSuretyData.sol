@@ -313,6 +313,27 @@ contract FlightSuretyData {
         );
     }
 
+    function getInsuree(
+        address airlineAddress,
+        string flightName,
+        address insureeAddress
+    )
+        public
+        view
+        returns (
+            address,
+            uint256,
+            bool
+        )
+    {
+        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
+        Flight storage flight = flights[flightKey];
+
+        Insuree storage insuree = flight.insurees[insureeAddress];
+
+        return (insuree.account, insuree.insuranceAmount, insuree.isCredited);
+    }
+
     /**
      * @dev Add an airline to the registration queue
      *      Can only be called from FlightSuretyApp contract
@@ -508,49 +529,51 @@ contract FlightSuretyData {
     //  * @dev Buy insurance for a flight
     //  *
     //  */
-    // function buyInsuranceForFlight(
-    //     address airlineAddress,
-    //     string flightName,
-    //     uint256 timestamp
-    // ) external payable requireIsOperational {
-    //     bytes32 flightKey = getKey(airlineAddress, flightName, timestamp);
+    function buyInsuranceForFlight(address airlineAddress, string flightName)
+        external
+        payable
+        requireIsOperational
+    {
+        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
 
-    //     Flight storage flight = flights[flightKey];
+        Flight storage flight = flights[flightKey];
 
-    //     // require(flight, "Flight is not registered");
-    //     // if (flight.freezeTimestamp != 0) {
-    //     //     require(
-    //     //         flight.freezeTimestamp <= timestamp,
-    //     //         "Flight is frozen, it's too late to buy insurance for this flight"
-    //     //     );
-    //     // }
-    //     // require(
-    //     //     flight.insurees[msg.sender] != 0,
-    //     //     "You already bought insurance for this flight"
-    //     // );
-    //     require(msg.value >= flight.insurancePrice, "Insufficient amount");
+        require(flight.airline != address(0), "Flight does not exist");
 
-    //     Insuree memory insuree = Insuree({
-    //         account: msg.sender,
-    //         insuranceAmount: msg.value,
-    //         isCredited: false
-    //     });
-    //     flight.insurees[msg.sender] = insuree;
+        require(
+            flight.freezeTimestamp == 0,
+            "Flight is frozen, it's too late to buy insurance for this flight"
+        );
 
-    //     if (msg.value > flight.insurancePrice) {
-    //         uint256 overpayedAmount = msg.value.sub(flight.insurancePrice);
-    //         msg.sender.transfer(overpayedAmount);
-    //     }
+        require(
+            flight.insurees[msg.sender].account == address(0),
+            "You already bought insurance for this flight"
+        );
 
-    //     emit FlightInsuranceBought(
-    //         airlineAddress,
-    //         airlines[airlineAddress].name,
-    //         flightName,
-    //         block.timestamp,
-    //         msg.sender,
-    //         flight.insurancePrice
-    //     );
-    // }
+        require(msg.value >= flight.insurancePrice, "Insufficient amount");
+
+        Insuree memory insuree = Insuree({
+            account: msg.sender,
+            insuranceAmount: msg.value,
+            isCredited: false
+        });
+        flight.insureeAddresses.push(msg.sender);
+        flight.insurees[msg.sender] = insuree;
+
+        if (msg.value > flight.insurancePrice) {
+            uint256 overpayedAmount = msg.value.sub(flight.insurancePrice);
+            msg.sender.transfer(overpayedAmount);
+        }
+
+        emit FlightInsuranceBought(
+            airlineAddress,
+            airlines[airlineAddress].name,
+            flightName,
+            block.timestamp,
+            msg.sender,
+            flight.insurancePrice
+        );
+    }
 
     // function creditInsurees(
     //     address airlineAddress,

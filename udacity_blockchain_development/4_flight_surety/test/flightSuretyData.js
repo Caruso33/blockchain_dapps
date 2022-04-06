@@ -439,14 +439,14 @@ contract("Flight Surety Data Tests", async (accounts) => {
       )
     })
 
-    it.only("(only) the owning airline can freeze a flight", async () => {
+    it("(only) the owning airline can freeze a flight", async () => {
       createAirlines(config, airlines)
 
       await voteForAirlines(config, airlines)
       let event
 
       const flightName = "Flight 001"
-      const insurancePrice = 1 // * 10 ** 18
+      const insurancePrice = 1
       await config.flightSuretyData.registerFlightForInsurance(
         airlines[0].address,
         flightName,
@@ -507,6 +507,110 @@ contract("Flight Surety Data Tests", async (accounts) => {
           from: airlines[0].address,
         }),
         "Flight is already frozen"
+      )
+    })
+
+    it("passengers can buy insurance for flights", async () => {
+      createAirlines(config, airlines)
+
+      await voteForAirlines(config, airlines)
+
+      const flightName = "Flight 001"
+      const insurancePrice = 1
+      await config.flightSuretyData.registerFlightForInsurance(
+        airlines[0].address,
+        flightName,
+        insurancePrice,
+        {
+          from: airlines[0].address,
+        }
+      )
+
+      let event = await config.flightSuretyData.buyInsuranceForFlight(
+        airlines[0].address,
+        flightName,
+        {
+          from: accounts[5],
+          value: insurancePrice,
+        }
+      )
+
+      truffleAssert.eventEmitted(event, "FlightInsuranceBought")
+
+      const flight = await config.flightSuretyData.getFlight(
+        airlines[0].address,
+        flightName
+      )
+      assert.ok(
+        flight[7].includes(accounts[5]),
+        "Insuree is not insured for flight"
+      )
+
+      const insuree = await config.flightSuretyData.getInsuree(
+        airlines[0].address,
+        flightName,
+        accounts[5]
+      )
+      assert(insuree[0], accounts[5], "Insuree address is not set correctly")
+      assert(
+        insuree[1],
+        insurancePrice,
+        "Insuree insurance price is not set correctly"
+      )
+      assert.isNotOk(insuree[2], "Insuree has already been credited")
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.buyInsuranceForFlight(
+          airlines[0].address,
+          "Flight 002",
+          {
+            from: accounts[5],
+            value: insurancePrice,
+          }
+        ),
+        "Flight does not exist"
+      )
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.buyInsuranceForFlight(
+          airlines[0].address,
+          flightName,
+          {
+            from: accounts[5],
+            value: insurancePrice,
+          }
+        ),
+        "You already bought insurance for this flight"
+      )
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.buyInsuranceForFlight(
+          airlines[0].address,
+          flightName,
+          {
+            from: accounts[6],
+            value: insurancePrice - 1,
+          }
+        ),
+        "Insufficient amount"
+      )
+
+      await config.flightSuretyData.freezeFlight(
+        airlines[0].address,
+        flightName,
+        { from: airlines[0].address }
+      )
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.buyInsuranceForFlight(
+          airlines[0].address,
+          flightName,
+          {
+            from: accounts[6],
+            value: insurancePrice,
+          }
+        ),
+        "Flight is frozen, it's too late to buy insurance for this flight"
       )
     })
   })
