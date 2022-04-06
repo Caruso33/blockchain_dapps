@@ -298,7 +298,7 @@ contract("Flight Surety Data Tests", async (accounts) => {
       )
     })
 
-    it.only("(only) active airlines can vote for othere airlines", async () => {
+    it("(only) active airlines can vote for other airlines", async () => {
       let event = null
 
       airlines.forEach(async (airline) => {
@@ -376,33 +376,99 @@ contract("Flight Surety Data Tests", async (accounts) => {
       )
     })
 
-    it("cannot register an Airline using registerAirline() if it is not funded", async () => {
-      // ARRANGE
-      const newAirline = config.firstAirline
+    it("(only) active airlines can register flights for insurance", async () => {
+      let event = null
 
-      // ACT
-      try {
-        await config.flightSuretyData.registerAirline(newAirline, {
-          // from: config.firstAirline,
-          from: owner,
+      airlines.forEach(async (airline) => {
+        await config.flightSuretyData.createAirline(
+          airline.name,
+          airline.address,
+          {
+            from: config.owner,
+          }
+        )
+      })
+
+      const initialAirlineFunding =
+        await config.flightSuretyData.getInitialFunding()
+
+      airlines.slice(0, 3).forEach(async (airline) => {
+        await config.flightSuretyData.provideAirlinefunding(airline.address, {
+          value: initialAirlineFunding,
+          from: airline.address,
         })
-      } catch (e) {}
-      const isRegistered =
-        await config.flightSuretyData.isAirlineRegistered.call(newAirline)
-      const isActive = await config.flightSuretyData.isAirlineRegistered.call(
-        newAirline
+      })
+
+      const flightName = "Flight 001"
+      const insurancePrice = 1 // * 10 ** 18
+      event = await config.flightSuretyData.registerFlightForInsurance(
+        airlines[0].address,
+        flightName,
+        insurancePrice,
+        {
+          from: airlines[0].address,
+        }
       )
 
-      // ASSERT
-      assert.equal(
-        isRegistered,
-        false,
-        "Airline should not be able to register another airline if it hasn't provided funding"
+      truffleAssert.eventEmitted(event, "FlightRegistered")
+
+      const flight = await config.flightSuretyData.getFlight(
+        airlines[0].address,
+        flightName
       )
-      assert.equal(
-        isActive,
-        false,
-        "Airline should not be able to register another airline if it hasn't provided funding"
+
+      assert(flight[0], flightName, "Flight name is not correctly set")
+      assert(flight[1], 0, "Flight status code is not 0")
+      assert.notEqual(flight[2], 0, "Flight timestamp is not set")
+      assert(
+        flight[2],
+        flight[4],
+        "Flight registered and last updated timestamps should be same"
+      )
+      assert(
+        flight[5],
+        airlines[0].address,
+        "Flight registered by address is not correctly set"
+      )
+      assert(
+        flight[6],
+        insurancePrice,
+        "Flight insurance price is not correctly set"
+      )
+      assert(flight[7], [], "Flight insurees should be empty")
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.registerFlightForInsurance(
+          airlines[3].address,
+          flightName,
+          insurancePrice,
+          {
+            from: airlines[3].address,
+          }
+        ),
+        "Airline is not authorized, i.e. active through funding"
+      )
+      await truffleAssert.reverts(
+        config.flightSuretyData.registerFlightForInsurance(
+          airlines[1].address,
+          flightName,
+          insurancePrice,
+          {
+            from: airlines[0].address,
+          }
+        ),
+        "Cannot register flight insurance for another airline"
+      )
+      await truffleAssert.reverts(
+        config.flightSuretyData.registerFlightForInsurance(
+          config.owner,
+          flightName,
+          insurancePrice,
+          {
+            from: airlines[0].address,
+          }
+        ),
+        "Airline does not exist"
       )
     })
   })
