@@ -46,19 +46,20 @@ contract FlightSuretyData {
     bool private operational = true; // Blocks all state changes throughout the contract if false
     address private contractOwner; // Account used to deploy contract
 
+    uint256 public returnUncreditedInsurancesLockTime = 60 * 60 * 24 * 365; // 365
+
     uint256 authorizedContractCount = 0; // Number of contracts authorized to operate the contract
     mapping(address => bool) private authorizedContracts; // allowed to call the data contract
 
-    uint256 initialAirlineFunding = 1 ether; // what airlines have to bring in initially
+    uint256 initialAirlineFunding = 10 ether; // what airlines have to bring in initially
     uint256 registeredAirlineCount = 0; // Number of airlines registered
     uint256 activeAirlineCount = 0; // Number of airlines registered and active
     mapping(address => Airline) airlines;
     mapping(address => mapping(address => bool)) airlineRegistrationVotes;
 
-    mapping(bytes32 => uint256) registeredPayouts;
-
-    uint256 flightCount = 0; // Number of flights
     mapping(bytes32 => Flight) flights;
+
+    mapping(bytes32 => Insuree[]) registeredPayouts;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -109,6 +110,13 @@ contract FlightSuretyData {
         string flightName,
         address insureeAddress,
         uint256 payoutAmount
+    );
+    event ReturnUncreditedInsurance(
+        address airlineAddress,
+        string airlineName,
+        string flightName,
+        address insureeAddress,
+        uint256 insuranceAmount
     );
 
     /**
@@ -334,6 +342,33 @@ contract FlightSuretyData {
         return (insuree.account, insuree.insuranceAmount, insuree.isCredited);
     }
 
+    function getRegisteredPayouts(address airlineAddress, string flightName)
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            address[]
+        )
+    {
+        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
+        Insuree[] storage insurees = registeredPayouts[flightKey];
+
+        uint256 payoutInsurees = 0;
+        uint256 payoutAmount = 0;
+        address[] memory payoutAddresses = new address[](insurees.length);
+
+        for (uint256 i = 0; i < insurees.length; i++) {
+            Insuree storage insuree = insurees[i];
+
+            payoutInsurees = payoutInsurees.add(1);
+            payoutAmount = payoutAmount.add(insuree.insuranceAmount);
+            payoutAddresses[i] = insuree.account;
+        }
+
+        return (payoutInsurees, payoutAmount, payoutAddresses);
+    }
+
     /**
      * @dev Add an airline to the registration queue
      *      Can only be called from FlightSuretyApp contract
@@ -468,6 +503,10 @@ contract FlightSuretyData {
             airlineAddress == msg.sender,
             "Cannot register flight insurance for another airline"
         );
+        require(
+            airline.insuranceBalance >= insurancePrice.mul(1000),
+            "Insufficient funds to register flight, provide more funding"
+        );
 
         uint256 timestamp = block.timestamp;
         bytes32 flightKey = getKey(airlineAddress, flightName, 0);
@@ -541,16 +580,16 @@ contract FlightSuretyData {
         require(flight.airline != address(0), "Flight does not exist");
 
         require(
-            flight.freezeTimestamp == 0,
-            "Flight is frozen, it's too late to buy insurance for this flight"
-        );
-
-        require(
             flight.insurees[msg.sender].account == address(0),
             "You already bought insurance for this flight"
         );
 
         require(msg.value >= flight.insurancePrice, "Insufficient amount");
+
+        require(
+            flight.freezeTimestamp == 0,
+            "Flight is frozen, it's too late to buy insurance for this flight"
+        );
 
         Insuree memory insuree = Insuree({
             account: msg.sender,
@@ -575,28 +614,118 @@ contract FlightSuretyData {
         );
     }
 
-    // function creditInsurees(
+    function creditInsurees(address airlineAddress, string flightName)
+        external
+        requireIsOperational
+        requireCallerAuthorized
+    {
+        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
+        Flight storage flight = flights[flightKey];
+
+        require(flight.airline != address(0), "Flight does not exist");
+
+        require(
+            flight.freezeTimestamp != 0,
+            "Flight is not frozen, it's too early to credit insurees"
+        );
+
+        Insuree[] storage insurees = registeredPayouts[flightKey];
+        require(
+            insurees.length == 0,
+            "Flight is already credited, payouts are ready"
+        );
+
+        for (uint256 i = 0; i < flight.insureeAddresses.length; i++) {
+            address insureeAddress = flight.insureeAddresses[i];
+            Insuree storage insuree = flight.insurees[insureeAddress];
+
+            if (!insuree.isCredited) {
+                Airline storage airline = airlines[airlineAddress];
+                airline.insuranceBalance = airline.insuranceBalance.sub(
+                    insuree.insuranceAmount
+                );
+
+                insurees.push(insuree);
+
+                insuree.isCredited = true;
+
+                emit CreditInsuree(
+                    airlineAddress,
+                    airlines[airlineAddress].name,
+                    flightName,
+                    insuree.account,
+                    insuree.insuranceAmount
+                );
+            }
+        }
+    }
+
+    /**
+     *  @dev Transfers eligible payout funds to insuree
+     *
+     */
+    function payoutInsurance(address airlineAddress, string flightName)
+        external
+        payable
+    {
+        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
+        Insuree[] storage insurees = registeredPayouts[flightKey];
+
+        for (uint256 i = 0; i < insurees.length; i++) {
+            Insuree storage insuree = insurees[i];
+
+            if (insuree.account == msg.sender && insuree.insuranceAmount > 0) {
+                address insureeAddress = insuree.account;
+                uint256 insuranceAmount = insuree.insuranceAmount;
+
+                delete insurees[i];
+
+                insureeAddress.transfer(insuranceAmount);
+
+                emit PayoutInsurance(
+                    flightName,
+                    insureeAddress,
+                    insuranceAmount
+                );
+            }
+        }
+    }
+
+    // function returnUncreditedInsurances(
     //     address airlineAddress,
-    //     string flightName,
-    //     uint256 timestamp
-    // ) external requireIsOperational requireCallerAuthorized {
-    //     bytes32 flightKey = getKey(airlineAddress, flightName, timestamp);
+    //     string flightName
+    // ) public {
+    //     bytes32 flightKey = getKey(airlineAddress, flightName, 0);
+
     //     Flight storage flight = flights[flightKey];
 
-    // require(flight != 0, "Flight is not registered");
-    // if (flight.insurees.length == 0) {
-    //     return;
-    // }
+    //     require(flight.airline != address(0), "Flight does not exist");
 
-    // for (uint256 i = 0; i < flight.insureeAddresses.length; i++) {
-    //     address insureeAddress = flight.insureeAddresses[i];
-    //     Insuree storage insuree = flight.insurees[insureeAddress];
+    //     require(
+    //         flight.freezeTimestamp != 0,
+    //         "Flight is not frozen, it's too early to return uncredited insurance"
+    //     );
 
-    //     if (!insuree.isCredited) {
-    //         bytes32 policyKey = getPolicyKey(insuree.account, flightName);
-    //         registeredPayouts[policyKey] = insuree.insuranceAmount;
+    //     require(
+    //         msg.sender == flight.airline,
+    //         "Only airline can return uncredited insurance"
+    //     );
 
-    //         emit CreditInsuree(
+    //     require(
+    //         block.timestamp >=
+    //             flight.freezeTimestamp.add(returnUncreditedInsurancesLockTime),
+    //         "It's too early to return uncredited insurances"
+    //     );
+
+    //     Insuree[] storage insurees = registeredPayouts[flightKey];
+
+    //     for (uint256 i = 0; i < insurees.length; i++) {
+    //         Insuree storage insuree = insurees[i];
+
+    //         Airline storage airline = airlines[airlineAddress];
+    //         airline.insuranceBalance.add(insuree.insuranceAmount);
+
+    //         emit ReturnUncreditedInsurance(
     //             airlineAddress,
     //             airlines[airlineAddress].name,
     //             flightName,
@@ -604,26 +733,8 @@ contract FlightSuretyData {
     //             insuree.insuranceAmount
     //         );
     //     }
-    // }
-    // }
 
-    /**
-     *  @dev Transfers eligible payout funds to insuree
-     *
-     */
-    // function payoutInsurance(string flightName, address insureeAddress)
-    //     external
-    //     payable
-    // {
-    //     bytes32 policyKey = getKey(insureeAddress, flightName, 0);
-    //     uint256 payoutAmount = registeredPayouts[policyKey];
-
-    //     if (payoutAmount > 0) {
-    //         registeredPayouts[policyKey] = 0;
-    //         insureeAddress.transfer(payoutAmount);
-
-    //         emit PayoutInsurance(flightName, insureeAddress, payoutAmount);
-    //     }
+    //     delete registeredPayouts[flightKey];
     // }
 
     function getKey(
@@ -638,7 +749,7 @@ contract FlightSuretyData {
      * @dev Fallback function for funding smart contract.
      *
      */
-    // function() external payable {
-    //     provideAirlinefunding();
-    // }
+    function() external payable {
+        // provideAirlinefunding();
+    }
 }
