@@ -37,6 +37,7 @@ contract FlightSuretyData {
         uint256 freezeTimestamp;
         uint256 lastUpdatedTimestamp;
         address airline;
+        bool landed;
         uint256 insurancePrice;
         address[] insureeAddresses;
         mapping(address => Insuree) insurees;
@@ -311,6 +312,7 @@ contract FlightSuretyData {
             uint256,
             uint256,
             address,
+            bool,
             uint256,
             address[]
         )
@@ -324,6 +326,7 @@ contract FlightSuretyData {
             flight.freezeTimestamp,
             flight.lastUpdatedTimestamp,
             flight.airline,
+            flight.landed,
             flight.insurancePrice,
             flight.insureeAddresses
         );
@@ -527,6 +530,7 @@ contract FlightSuretyData {
             freezeTimestamp: 0,
             lastUpdatedTimestamp: timestamp,
             airline: airlineAddress,
+            landed: false,
             insurancePrice: insurancePrice,
             insureeAddresses: emptyArray
         });
@@ -623,7 +627,7 @@ contract FlightSuretyData {
     }
 
     function creditInsurees(address airlineAddress, string flightName)
-        external
+        private
         requireIsOperational
         requireCallerAuthorized
     {
@@ -669,7 +673,7 @@ contract FlightSuretyData {
     }
 
     /**
-     *  @dev Transfers eligible payout funds to insuree
+     *  @dev Transfers eligible payout funds to insurees
      *
      */
     function payoutInsurance(address airlineAddress, string flightName)
@@ -743,6 +747,39 @@ contract FlightSuretyData {
         }
 
         delete registeredPayouts[flightKey];
+    }
+
+    // setter
+    function setFlightStatus(
+        address airlineAddress,
+        string flightName,
+        uint8 statusCode
+    )
+        external
+        requireAirlineRegistered(airlineAddress)
+        requireAirlineAuthorized
+    {
+        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
+        Flight storage flight = flights[flightKey];
+
+        require(flight.airline != address(0), "This flight is not registered");
+        require(
+            !flight.landed,
+            "The status of this flight has already been updated"
+        );
+
+        flight.statusCode = statusCode;
+        flight.lastUpdatedTimestamp = block.timestamp;
+
+        // Status other than 0 sets the flight landed variable to true
+        if (statusCode != 0) {
+            flights[flightKey].landed = true;
+        }
+
+        // Passengers are credited if flight is late due to the airline
+        if (statusCode == 20) {
+            creditInsurees(airlineAddress, flightName);
+        }
     }
 
     function getKey(

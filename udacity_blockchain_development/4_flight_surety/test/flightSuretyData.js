@@ -399,7 +399,7 @@ contract("Flight Surety Data Tests", async (accounts) => {
         parseInt(flight[6]) === parseInt(insurancePrice),
         "Flight insurance price is not correctly set"
       )
-      assert(flight[7].length === [].length, "Flight insurees should be empty")
+      assert(flight[8].length === [].length, "Flight insurees should be empty")
 
       await truffleAssert.reverts(
         config.flightSuretyData.registerFlightForInsurance(
@@ -554,7 +554,7 @@ contract("Flight Surety Data Tests", async (accounts) => {
         flightName
       )
       assert.ok(
-        flight[7].includes(accounts[5]),
+        flight[8].includes(accounts[5]),
         "Insuree is not insured for flight"
       )
 

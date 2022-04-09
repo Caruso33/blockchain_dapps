@@ -25,7 +25,7 @@ const Config = async function (accounts) {
   const fifthAirline = accounts[5]
 
   const flightSuretyData = await FlightSuretyData.new()
-  const flightSuretyApp = await FlightSuretyApp.new()
+  const flightSuretyApp = await FlightSuretyApp.new(flightSuretyData.address)
 
   return {
     owner,

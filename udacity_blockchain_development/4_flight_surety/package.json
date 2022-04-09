@@ -10,6 +10,7 @@
   "scripts": {
     "test": "truffle test ./test/flightSurety.js",
     "test:data": "truffle test ./test/flightSuretyData.js",
+    "test:app": "truffle test ./test/flightSuretyApp.js",
     "test:watch": "nodemon -w contracts/* --exec yarn test ./test",
     "dapp": "webpack-dev-server --mode development --config webpack.config.dapp.js",
     "dapp:prod": "webpack --mode production  --config webpack.config.dapp.js",
