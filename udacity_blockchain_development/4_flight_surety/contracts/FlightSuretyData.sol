@@ -270,6 +270,14 @@ contract FlightSuretyData {
         return activeAirlineCount;
     }
 
+    function getReturnUncreditedInsurancesLockTime()
+        public
+        view
+        returns (uint256)
+    {
+        return returnUncreditedInsurancesLockTime;
+    }
+
     function getAirline(address airlineAddress)
         public
         view
@@ -691,51 +699,51 @@ contract FlightSuretyData {
         }
     }
 
-    // function returnUncreditedInsurances(
-    //     address airlineAddress,
-    //     string flightName
-    // ) public {
-    //     bytes32 flightKey = getKey(airlineAddress, flightName, 0);
+    function returnUncreditedInsurances(
+        address airlineAddress,
+        string flightName
+    ) public requireIsOperational requireAirlineAuthorized {
+        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
 
-    //     Flight storage flight = flights[flightKey];
+        Flight storage flight = flights[flightKey];
 
-    //     require(flight.airline != address(0), "Flight does not exist");
+        require(flight.airline != address(0), "Flight does not exist");
 
-    //     require(
-    //         flight.freezeTimestamp != 0,
-    //         "Flight is not frozen, it's too early to return uncredited insurance"
-    //     );
+        require(
+            flight.freezeTimestamp != 0,
+            "Flight is not frozen, it's too early to return uncredited insurance"
+        );
 
-    //     require(
-    //         msg.sender == flight.airline,
-    //         "Only airline can return uncredited insurance"
-    //     );
+        require(
+            msg.sender == flight.airline,
+            "Only particular airline can return uncredited insurance"
+        );
 
-    //     require(
-    //         block.timestamp >=
-    //             flight.freezeTimestamp.add(returnUncreditedInsurancesLockTime),
-    //         "It's too early to return uncredited insurances"
-    //     );
+        require(
+            block.timestamp >=
+                flight.freezeTimestamp.add(returnUncreditedInsurancesLockTime),
+            "It's too early to return uncredited insurances"
+        );
 
-    //     Insuree[] storage insurees = registeredPayouts[flightKey];
+        Insuree[] storage insurees = registeredPayouts[flightKey];
 
-    //     for (uint256 i = 0; i < insurees.length; i++) {
-    //         Insuree storage insuree = insurees[i];
+        for (uint256 i = 0; i < insurees.length; i++) {
+            Insuree storage insuree = insurees[i];
 
-    //         Airline storage airline = airlines[airlineAddress];
-    //         airline.insuranceBalance.add(insuree.insuranceAmount);
+            Airline storage airline = airlines[airlineAddress];
+            airline.insuranceBalance.add(insuree.insuranceAmount);
 
-    //         emit ReturnUncreditedInsurance(
-    //             airlineAddress,
-    //             airlines[airlineAddress].name,
-    //             flightName,
-    //             insuree.account,
-    //             insuree.insuranceAmount
-    //         );
-    //     }
+            emit ReturnUncreditedInsurance(
+                airlineAddress,
+                airlines[airlineAddress].name,
+                flightName,
+                insuree.account,
+                insuree.insuranceAmount
+            );
+        }
 
-    //     delete registeredPayouts[flightKey];
-    // }
+        delete registeredPayouts[flightKey];
+    }
 
     function getKey(
         address keyAddress,

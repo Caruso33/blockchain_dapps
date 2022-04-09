@@ -1,7 +1,13 @@
 const Test = require("../config/testConfig.js")
 const BigNumber = require("bignumber.js")
 const truffleAssert = require("truffle-assertions")
-const { createAirlines, voteForAirlines } = require("./utils.js")
+const {
+  createAirlines,
+  voteForAirlines,
+  advanceTime,
+  takeSnapshot,
+  revertToSnapshot,
+} = require("./utils.js")
 
 contract("Flight Surety Data Tests", async (accounts) => {
   let config
@@ -513,7 +519,9 @@ contract("Flight Surety Data Tests", async (accounts) => {
         "Flight is already frozen"
       )
     })
+  })
 
+  describe("passenger functionality", () => {
     it("passengers can buy insurance for flights", async () => {
       createAirlines(config, airlines)
 
@@ -617,7 +625,9 @@ contract("Flight Surety Data Tests", async (accounts) => {
         "Flight is frozen, it's too late to buy insurance for this flight"
       )
     })
+  })
 
+  describe("insurance payout", () => {
     it("(only) authorized caller can debit insurees for flight", async () => {
       createAirlines(config, airlines)
 
@@ -734,6 +744,122 @@ contract("Flight Surety Data Tests", async (accounts) => {
         }),
         "Flight is already credited, payouts are ready"
       )
+    })
+
+    it.skip("(only) after a set time uncredited insurances can be returned to the airline", async () => {
+      const snapshot = await takeSnapshot()
+      const snapshotId = snapshot["result"]
+
+      createAirlines(config, airlines)
+
+      await voteForAirlines(config, airlines)
+
+      const airlineAddress = airlines[0].address
+      const flightName = "Flight 001"
+      const insurancePrice = web3.utils.toWei(`0.01`)
+      await config.flightSuretyData.registerFlightForInsurance(
+        airlineAddress,
+        flightName,
+        insurancePrice,
+        {
+          from: airlineAddress,
+        }
+      )
+
+      await config.flightSuretyData.buyInsuranceForFlight(
+        airlineAddress,
+        flightName,
+        {
+          from: accounts[5],
+          value: insurancePrice,
+        }
+      )
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.returnUncreditedInsurances(
+          airlineAddress,
+          flightName,
+          { from: airlineAddress }
+        ),
+        "Flight is not frozen, it's too early to return uncredited insurance"
+      )
+
+      await config.flightSuretyData.freezeFlight(
+        airlines[0].address,
+        flightName,
+        { from: airlines[0].address }
+      )
+
+      await config.flightSuretyData.creditInsurees(airlineAddress, flightName, {
+        from: config.owner,
+      })
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.returnUncreditedInsurances(
+          airlineAddress,
+          "Flight 002",
+          { from: airlineAddress }
+        ),
+        "Flight does not exist"
+      )
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.returnUncreditedInsurances(
+          airlineAddress,
+          flightName,
+          { from: airlines[1].address }
+        ),
+        "Only particular airline can return uncredited insurance"
+      )
+
+      await truffleAssert.reverts(
+        config.flightSuretyData.returnUncreditedInsurances(
+          airlineAddress,
+          flightName,
+          { from: airlineAddress }
+        ),
+        "It's too early to return uncredited insurances"
+      )
+
+      const airlineBefore = await config.flightSuretyData.getAirline(
+        airlineAddress
+      )
+      const registeredPayoutsBefore =
+        await config.flightSuretyData.getRegisteredPayouts(
+          airlineAddress,
+          flightName
+        )
+      assert(
+        parseInt(registeredPayoutsBefore[0]) === 1,
+        "Insuree length not credited correctly"
+      )
+
+      // const returnUncreditedInsurancesLockTime =
+      //   await config.flightSuretyData.getReturnUncreditedInsurancesLockTime()
+      // await advanceTime(returnUncreditedInsurancesLockTime)
+
+      // const event = await config.flightSuretyData.returnUncreditedInsurances(
+      //   airlineAddress,
+      //   flightName,
+      //   { from: airlineAddress }
+      // )
+      // truffleAssert.eventEmitted(event, "ReturnUncreditedInsurance")
+
+      // const airline = await config.flightSuretyData.getAirline(airlineAddress)
+      // const registeredPayouts =
+      //   await config.flightSuretyData.getRegisteredPayouts(
+      //     airlineAddress,
+      //     flightName
+      //   )
+
+      // assert(
+      //   parseInt(airlineBefore[5]) === parseInt(airline[5] + 1 * insurancePrice)
+      // )
+      // assert(
+      //   parseInt(registeredPayouts[0]) === 0,
+      //   "Insuree length not reduced correctly"
+      // )
+      await revertToSnapshot(snapshotId)
     })
   })
 })
