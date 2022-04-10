@@ -3,12 +3,13 @@ const {
   createAirlines,
   voteForAirlines,
   registerOracles,
+  submitOracleResponses,
 } = require("./utils.js")
 const truffleAssert = require("truffle-assertions")
-//var BigNumber = require('bignumber.js');
 
 contract("Oracles", async (accounts) => {
-  const TEST_ORACLES_COUNT = 3
+  const TEST_ORACLES_COUNT = 9
+  const MIN_RESPONSES = 3
 
   // Watch contract events
   const STATUS_CODE_UNKNOWN = 0
@@ -60,7 +61,7 @@ contract("Oracles", async (accounts) => {
     }
   })
 
-  it.only("can request flight status", async () => {
+  it("can request flight status", async () => {
     await createAirlines(config, airlines)
 
     await voteForAirlines(config, airlines)
@@ -81,7 +82,7 @@ contract("Oracles", async (accounts) => {
 
     await registerOracles(config, accounts, TEST_ORACLES_COUNT)
 
-    const event = await config.flightSuretyApp.fetchFlightStatus(
+    const event = await config.flightSuretyApp.requestFlightStatus(
       airlines[0].address,
       flight,
       { from: airlines[0].address }
@@ -95,83 +96,102 @@ contract("Oracles", async (accounts) => {
     console.log("Request index ", requestIndex)
     console.log("Request timestamp ", timestamp)
 
-    const min_responses = 3 // await config.flightSuretyApp.MIN_RESPONSES.call()
+    const submitEvents = await submitOracleResponses(
+      config,
+      accounts,
+      airlines,
+      TEST_ORACLES_COUNT,
+      requestIndex,
+      flight,
+      timestamp,
+      STATUS_CODE_ON_TIME
+    )
 
-    const promises = []
-    for (let i = 1; i <= TEST_ORACLES_COUNT; i++) {
-      promises.push(
-        new Promise(async (resolve, reject) => {
-          try {
-            const oracleIndexes =
-              await config.flightSuretyApp.getMyIndexes.call({
-                from: accounts[i],
-              })
+    const hasEnoughResponses = TEST_ORACLES_COUNT >= MIN_RESPONSES
+    submitEvents.forEach(async (event) => {
+      if (!event) return
 
-            const event = await config.flightSuretyApp.submitOracleResponse(
-              oracleIndexes,
-              requestIndex,
-              airlines[0].address,
-              flight,
-              timestamp,
-              STATUS_CODE_ON_TIME,
-              { from: accounts[i] }
-            )
+      truffleAssert.eventEmitted(event, "OracleReport", (ev) => {
+        return (
+          ev.airline === airlines[0].address &&
+          ev.status.toNumber() === STATUS_CODE_ON_TIME
+        )
+      })
+    })
 
-            resolve(event)
-          } catch (err) {
-            console.log("error", err)
-            reject(err)
+    if (hasEnoughResponses) {
+      let flightStatusWasEmitted = false
+
+      submitEvents.forEach((event) => {
+        if (!event) return
+
+        event.logs.forEach((log) => {
+          if (
+            log.event === "FlightStatusInfo" &&
+            log.args.airline === airlines[0].address &&
+            log.args.status.toNumber() === STATUS_CODE_ON_TIME
+          ) {
+            flightStatusWasEmitted = true
           }
         })
-      )
+      })
+
+      assert.ok(flightStatusWasEmitted, "FlightStatusInfo was not emitted")
     }
-
-    await Promise.all(promises).then(async (events) => {
-      const hasEnoughResponses = TEST_ORACLES_COUNT >= min_responses
-
-      for (const event of events) {
-        truffleAssert.eventEmitted(event, "OracleReport", (ev) => {
-          return (
-            ev.airline === airlines[0].address &&
-            ev.status.toNumber() === STATUS_CODE_ON_TIME
-          )
-        })
-      }
-
-      if (hasEnoughResponses) {
-        let flightStatusWasEmitted = false
-
-        events.forEach((event) => {
-          event.logs.forEach((log) => {
-            if (
-              log.event === "FlightStatusInfo" &&
-              log.args.airline === airlines[0].address &&
-              log.args.status.toNumber() === STATUS_CODE_ON_TIME
-            ) {
-              flightStatusWasEmitted = true
-            }
-          })
-        })
-
-        assert.ok(flightStatusWasEmitted, "FlightStatusInfo was not emitted")
-      }
-    })
   })
 
   it("can retrieve the correct flight status", async () => {
-    // ARRANGE
+    await createAirlines(config, airlines)
 
-    // ACT
-    let result = await config.flightSuretyApp.fetchFlightStatus(
+    await voteForAirlines(config, airlines)
+
+    await config.flightSuretyData.provideAirlinefunding(airlines[0].address, {
+      from: airlines[0].address,
+      value: activationFee,
+    })
+
+    const flight = "Flight 001"
+    const insurancePrice = web3.utils.toWei("0.01", "ether")
+    await config.flightSuretyApp.registerFlightForInsurance(
+      airlines[0].address,
+      flight,
+      insurancePrice,
+      { from: airlines[0].address }
+    )
+
+    await registerOracles(config, accounts, TEST_ORACLES_COUNT)
+
+    const event = await config.flightSuretyApp.requestFlightStatus(
+      airlines[0].address,
+      flight,
+      { from: airlines[0].address }
+    )
+
+    const [requestIndex, timestamp] = await new Promise((resolve, reject) => {
+      truffleAssert.eventEmitted(event, "OracleRequest", (ev) => {
+        resolve([ev.index.toNumber(), ev.timestamp.toNumber()])
+      })
+    })
+
+    await submitOracleResponses(
+      config,
+      accounts,
+      airlines,
+      TEST_ORACLES_COUNT,
+      requestIndex,
+      flight,
+      timestamp,
+      STATUS_CODE_ON_TIME
+    )
+
+    const flightStatus = await config.flightSuretyApp.getFlight(
       airlines[0].address,
       flight
     )
 
-    // ASSERT
-    assert.equal(
-      parseInt(result),
-      STATUS_CODE_ON_TIME,
-      "The correct status of the flight should be updated after 'FlightStatusInfo' event is emmited"
+    assert(
+      parseInt(flightStatus[1].toNumber()) == STATUS_CODE_ON_TIME,
+      "Flight status code should be changed to 10 (on time)"
     )
   })
 })

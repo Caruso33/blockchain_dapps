@@ -2,6 +2,7 @@ module.exports = {
   createAirlines,
   voteForAirlines,
   registerOracles,
+  submitOracleResponses,
   advanceTime,
   advanceBlock,
   takeSnapshot,
@@ -64,6 +65,61 @@ async function registerOracles(config, accounts, oracleCount = 3) {
       console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]}`)
     }
   })
+}
+
+async function submitOracleResponses(
+  config,
+  accounts,
+  airlines,
+  TEST_ORACLES_COUNT,
+  requestIndex,
+  flight,
+  timestamp,
+  STATUS_CODE_ON_TIME
+) {
+  const promises = []
+  for (let i = 1; i <= TEST_ORACLES_COUNT; i++) {
+    promises.push(
+      new Promise(async (resolve, reject) => {
+        try {
+          const oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({
+            from: accounts[i],
+          })
+          console.log(
+            "Oracle Indexes: ",
+            oracleIndexes[0].toNumber(),
+            oracleIndexes[1].toNumber(),
+            oracleIndexes[2].toNumber()
+          )
+          console.log("Request Index: ", requestIndex)
+
+          const event = await config.flightSuretyApp.submitOracleResponse(
+            oracleIndexes,
+            requestIndex,
+            airlines[0].address,
+            flight,
+            timestamp,
+            STATUS_CODE_ON_TIME,
+            { from: accounts[i] }
+          )
+
+          resolve(event)
+        } catch (err) {
+          if (
+            err.message.includes(
+              "Oracle response is already closed, minimum responses met"
+            )
+          )
+            return resolve()
+
+          console.log("error", err.message)
+          reject(err)
+        }
+      })
+    )
+  }
+
+  return Promise.all(promises)
 }
 
 function advanceTime(time) {

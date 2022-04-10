@@ -173,7 +173,7 @@ contract FlightSuretyApp {
     }
 
     // Generate a request for oracles to fetch flight information
-    function fetchFlightStatus(address airline, string flight) external {
+    function requestFlightStatus(address airline, string flight) external {
         uint8 index = getRandomIndex(msg.sender);
 
         uint256 timestamp = block.timestamp;
@@ -188,6 +188,24 @@ contract FlightSuretyApp {
         });
 
         emit OracleRequest(index, airline, flight, timestamp);
+    }
+
+    function getFlight(address airline, string flight)
+        external
+        view
+        returns (
+            string,
+            uint8,
+            uint256,
+            uint256,
+            uint256,
+            address,
+            bool,
+            uint256,
+            address[]
+        )
+    {
+        return flightSuretyData.getFlight(airline, flight);
     }
 
     function getKey(
@@ -295,9 +313,14 @@ contract FlightSuretyApp {
         bytes32 key = keccak256(
             abi.encodePacked(requestIndex, airline, flight, timestamp)
         );
+
+        require(
+            oracleResponses[key].requester != address(0),
+            "Some input parameter do not match oracle request or it doesn't exist"
+        );
         require(
             oracleResponses[key].isOpen,
-            "Some input parameter do not match oracle request"
+            "Oracle response is already closed, minimum responses met"
         );
 
         oracleResponses[key].responses[statusCode].push(msg.sender);
