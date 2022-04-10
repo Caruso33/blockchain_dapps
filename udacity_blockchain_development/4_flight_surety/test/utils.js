@@ -85,13 +85,13 @@ async function submitOracleResponses(
           const oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({
             from: accounts[i],
           })
-          console.log(
-            "Oracle Indexes: ",
-            oracleIndexes[0].toNumber(),
-            oracleIndexes[1].toNumber(),
-            oracleIndexes[2].toNumber()
-          )
-          console.log("Request Index: ", requestIndex)
+          // console.log(
+          //   "Oracle Indexes: ",
+          //   oracleIndexes[0].toNumber(),
+          //   oracleIndexes[1].toNumber(),
+          //   oracleIndexes[2].toNumber()
+          // )
+          // console.log("Request Index: ", requestIndex)
 
           const event = await config.flightSuretyApp.submitOracleResponse(
             oracleIndexes,

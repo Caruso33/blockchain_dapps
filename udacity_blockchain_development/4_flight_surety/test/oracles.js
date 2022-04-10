@@ -93,8 +93,8 @@ contract("Oracles", async (accounts) => {
         resolve([ev.index.toNumber(), ev.timestamp.toNumber()])
       })
     })
-    console.log("Request index ", requestIndex)
-    console.log("Request timestamp ", timestamp)
+    // console.log("Request index ", requestIndex)
+    // console.log("Request timestamp ", timestamp)
 
     const submitEvents = await submitOracleResponses(
       config,

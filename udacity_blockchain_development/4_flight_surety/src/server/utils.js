@@ -1,46 +1,96 @@
 module.exports = {
+  getAccounts,
   registerOracles,
-  onOracleRequest,
+  getOracleIndexes,
   onFlightStatusInfo,
 }
 
-function registerOracles(
-  web3,
-  flightSuretyApp,
-  { oracleAccounts, oracleIndexes, totalOracles, oracleInitialIndex }
-) {
-  // Transaction parameters
-  let registrationFee = web3.utils.toWei("1", "ether")
-  let transactionGas = "2000000"
+function getAccounts(web3, oracleInitialIndex) {
+  return new Promise((resolve, reject) => {
+    web3.eth.getAccounts((error, accounts) => {
+      const oracleAccounts = []
 
-  web3.eth.getAccounts((error, accounts) => {
-    for (let i = 0; i < totalOracles; i++) {
-      let oracleAddress
-      oracleAddress = accounts[oracleInitialIndex + i]
-      oracleAccounts.push(oracleAddress)
-
-      const onRegisterOracle = (error, result) => {
-        if (error) console.error(error)
-        else {
-          console.log(result)
-
-          flightSuretyApp.methods
-            .getMyIndexes()
-            .call({ from: oracleAddress }, (error, result) => {
-              console.log(`Oracle ${oracleAddress} has index ${result}`)
-              oracleIndexes[oracleAddress] = result
-            })
-        }
+      if (error) {
+        console.log("getAccounts: ", error.message)
+        return reject(error.message)
       }
 
-      flightSuretyApp.methods
-        .registerOracle()
-        .send(
-          { from: oracleAddress, value: registrationFee, gas: transactionGas },
-          onRegisterOracle
-        )
-    }
+      for (let i = 0; i < accounts.length; i++) {
+        const oracleAddress = accounts[oracleInitialIndex + i]
+        oracleAccounts.push(oracleAddress)
+      }
+      resolve(oracleAccounts)
+    })
   })
+}
+
+function getRegistrationFee(flightSuretyApp) {
+  return flightSuretyApp.methods.REGISTRATION_FEE().call()
+}
+
+function getOracleIndexes(flightSuretyApp, totalOracles, accounts) {
+  const promises = []
+
+  for (let i = 0; i < totalOracles; i++) {
+    const oracleAddress = accounts[i]
+
+    promises.push(
+      new Promise((resolve, reject) => {
+        flightSuretyApp.methods
+          .getMyIndexes()
+          .call({ from: oracleAddress }, (error, result) => {
+            if (error) {
+              console.error("getOracleIndexes: ", error.message)
+              return reject(error.message)
+            }
+
+            // console.log(`Oracle ${oracleAddress} has index ${result}`)
+
+            resolve({ [oracleAddress]: result })
+          })
+      })
+    )
+  }
+
+  return Promise.all(promises)
+}
+
+function registerOracles(flightSuretyApp, oracleAccounts, totalOracles) {
+  return getRegistrationFee(flightSuretyApp)
+    .then((registrationFee) => {
+      const transactionGas = "2000000"
+
+      const promises = []
+
+      for (let i = 0; i < totalOracles; i++) {
+        const oracleAddress = oracleAccounts[i]
+
+        promises.push(
+          new Promise((resolve, reject) => {
+            flightSuretyApp.methods.registerOracle().send(
+              {
+                from: oracleAddress,
+                value: registrationFee,
+                gas: transactionGas,
+              },
+              (error, result) => {
+                if (error) {
+                  console.error("registerOracle: ", error.message)
+                  return reject(error.message)
+                }
+
+                // console.log(`Oracle ${oracleAddress} registered`)
+
+                resolve({ [oracleAddress]: result })
+              }
+            )
+          })
+        )
+      }
+
+      return Promise.all(promises)
+    })
+    .catch((e) => console.log(e.message))
 }
 
 function onOracleRequest(error, event) {
