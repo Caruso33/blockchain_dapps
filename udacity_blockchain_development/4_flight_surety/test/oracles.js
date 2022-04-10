@@ -87,11 +87,12 @@ contract("Oracles", async (accounts) => {
       { from: airlines[0].address }
     )
 
-    const timestamp = await new Promise((resolve, reject) => {
+    const [requestIndex, timestamp] = await new Promise((resolve, reject) => {
       truffleAssert.eventEmitted(event, "OracleRequest", (ev) => {
-        resolve(ev.timestamp.toNumber())
+        resolve([ev.index.toNumber(), ev.timestamp.toNumber()])
       })
     })
+    console.log("Request index ", requestIndex)
     console.log("Request timestamp ", timestamp)
 
     const min_responses = 3 // await config.flightSuretyApp.MIN_RESPONSES.call()
@@ -108,6 +109,7 @@ contract("Oracles", async (accounts) => {
 
             const event = await config.flightSuretyApp.submitOracleResponse(
               oracleIndexes,
+              requestIndex,
               airlines[0].address,
               flight,
               timestamp,

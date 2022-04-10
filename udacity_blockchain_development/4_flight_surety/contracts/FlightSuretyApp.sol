@@ -180,7 +180,7 @@ contract FlightSuretyApp {
 
         // Generate a unique key for storing the request
         bytes32 key = keccak256(
-            abi.encodePacked(0, airline, flight, 0)
+            abi.encodePacked(index, airline, flight, timestamp)
         );
         oracleResponses[key] = ResponseInfo({
             requester: msg.sender,
@@ -257,7 +257,6 @@ contract FlightSuretyApp {
 
     // Register an oracle with the contract
     function registerOracle() external payable {
-        // Require registration fee
         require(msg.value >= REGISTRATION_FEE, "Registration fee is required");
 
         uint8[3] memory indexes = generateIndexes(msg.sender);
@@ -279,23 +278,26 @@ contract FlightSuretyApp {
     // and matches one of the three Indexes randomly assigned to the oracle at the
     // time of registration (i.e. uninvited oracles are not welcome)
     function submitOracleResponse(
-        uint8 index,
+        uint8[3] oracleIndexes,
+        uint8 requestIndex,
         address airline,
         string flight,
         uint256 timestamp,
         uint8 statusCode
     ) external {
         require(
-            (oracles[msg.sender].indexes[0] == index) ||
-                (oracles[msg.sender].indexes[1] == index) ||
-                (oracles[msg.sender].indexes[2] == index),
-            "Index does not match oracle request"
+            (oracles[msg.sender].indexes[0] == oracleIndexes[0]) &&
+                (oracles[msg.sender].indexes[1] == oracleIndexes[1]) &&
+                (oracles[msg.sender].indexes[2] == oracleIndexes[2]),
+            "Index does not match oracle registration"
         );
 
-        bytes32 key = keccak256(abi.encodePacked(0, airline, flight, 0));
+        bytes32 key = keccak256(
+            abi.encodePacked(requestIndex, airline, flight, timestamp)
+        );
         require(
             oracleResponses[key].isOpen,
-            "Flight or timestamp do not match oracle request"
+            "Some input parameter do not match oracle request"
         );
 
         oracleResponses[key].responses[statusCode].push(msg.sender);
