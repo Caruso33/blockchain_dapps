@@ -1,5 +1,7 @@
 const Test = require("../config/testConfig.js")
 const BigNumber = require("bignumber.js")
+const truffleAssert = require("truffle-assertions")
+const web3 = require("web3")
 
 contract("Flight Surety Tests", async (accounts) => {
   let config
@@ -25,27 +27,20 @@ contract("Flight Surety Tests", async (accounts) => {
   /****************************************************************************************/
   /* Operations and Settings                                                              */
   /****************************************************************************************/
-  describe("multiparty operational contract status", () => {
+  describe.skip("multiparty operational contract status", () => {
     it(`has correct initial isOperational() value`, async function () {
       // Get operating status
-      let status = await config.flightSuretyData.isOperational.call()
-      assert.equal(status, true, "Incorrect initial operating status value")
+      const status = await config.flightSuretyApp.isOperational.call()
+      assert.ok(status, "Incorrect initial operating status value")
     })
 
     it(`can block access to setOperatingStatus() for non-Contract Owner account`, async function () {
       // Ensure that access is denied for non-Contract Owner account
-      let accessDenied = false
-      try {
-        await config.flightSuretyData.setOperatingStatus(false, {
-          from: config.testAddresses[0],
-        })
-      } catch (e) {
-        accessDenied = true
-      }
-      assert.equal(
-        accessDenied,
-        true,
-        "Access not restricted to Contract Owner"
+      await truffleAssert.reverts(
+        config.flightSuretyApp.setOperatingStatus(false, {
+          from: airlines[0].address,
+        }),
+        "Caller is not contract owner"
       )
     })
 
@@ -53,8 +48,8 @@ contract("Flight Surety Tests", async (accounts) => {
       // Ensure that access is allowed for Contract Owner account
       let accessDenied = false
       try {
-        await config.flightSuretyData.setOperatingStatus(false)
-        let status = await config.flightSuretyData.isOperational.call()
+        await config.flightSuretyApp.setOperatingStatus(false)
+        let status = await config.flightSuretyApp.isOperational.call()
         assert.equal(status, false, "Operating status value wasn't changed")
       } catch (e) {
         accessDenied = true
@@ -67,7 +62,7 @@ contract("Flight Surety Tests", async (accounts) => {
     })
 
     it(`can block access to functions using requireIsOperational when operating status is false`, async function () {
-      await config.flightSuretyData.setOperatingStatus(false)
+      await config.flightSuretyApp.setOperatingStatus(false)
 
       let reverted = false
       try {
@@ -82,7 +77,55 @@ contract("Flight Surety Tests", async (accounts) => {
       )
 
       // Set it back for other tests to work
-      await config.flightSuretyData.setOperatingStatus(true)
+      await config.flightSuretyApp.setOperatingStatus(true)
+    })
+  })
+
+  describe("can create airline", () => {
+    it("can create an airline", async () => {
+      const airlineName = "Airline 001"
+      const airlineAddress = airlines[0].address
+
+      const registeredAirlineCountBefore =
+        await config.flightSuretyData.getRegisteredAirlineCount()
+
+      await config.flightSuretyApp.createAirline(airlineName, airlineAddress)
+
+      const registeredAirlineCount =
+        await config.flightSuretyData.getRegisteredAirlineCount()
+
+      assert(
+        registeredAirlineCountBefore == registeredAirlineCount - 1,
+        "First airline was not created & registered"
+      )
+    })
+    it("can provide airline funding ", async () => {
+      const airlineName = "Airline 001"
+      const airlineAddress = airlines[0].address
+
+      try {
+        await config.flightSuretyApp.createAirline(airlineName, airlineAddress)
+      } catch (e) {
+        console.log(e)
+      }
+
+      const initialAirlineFunding =
+        await config.flightSuretyData.getInitialFunding()
+      try {
+        await config.flightSuretyApp.provideAirlinefunding(airlineAddress, {
+          from: airlineAddress,
+          value: web3.utils.toWei(`10`, "ether"),
+          // value: initialAirlineFunding.toString(),
+        })
+      } catch (e) {
+        console.log(e)
+      }
+
+      const airline = await config.flightSuretyData.getAirline(airlineAddress)
+      assert(
+        airline[5].toString() == initialAirlineFunding.toString(),
+        "First airline was not created & registered"
+      )
     })
   })
 })

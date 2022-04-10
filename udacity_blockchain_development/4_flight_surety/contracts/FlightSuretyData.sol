@@ -125,7 +125,7 @@ contract FlightSuretyData {
      *      The deploying account becomes contractOwner
      */
     constructor() public {
-        contractOwner = msg.sender;
+        contractOwner = tx.origin;
     }
 
     /********************************************************************************************/
@@ -149,7 +149,7 @@ contract FlightSuretyData {
      * @dev Modifier that requires the "ContractOwner" account to be the function caller
      */
     modifier requireContractOwner() {
-        require(msg.sender == contractOwner, "Caller is not contract owner");
+        require(tx.origin == contractOwner, "Caller is not contract owner");
         _;
     }
 
@@ -171,7 +171,7 @@ contract FlightSuretyData {
 
     modifier requireAirlineAuthorized() {
         require(
-            airlines[msg.sender].isActive,
+            airlines[tx.origin].isActive,
             "Airline is not authorized, i.e. active through funding"
         );
         _;
@@ -181,7 +181,7 @@ contract FlightSuretyData {
      * @dev Modifier that requires the sender account to be one of the authorized accounts
      */
     modifier requireCallerAuthorized() {
-        require(authorizedContracts[msg.sender], "Caller is not authorized");
+        require(authorizedContracts[tx.origin], "Caller is not authorized");
         _;
     }
 
@@ -462,15 +462,15 @@ contract FlightSuretyData {
         Airline storage airline = airlines[airlineAddress];
 
         require(
-            !airlineRegistrationVotes[airlineAddress][msg.sender],
+            !airlineRegistrationVotes[airlineAddress][tx.origin],
             "Airline has already been voted for by sender"
         );
 
-        airlineRegistrationVotes[airlineAddress][msg.sender] = true;
+        airlineRegistrationVotes[airlineAddress][tx.origin] = true;
 
         airline.votes = airline.votes.add(1);
 
-        emit AirlineRegistrationVoted(airlineAddress, airline.name, msg.sender);
+        emit AirlineRegistrationVoted(airlineAddress, airline.name, tx.origin);
 
         // register if at least half or more authorizedContracts voted for the airline
         if (airline.votes * 2 > activeAirlineCount) {
@@ -496,7 +496,7 @@ contract FlightSuretyData {
     //         "Not enough insurance funds to drain account"
     //     );
     //     uint256 amount = airline;
-    //     msg.sender.transfer(amount);
+    //     tx.origin.transfer(amount);
     // }
 
     /**
@@ -511,7 +511,7 @@ contract FlightSuretyData {
         Airline storage airline = airlines[airlineAddress];
         require(airline.account != address(0), "Airline does not exist");
         require(
-            airlineAddress == msg.sender,
+            airlineAddress == tx.origin,
             "Cannot register flight insurance for another airline"
         );
         require(
@@ -553,7 +553,7 @@ contract FlightSuretyData {
     {
         Airline storage airline = airlines[airlineAddress];
         require(
-            airline.account == msg.sender,
+            airline.account == tx.origin,
             "Cannot freeze flight insurance for another airline"
         );
 
@@ -592,7 +592,7 @@ contract FlightSuretyData {
         require(flight.airline != address(0), "Flight does not exist");
 
         require(
-            flight.insurees[msg.sender].account == address(0),
+            flight.insurees[tx.origin].account == address(0),
             "You already bought insurance for this flight"
         );
 
@@ -604,16 +604,16 @@ contract FlightSuretyData {
         );
 
         Insuree memory insuree = Insuree({
-            account: msg.sender,
+            account: tx.origin,
             insuranceAmount: msg.value,
             isCredited: false
         });
-        flight.insureeAddresses.push(msg.sender);
-        flight.insurees[msg.sender] = insuree;
+        flight.insureeAddresses.push(tx.origin);
+        flight.insurees[tx.origin] = insuree;
 
         if (msg.value > flight.insurancePrice) {
             uint256 overpayedAmount = msg.value.sub(flight.insurancePrice);
-            msg.sender.transfer(overpayedAmount);
+            tx.origin.transfer(overpayedAmount);
         }
 
         emit FlightInsuranceBought(
@@ -621,7 +621,7 @@ contract FlightSuretyData {
             airlines[airlineAddress].name,
             flightName,
             block.timestamp,
-            msg.sender,
+            tx.origin,
             flight.insurancePrice
         );
     }
@@ -686,7 +686,7 @@ contract FlightSuretyData {
         for (uint256 i = 0; i < insurees.length; i++) {
             Insuree storage insuree = insurees[i];
 
-            if (insuree.account == msg.sender && insuree.insuranceAmount > 0) {
+            if (insuree.account == tx.origin && insuree.insuranceAmount > 0) {
                 address insureeAddress = insuree.account;
                 uint256 insuranceAmount = insuree.insuranceAmount;
 
@@ -719,7 +719,7 @@ contract FlightSuretyData {
         );
 
         require(
-            msg.sender == flight.airline,
+            tx.origin == flight.airline,
             "Only particular airline can return uncredited insurance"
         );
 
