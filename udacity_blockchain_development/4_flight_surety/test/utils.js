@@ -82,19 +82,16 @@ async function submitOracleResponses(
     promises.push(
       new Promise(async (resolve, reject) => {
         try {
-          const oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({
+          let oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({
             from: accounts[i],
           })
-          // console.log(
-          //   "Oracle Indexes: ",
-          //   oracleIndexes[0].toNumber(),
-          //   oracleIndexes[1].toNumber(),
-          //   oracleIndexes[2].toNumber()
-          // )
-          // console.log("Request Index: ", requestIndex)
+          oracleIndexes = oracleIndexes.map((index) => index.toNumber())
+
+          if (!oracleIndexes.includes(requestIndex)) {
+            return resolve()
+          }
 
           const event = await config.flightSuretyApp.submitOracleResponse(
-            oracleIndexes,
             requestIndex,
             airlines[0].address,
             flight,

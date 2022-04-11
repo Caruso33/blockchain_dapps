@@ -8,7 +8,7 @@ const {
 const truffleAssert = require("truffle-assertions")
 
 contract("Oracles", async (accounts) => {
-  const TEST_ORACLES_COUNT = 9
+  const TEST_ORACLES_COUNT = 20
   const MIN_RESPONSES = 3
 
   // Watch contract events
@@ -62,6 +62,11 @@ contract("Oracles", async (accounts) => {
   })
 
   it("can request flight status", async () => {
+    await config.flightSuretyData.authorizeCaller(
+      config.flightSuretyApp.address
+    )
+    await config.flightSuretyData.authorizeCaller(config.owner)
+
     await createAirlines(config, airlines)
 
     await voteForAirlines(config, airlines)
@@ -93,8 +98,7 @@ contract("Oracles", async (accounts) => {
         resolve([ev.index.toNumber(), ev.timestamp.toNumber()])
       })
     })
-    // console.log("Request index ", requestIndex)
-    // console.log("Request timestamp ", timestamp)
+    console.log({requestIndex, timestamp})
 
     const submitEvents = await submitOracleResponses(
       config,
@@ -107,7 +111,8 @@ contract("Oracles", async (accounts) => {
       STATUS_CODE_ON_TIME
     )
 
-    const hasEnoughResponses = TEST_ORACLES_COUNT >= MIN_RESPONSES
+    const hasEnoughResponses =
+      submitEvents.filter((event) => !!event).length >= MIN_RESPONSES
     submitEvents.forEach(async (event) => {
       if (!event) return
 
@@ -172,8 +177,9 @@ contract("Oracles", async (accounts) => {
         resolve([ev.index.toNumber(), ev.timestamp.toNumber()])
       })
     })
+    console.log({ requestIndex, timestamp })
 
-    await submitOracleResponses(
+    const submitEvents = await submitOracleResponses(
       config,
       accounts,
       airlines,
@@ -183,6 +189,17 @@ contract("Oracles", async (accounts) => {
       timestamp,
       STATUS_CODE_ON_TIME
     )
+    const hasEnoughResponses =
+      submitEvents.filter((event) => !!event).length >= MIN_RESPONSES
+
+    if (!hasEnoughResponses) {
+      throw Error(
+        `Not enough responses to run test, having ${
+          submitEvents.filter((event) => !!event).length
+        } need ${MIN_RESPONSES}`
+      )
+    }
+    console.log({ hasEnoughResponses })
 
     const flightStatus = await config.flightSuretyApp.getFlight(
       airlines[0].address,

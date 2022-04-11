@@ -125,7 +125,8 @@ contract FlightSuretyData {
      *      The deploying account becomes contractOwner
      */
     constructor() public {
-        contractOwner = tx.origin;
+        contractOwner = msg.sender;
+        authorizeCaller(msg.sender);
     }
 
     /********************************************************************************************/
@@ -149,7 +150,7 @@ contract FlightSuretyData {
      * @dev Modifier that requires the "ContractOwner" account to be the function caller
      */
     modifier requireContractOwner() {
-        require(tx.origin == contractOwner, "Caller is not contract owner");
+        require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
 
@@ -181,7 +182,7 @@ contract FlightSuretyData {
      * @dev Modifier that requires the sender account to be one of the authorized accounts
      */
     modifier requireCallerAuthorized() {
-        require(authorizedContracts[tx.origin], "Caller is not authorized");
+        require(authorizedContracts[msg.sender], "Caller is not authorized");
         _;
     }
 
@@ -230,7 +231,7 @@ contract FlightSuretyData {
     /********************************************************************************************/
 
     function authorizeCaller(address contractAddress)
-        external
+        public
         requireContractOwner
     {
         authorizedContracts[contractAddress] = true;
@@ -627,7 +628,7 @@ contract FlightSuretyData {
     }
 
     function creditInsurees(address airlineAddress, string flightName)
-        private
+        public
         requireIsOperational
         requireCallerAuthorized
     {
@@ -679,6 +680,7 @@ contract FlightSuretyData {
     function payoutInsurance(address airlineAddress, string flightName)
         external
         payable
+        requireCallerAuthorized
     {
         bytes32 flightKey = getKey(airlineAddress, flightName, 0);
         Insuree[] storage insurees = registeredPayouts[flightKey];
@@ -754,11 +756,7 @@ contract FlightSuretyData {
         address airlineAddress,
         string flightName,
         uint8 statusCode
-    )
-        external
-        requireAirlineRegistered(airlineAddress)
-        requireAirlineAuthorized
-    {
+    ) external requireCallerAuthorized {
         bytes32 flightKey = getKey(airlineAddress, flightName, 0);
         Flight storage flight = flights[flightKey];
 

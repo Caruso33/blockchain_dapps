@@ -2,6 +2,7 @@ module.exports = {
   getAccounts,
   registerOracles,
   getOracleIndexes,
+  onOracleRequest,
   onFlightStatusInfo,
 }
 
@@ -93,14 +94,19 @@ function registerOracles(flightSuretyApp, oracleAccounts, totalOracles) {
     .catch((e) => console.log(e.message))
 }
 
-function onOracleRequest(error, event) {
-  // Flight status codes
+function onOracleRequest(
+  error,
+  event,
+  flightSuretyApp,
+  oracleAccounts,
+  oracleIndexes
+) {
   const statusCodes = [0, 10, 20, 30, 40, 50]
 
   if (error) console.log(error)
 
   if (event) {
-    console.log(event)
+    console.log("onOracleRequest: ", event)
 
     const eventResult = event.returnValues
     // Loop through all oracles and submit the response of those with an index
@@ -114,18 +120,9 @@ function onOracleRequest(error, event) {
           eventResult.index == parseInt(indexes[1]) ||
           eventResult.index == parseInt(indexes[2])
         ) {
-          // The status code response is randomized for each oracle
-          let randomIndex
-          let status
+          const statusIndex = Math.floor(Math.random() * statusCodes.length)
+          const status = statusCodes[statusIndex]
 
-          if (randomnessOverride) {
-            // If there is a randomness override, this is the code assigned
-            status = statusCodeOverride
-          } else {
-            // If there is no randomness override, the code assigned is random
-            randomIndex = Math.floor(Math.random() * 6)
-            status = statusCodes[randomIndex]
-          }
           flightSuretyApp.methods
             .submitOracleResponse(
               eventResult.index,

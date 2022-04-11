@@ -396,7 +396,7 @@ contract("Flight Surety Data Tests", async (accounts) => {
         "Flight registered by address is not correctly set"
       )
       assert(
-        parseInt(flight[6]) === parseInt(insurancePrice),
+        parseInt(flight[7]) === parseInt(insurancePrice),
         "Flight insurance price is not correctly set"
       )
       assert(flight[8].length === [].length, "Flight insurees should be empty")

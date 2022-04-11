@@ -1,6 +1,7 @@
 import express from "express"
 import Web3 from "web3"
 import FlightSuretyApp from "../../build/contracts/FlightSuretyApp.json"
+import FlightSuretyData from "../../build/contracts/FlightSuretyData.json"
 import Config from "./config.json"
 import {
   getAccounts,
@@ -16,6 +17,10 @@ function run_app() {
     new Web3.providers.WebsocketProvider(config.url.replace("http", "ws"))
   )
   web3.eth.defaultAccount = web3.eth.accounts[0]
+  const flightSuretyData = new web3.eth.Contract(
+    FlightSuretyData.abi,
+    config.appAddress
+  )
   const flightSuretyApp = new web3.eth.Contract(
     FlightSuretyApp.abi,
     config.appAddress
@@ -29,7 +34,7 @@ function run_app() {
   let oraclesAddresses = []
   let indexes = []
 
-  getAccounts(web3, oracleInitialIndex) //
+  getAccounts(web3, oracleInitialIndex)
     .then((oracleAccounts) => {
       accounts = oracleAccounts
 
@@ -47,9 +52,19 @@ function run_app() {
     })
     .catch((e) => console.log(e.message))
 
-  flightSuretyApp.events.OracleRequest({ fromBlock: 0 }, onOracleRequest)
+  // flightSuretyData.event.on("change", (error, result) => {
+  //   if (error) {
+  //     console.log("change: ", error.message)
+  //     return
+  //   }
 
-  // // Listen to the 'FlightStatusInfo' event and console log the result
+  //   console.log("change: ", result)
+  // })
+
+  flightSuretyApp.events.OracleRequest({ fromBlock: 0 }, (error, event) =>
+    onOracleRequest(error, event, flightSuretyApp, accounts, indexes)
+  )
+
   flightSuretyApp.events.FlightStatusInfo({ fromBlock: 0 }, onFlightStatusInfo)
 
   const app = express()

@@ -99,32 +99,26 @@ contract("Flight Surety Tests", async (accounts) => {
         "First airline was not created & registered"
       )
     })
+
     it("can provide airline funding ", async () => {
       const airlineName = "Airline 001"
       const airlineAddress = airlines[0].address
 
-      try {
-        await config.flightSuretyApp.createAirline(airlineName, airlineAddress)
-      } catch (e) {
-        console.log(e)
-      }
+      await config.flightSuretyApp.createAirline(airlineName, airlineAddress)
 
       const initialAirlineFunding =
         await config.flightSuretyData.getInitialFunding()
-      try {
-        await config.flightSuretyApp.provideAirlinefunding(airlineAddress, {
-          from: airlineAddress,
-          value: web3.utils.toWei(`10`, "ether"),
-          // value: initialAirlineFunding.toString(),
-        })
-      } catch (e) {
-        console.log(e)
-      }
+
+      await config.flightSuretyApp.provideAirlinefunding(airlineAddress, {
+        from: airlineAddress,
+        // value: web3.utils.toWei(`10`, "ether"),
+        value: initialAirlineFunding.toString(),
+      })
 
       const airline = await config.flightSuretyData.getAirline(airlineAddress)
       assert(
         airline[5].toString() == initialAirlineFunding.toString(),
-        "First airline was not created & registered"
+        "Airline was not funded"
       )
     })
   })
