@@ -166,6 +166,16 @@ contract FlightSuretyApp {
         string memory flightName,
         uint8 statusCode
     ) internal {
+        require(
+            statusCode == STATUS_CODE_UNKNOWN ||
+                statusCode == STATUS_CODE_ON_TIME ||
+                statusCode == STATUS_CODE_LATE_AIRLINE ||
+                statusCode == STATUS_CODE_LATE_WEATHER ||
+                statusCode == STATUS_CODE_LATE_TECHNICAL ||
+                statusCode == STATUS_CODE_LATE_OTHER,
+            "Invalid status code"
+        );
+
         flightSuretyData.setFlightStatus(
             airlineAddress,
             flightName,

@@ -1,33 +1,149 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <title>FlightSurety</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
 
-<body>
-
+  <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">FlightSurety</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
-            aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+      <a class="navbar-brand" href="#">FlightSurety</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarsExampleDefault"
+        aria-controls="navbarsExampleDefault"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
     </nav>
 
-    <main class="container">
+    <main>
+      <div class="container">
+        <div id="display-wrapper"></div>
 
-        <div id="display-wrapper" class="top-20">
+        <h2>Contract Administration</h2>
+        <div class="row">
+          <label class="col-sm-6 field">App Contract Address</label>
+          <label class="col-sm-6 field">Data Contract Address</label>
         </div>
-        <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number"> <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
+
+        <div class="row">
+          <div class="input-group col-6">
+            <input
+              type="text"
+              id="app-contract-address"
+              class="form-control"
+              name="appcontractaddress"
+              placeholder="0x0"
+              disabled
+            />
+          </div>
+          <div class="input-group col-6">
+            <input
+              type="text"
+              id="data-contract-address"
+              class="form-control"
+              name="datacontractaddress"
+              placeholder="0x0"
+              disabled
+            />
+          </div>
         </div>
+
+        <div class="row mt-3">
+          <label class="col-sm-6 field">Data Contract Status</label>
+        </div>
+
+        <div class="row">
+          <div class="form-check col-6">
+            <label class="form-check-label" for="data-operational">
+              Operational
+            </label>
+
+            <input
+              class="form-check-input"
+              type="radio"
+              name="data-operational"
+              id="data-operational"
+              value="true"
+            />
+          </div>
+
+          <div class="form-check col-6">
+            <label class="form-check-label" for="data-not-operational">
+              Not Operational
+            </label>
+
+            <input
+              class="form-check-input"
+              type="radio"
+              name="data-not-operational"
+              id="data-not-operational"
+              value="false"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn btn-primary" id="authorize-app">
+            Authorize App Contract
+          </button>
+        </div>
+      </div>
+
+      <div class="container">
+        <div id="display-wrapper" class="top-20"></div>
+
+        <div id="airline-registry">
+          <h2 class="top-20">Airline Registry</h2>
+        </div>
+        <hr />
+        <div id="flight-registration">
+          <h2 class="top-20">New flight registration</h2>
+          <form name="flightdata">
+            <div class="row">
+              <label class="col-sm-3 field">Flight number</label>
+              <label class="col-sm-4 field" for="flight-airline">Airline</label>
+            </div>
+            <div class="row subform">
+              <input
+                type="text"
+                id="flight-number"
+                class="col-sm-3"
+                name="flightnumber"
+                placeholder="Enter flight number"
+              />
+              <select
+                class="col-sm-4 text-truncate"
+                id="flight-airline-selector"
+                name="flightairline"
+                margin="5px"
+              ></select>
+              <input
+                type="submit"
+                class="col-sm-4 btn btn-primary"
+                id="submit-flight"
+                value="Register flight"
+              />
+            </div>
+          </form>
+        </div>
+      </div>
+      <hr />
+      <hr />
     </main>
-
-</body>
-
+  </body>
 </html>
