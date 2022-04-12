@@ -68,82 +68,219 @@
         </div>
 
         <div class="row">
-          <div class="form-check col-6">
-            <label class="form-check-label" for="data-operational">
-              Operational
-            </label>
+          <div class="col-6">
+            <div class="form-check form-check-inline">
+              <label class="form-check-label mr-1" for="data-operational">
+                Operational
+              </label>
 
-            <input
-              class="form-check-input"
-              type="radio"
-              name="data-operational"
-              id="data-operational"
-              value="true"
-            />
+              <input
+                class="form-check-input"
+                type="radio"
+                name="data-operational"
+                id="data-operational"
+                value="true"
+              />
+            </div>
           </div>
 
-          <div class="form-check col-6">
-            <label class="form-check-label" for="data-not-operational">
-              Not Operational
-            </label>
+          <div class="col-6">
+            <div class="form-check form-check-inline">
+              <label class="form-check-label mr-1" for="data-not-operational">
+                Not Operational
+              </label>
 
-            <input
-              class="form-check-input"
-              type="radio"
-              name="data-not-operational"
-              id="data-not-operational"
-              value="false"
-            />
+              <input
+                class="form-check-input"
+                type="radio"
+                name="data-not-operational"
+                id="data-not-operational"
+                value="false"
+              />
+            </div>
           </div>
         </div>
 
+        <div class="row mt-3">
+          <div class="col-12">
+            <button
+              class="btn btn-secondary"
+              type="button"
+              id="authorize-app-contract"
+            >
+              Authorize App Contract
+            </button>
+
+            <div class="btn-group ml-1">
+              <button
+                class="btn btn-secondary"
+                type="button"
+                id="get-data-contract-status"
+              >
+                Get Data Contract Status
+              </button>
+
+              <button
+                class="btn btn-secondary"
+                type="button"
+                id="set-data-contract-status"
+              >
+                Set New Data Contract Status
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 
+      <div class="row">
+        <div class="input-group col-12">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="0x0"
+            id="app-contract-address"
+          />
+
+          <div class="input-group-append">
+            <button
+              class="form-control btn btn-primary"
+              type="button"
+              id="authorize-app-contract"
+            >
+              Authorize
+            </button>
+          </div>
+        </div>
+      </div> -->
+
+      <div class="container">
+        <div id="display-wrapper" class=""></div>
+
+        <div id="airline-registry">
+          <h2>Airline Registry</h2>
+        </div>
+
+        <div class="row mt-3">
+          <label class="col-sm-4 field">Airlines Address </label>
+          <label class="col-sm-4 field">Airlines Name </label>
+        </div>
+
         <div class="row">
-          <button class="btn btn-primary" id="authorize-app">
-            Authorize App Contract
-          </button>
+          <div class="input-group col-4">
+            <input
+              type="text"
+              id="airline-address"
+              class="form-control"
+              name="airlineaddress"
+              placeholder="0x0"
+            />
+          </div>
+          <div class="input-group col-4">
+            <input
+              type="text"
+              id="airline-name"
+              class="form-control"
+              name="airlinename"
+              placeholder="Airline XYZ"
+            />
+          </div>
+
+          <div class="input-group col-4">
+            <button
+              class="btn btn-secondary"
+              type="button"
+              id="authorize-app-contract"
+            >
+              Register New Airline
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-4">
+            <select
+              class="custom-select"
+              id="flight-airline-selector"
+              name="flightairline"
+            >
+              <option>Airlines</option>
+            </select>
+          </div>
+
+          <div class="col-8">
+            <button class="btn btn-secondary" type="button" id="get-airlines">
+              Get Airlines
+            </button>
+
+            <button
+              class="btn btn-secondary ml-1"
+              type="button"
+              id="vote-airline"
+            >
+              Vote for Airline
+            </button>
+
+            <button
+              class="btn btn-secondary ml-1"
+              type="button"
+              id="fund-airline"
+            >
+              Fund Airline
+            </button>
+          </div>
         </div>
       </div>
 
       <div class="container">
-        <div id="display-wrapper" class="top-20"></div>
+        <div id="flight-registration mt-3">
+          <h2 class="">Flight registry</h2>
 
-        <div id="airline-registry">
-          <h2 class="top-20">Airline Registry</h2>
-        </div>
-        <hr />
-        <div id="flight-registration">
-          <h2 class="top-20">New flight registration</h2>
           <form name="flightdata">
             <div class="row">
-              <label class="col-sm-3 field">Flight number</label>
-              <label class="col-sm-4 field" for="flight-airline">Airline</label>
+              <label class="col-sm-4 field" for="flight-airline-selector"
+                >Airline</label
+              >
+              <label class="col-sm-3 field" for="flight-name">Flight Name</label>
             </div>
+
             <div class="row subform">
-              <input
-                type="text"
-                id="flight-number"
-                class="col-sm-3"
-                name="flightnumber"
-                placeholder="Enter flight number"
-              />
               <select
-                class="col-sm-4 text-truncate"
+                class="custom-select col-sm-4 text-truncate"
                 id="flight-airline-selector"
                 name="flightairline"
-                margin="5px"
-              ></select>
+              >
+                <option>Airlines</option>
+              </select>
+
               <input
-                type="submit"
-                class="col-sm-4 btn btn-primary"
-                id="submit-flight"
-                value="Register flight"
+                type="text"
+                id="flight-name"
+                class="col-sm-3"
+                name="flightname"
+                placeholder="Flight XYZ"
               />
+
+              <div class="col-sm-4">
+                <button
+                  class="btn btn-secondary"
+                  type="button"
+                  id="get-airlines"
+                >
+                  Get Airlines
+                </button>
+
+                <input
+                  type="submit"
+                  class="btn btn-primary"
+                  id="submit-flight"
+                  value="Register flight"
+                />
+              </div>
             </div>
           </form>
         </div>
       </div>
-      <hr />
-      <hr />
     </main>
   </body>
 </html>
