@@ -36,8 +36,8 @@
 
         <h2>Contract Administration</h2>
         <div class="row">
-          <label class="col-sm-6 field">App Contract Address</label>
-          <label class="col-sm-6 field">Data Contract Address</label>
+          <label class="col-6 field">App Contract Address</label>
+          <label class="col-6 field">Data Contract Address</label>
         </div>
 
         <div class="row">
@@ -64,7 +64,19 @@
         </div>
 
         <div class="row mt-3">
-          <label class="col-sm-6 field">Data Contract Status</label>
+          <div class="col-12">
+            <button
+              class="btn btn-primary"
+              type="button"
+              id="authorize-app-contract"
+            >
+              Authorize App Contract
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <label class="col-6 field">Data Contract Status</label>
         </div>
 
         <div class="row">
@@ -106,28 +118,18 @@
             <button
               class="btn btn-secondary"
               type="button"
-              id="authorize-app-contract"
+              id="get-data-contract-status"
             >
-              Authorize App Contract
+              Get Data Contract Status
             </button>
 
-            <div class="btn-group ml-1">
-              <button
-                class="btn btn-secondary"
-                type="button"
-                id="get-data-contract-status"
-              >
-                Get Data Contract Status
-              </button>
-
-              <button
-                class="btn btn-secondary"
-                type="button"
-                id="set-data-contract-status"
-              >
-                Set New Data Contract Status
-              </button>
-            </div>
+            <button
+              class="btn btn-primary ml-1"
+              type="button"
+              id="set-data-contract-status"
+            >
+              Set New Data Contract Status
+            </button>
           </div>
         </div>
       </div>
@@ -158,12 +160,12 @@
         <div id="display-wrapper" class=""></div>
 
         <div id="airline-registry">
-          <h2>Airline Registry</h2>
+          <h2>Airline Management</h2>
         </div>
 
         <div class="row mt-3">
-          <label class="col-sm-4 field">Airlines Address </label>
-          <label class="col-sm-4 field">Airlines Name </label>
+          <label class="col-4 field">Airlines Address </label>
+          <label class="col-4 field">Airlines Name </label>
         </div>
 
         <div class="row">
@@ -188,7 +190,7 @@
 
           <div class="input-group col-4">
             <button
-              class="btn btn-secondary"
+              class="btn btn-primary"
               type="button"
               id="authorize-app-contract"
             >
@@ -214,18 +216,28 @@
             </button>
 
             <button
-              class="btn btn-secondary ml-1"
+              class="btn btn-primary ml-1"
               type="button"
               id="vote-airline"
             >
               Vote for Airline
             </button>
+          </div>
+        </div>
 
-            <button
-              class="btn btn-secondary ml-1"
-              type="button"
+        <div class="row mt-3">
+          <div class="input-group col-4">
+            <input
+              type="number"
               id="fund-airline"
-            >
+              class="form-control"
+              name="fundairline"
+              placeholder="Funding: X Ether"
+            />
+          </div>
+
+          <div class="input-group col-4">
+            <button class="btn btn-primary" type="button" id="fund-airline">
               Fund Airline
             </button>
           </div>
@@ -233,52 +245,184 @@
       </div>
 
       <div class="container">
-        <div id="flight-registration mt-3">
-          <h2 class="">Flight registry</h2>
+        <div id="flight-registration col-12">
+          <h2>Flight Management</h2>
+        </div>
 
-          <form name="flightdata">
-            <div class="row">
-              <label class="col-sm-4 field" for="flight-airline-selector"
-                >Airline</label
-              >
-              <label class="col-sm-3 field" for="flight-name">Flight Name</label>
-            </div>
+        <div class="row">
+          <label class="col-4 field" for="flight-airline-selector"
+            >Airline</label
+          >
+          <label class="col-4 field" for="flight-name">Flight Name</label>
+        </div>
 
-            <div class="row subform">
-              <select
-                class="custom-select col-sm-4 text-truncate"
-                id="flight-airline-selector"
-                name="flightairline"
-              >
-                <option>Airlines</option>
-              </select>
+        <div class="row">
+          <div class="col-4">
+            <select
+              class="custom-select text-truncate"
+              id="flight-airline-selector"
+              name="flightairline"
+            >
+              <option>Airlines</option>
+            </select>
+          </div>
 
-              <input
-                type="text"
-                id="flight-name"
-                class="col-sm-3"
-                name="flightname"
-                placeholder="Flight XYZ"
-              />
+          <div class="col-4">
+            <input
+              type="text"
+              id="flight-name"
+              name="flightname"
+              class="form-control"
+              placeholder="Flight XYZ"
+            />
+          </div>
 
-              <div class="col-sm-4">
-                <button
-                  class="btn btn-secondary"
-                  type="button"
-                  id="get-airlines"
-                >
-                  Get Airlines
-                </button>
+          <div class="col-4">
+            <button class="btn btn-secondary" type="button" id="get-airlines">
+              Get Airlines
+            </button>
 
-                <input
-                  type="submit"
-                  class="btn btn-primary"
-                  id="submit-flight"
-                  value="Register flight"
-                />
-              </div>
-            </div>
-          </form>
+            <input
+              type="submit"
+              class="btn btn-primary"
+              id="submit-flight"
+              value="Register flight"
+            />
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-4">
+            <select
+              class="custom-select text-truncate"
+              id="flight-selector"
+              name="flights"
+            >
+              <option>Flights</option>
+            </select>
+          </div>
+
+          <div class="col-6">
+            <button class="btn btn-secondary" type="button" id="get-flights">
+              Get Flights
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-4">
+            <input type="text" id=flight-status" class="form-control"
+            name="flightstatus" placeholder="Flight status" disabled />
+          </div>
+
+          <div class="col-4">
+            <input type="text" id=flight-request-timestamp" class="form-control"
+            name="requesttimestap" placeholder="Flight status request timestamp"
+            disabled />
+          </div>
+
+          <div class="col-4">
+            <button
+              class="btn btn-secondary"
+              type="button"
+              id="get-flight-status"
+            >
+              Get Flight Status
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-12">
+            <button
+              class="btn btn-primary"
+              type="button"
+              id="get-flight-status"
+            >
+              Request New Flight Status
+            </button>
+
+            <button
+              class="btn btn-primary ml-1"
+              type="button"
+              id="get-flight-status"
+            >
+              Credit Insurees
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <h2>Passenger Actions</h2>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-6">
+            <select
+              class="custom-select text-truncate"
+              id="flight-airline-selector"
+              name="airlines"
+            >
+              <option>Airlines</option>
+            </select>
+          </div>
+
+          <div class="col-6">
+            <button class="btn btn-secondary" type="button" id="get-flights">
+              Get Airlines
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-6">
+            <select
+              class="custom-select text-truncate"
+              id="flight-selector"
+              name="flights"
+            >
+              <option>Flights</option>
+            </select>
+          </div>
+
+          <div class="col-6">
+            <button class="btn btn-secondary" type="button" id="get-flights">
+              Get Flights
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="input-group col-6">
+            <input
+              type="number"
+              id="fund-airline"
+              class="form-control"
+              name="buyinsurance"
+              placeholder="Insurance: X Ether"
+            />
+          </div>
+
+          <div class="input-group col-6">
+            <button class="btn btn-primary" type="button" id="get-airlines">
+              Buy Insurance
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <h2 id="transaction-logs">Transaction Logs</h2>
+        <div>
+          <ul id="log-events">
+            <!-- Events will appear here from app.js -->
+          </ul>
+          <br />
+          <hr />
         </div>
       </div>
     </main>
