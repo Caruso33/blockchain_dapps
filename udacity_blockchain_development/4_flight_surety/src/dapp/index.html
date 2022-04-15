@@ -46,7 +46,6 @@
               type="text"
               id="app-contract-address"
               class="form-control"
-              name="appcontractaddress"
               placeholder="0x0"
               disabled
             />
@@ -56,7 +55,6 @@
               type="text"
               id="data-contract-address"
               class="form-control"
-              name="datacontractaddress"
               placeholder="0x0"
               disabled
             />
@@ -89,7 +87,7 @@
               <input
                 class="form-check-input"
                 type="radio"
-                name="data-operational"
+                name="data-isoperational"
                 id="data-operational"
                 value="true"
               />
@@ -105,7 +103,7 @@
               <input
                 class="form-check-input"
                 type="radio"
-                name="data-not-operational"
+                name="data-isoperational"
                 id="data-not-operational"
                 value="false"
               />
@@ -426,5 +424,12 @@
         </div>
       </div>
     </main>
+
+    <script src="dapp/js/index.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>

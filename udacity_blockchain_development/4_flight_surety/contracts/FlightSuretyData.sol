@@ -66,6 +66,9 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
+    event AuthorizeCaller(address contractAddress);
+    event DeauthorizeCaller(address contractAddress);
+
     event AirlineCreated(address airlineAddress, string airlineName);
     event AirlineRegistered(
         address airlineAddress,
@@ -237,6 +240,7 @@ contract FlightSuretyData {
         authorizedContracts[contractAddress] = true;
         if (!authorizedContracts[contractAddress]) {
             authorizedContractCount = authorizedContractCount.add(1);
+            emit AuthorizeCaller(contractAddress);
         }
     }
 
@@ -244,7 +248,10 @@ contract FlightSuretyData {
         external
         requireContractOwner
     {
-        delete authorizedContracts[contractAddress];
+        if (authorizedContracts[contractAddress]) {
+            emit DeauthorizeCaller(contractAddress);
+            delete authorizedContracts[contractAddress];
+        }
     }
 
     function isAuthorizedCaller(address contractAddress)

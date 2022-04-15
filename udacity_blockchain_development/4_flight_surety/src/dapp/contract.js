@@ -5,48 +5,81 @@ import Web3 from "web3"
 
 export default class Contract {
   constructor(network, callback) {
-    let config = Config[network]
-    
+    const config = Config[network]
+
     this.web3 = new Web3(
       new Web3.providers.WebsocketProvider(config.url.replace("http", "ws"))
     )
+
     this.flightSuretyApp = new this.web3.eth.Contract(
       FlightSuretyApp.abi,
       config.appAddress
     )
+
     this.flightSuretyData = new this.web3.eth.Contract(
       FlightSuretyData.abi,
       config.dataAddress
     )
+
+    this.flightSuretyDataAddress = config.dataAddress
     this.flightSuretyAppAddress = config.appAddress
-    this.initialize(callback)
+
     this.owner = null
     this.airlines = []
-    this.passengers = []
+    this.insurees = []
+
+    this.callback = callback
+
+    this.initialize()
   }
 
-  initialize(callback) {
-    this.web3.eth.getAccounts((error, accts) => {
-      this.owner = accts[0]
-
-      let counter = 1
-
-      while (this.airlines.length < 5) {
-        this.airlines.push(accts[counter++])
+  initialize() {
+    this.getAccounts().then((accounts) => {
+      if (accounts.length < 11) {
+        throw Error(
+          `Not enough account to work with. At least 11 accounts are required. Found ${accounts.length}.`
+        )
       }
 
-      while (this.passengers.length < 5) {
-        this.passengers.push(accts[counter++])
-      }
+      this.accounts = accounts
 
-      callback()
+      this.assignAccounts()
+
+      this.callback()
     })
+  }
+
+  getAccounts() {
+    return new Promise(async (resolve, reject) => {
+      this.web3.eth.getAccounts((error, accounts) => {
+        if (error) {
+          console.log(error)
+          return reject(error)
+        }
+
+        resolve(accounts)
+      })
+    })
+  }
+
+  assignAccounts() {
+    this.owner = this.accounts[0]
+
+    let counter = 1
+
+    while (this.airlines.length < 5) {
+      this.airlines.push(this.accounts[counter++])
+    }
+
+    while (this.insurees.length < 5) {
+      this.insurees.push(this.accounts[counter++])
+    }
   }
 
   // Checks if the App Contract is operational
   isOperational(callback) {
     let self = this
-    self.flightSuretyApp.methods
+    self.flightSuretyData.methods
       .isOperational()
       .call({ from: self.owner }, callback)
   }
