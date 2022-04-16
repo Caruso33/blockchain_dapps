@@ -5,36 +5,42 @@ import Web3 from "web3"
 
 export default class Contract {
   constructor(network, callback) {
-    const config = Config[network]
+    return new Promise((resolve, reject) => {
+      const config = Config[network]
 
-    this.web3 = new Web3(
-      new Web3.providers.WebsocketProvider(config.url.replace("http", "ws"))
-    )
+      this.web3 = new Web3(
+        new Web3.providers.WebsocketProvider(config.url.replace("http", "ws"))
+      )
 
-    this.flightSuretyApp = new this.web3.eth.Contract(
-      FlightSuretyApp.abi,
-      config.appAddress
-    )
+      this.flightSuretyApp = new this.web3.eth.Contract(
+        FlightSuretyApp.abi,
+        config.appAddress
+      )
 
-    this.flightSuretyData = new this.web3.eth.Contract(
-      FlightSuretyData.abi,
-      config.dataAddress
-    )
+      this.flightSuretyData = new this.web3.eth.Contract(
+        FlightSuretyData.abi,
+        config.dataAddress
+      )
 
-    this.flightSuretyDataAddress = config.dataAddress
-    this.flightSuretyAppAddress = config.appAddress
+      this.flightSuretyDataAddress = config.dataAddress
+      this.flightSuretyAppAddress = config.appAddress
 
-    this.owner = null
-    this.airlines = []
-    this.insurees = []
+      this.owner = null
+      this.airlines = []
+      this.insurees = []
 
-    this.callback = callback
+      this.callback = callback
 
-    this.initialize()
+      this.initialize().then(() => {
+        if (this.callback) this.callback()
+
+        resolve(this)
+      })
+    })
   }
 
   initialize() {
-    this.getAccounts().then((accounts) => {
+    return this.getAccounts().then((accounts) => {
       if (accounts.length < 11) {
         throw Error(
           `Not enough account to work with. At least 11 accounts are required. Found ${accounts.length}.`
@@ -44,8 +50,6 @@ export default class Contract {
       this.accounts = accounts
 
       this.assignAccounts()
-
-      this.callback()
     })
   }
 

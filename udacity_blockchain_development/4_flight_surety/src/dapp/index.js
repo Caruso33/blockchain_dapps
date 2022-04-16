@@ -8,105 +8,16 @@ import {
   onAuthorizeAppContract,
   getDataContractStatus,
   setDataContractStatus,
+  getAirlines,
+  registerNewAirlines,
 } from "./utils"
 
 export { contract }
-// Read local storage
-var airlineList
-var flightList = []
+
 let contract = null
 
 ;(async () => {
-  let result = null
-
-  contract = new Contract("localhost", () => {
-    // Check if contract is operational
-    // contract.isOperational((error, result) => {
-    //   console.log(
-    //     `Data Contract has error ${!!error}, is operational ${result}`
-    //   )
-    //   display("Operational Status", "Check if contract is operational", [
-    //     { label: "Operational Status", error, value: result },
-    //   ])
-    // })
-    // Check if app contract is authorized
-    // contract.isAppAuthorized((error, result) => {
-    //   console.log(error, result)
-    //   if (result) {
-    //     if (result) {
-    //       DOM.elid("authorize-app").innerText = "App Contract authorized"
-    //       document.getElementById("authorize-app").disabled = true
-    //     }
-    //   } else if (result == false) {
-    //     // If App contract is not authorized, a button is activated at the top
-    //     // of the page whichs allows to authorize app contract on the data contract
-    //     DOM.elid("authorize-app").addEventListener("click", () => {
-    //       // Write transaction
-    //       contract.authorizeApp((error, result) => {
-    //         console.log(error, result)
-    //         if (result) {
-    //           alert("The App contract has been authorized")
-    //           DOM.elid("authorize-app").innerText = "App Contract authorized"
-    //           document.getElementById("authorize-app").disabled = true
-    //         }
-    //       })
-    //     })
-    //   }
-    // })
-    // // Read airline accounts
-    // airlineList = contract.getAirlines()
-    // // Display the list of airlines and their status of registration
-    // displayAirlines(airlineList, contract)
-    // // Create an airline dropdown selector to simplify the process of registering new flights
-    // airlineSelector(airlineList)
-    // // Listen to OracleResponse event and update the status of the corresponding flight
-    // contract.listenOracleResponse((error, event) => {
-    //   //console.log(error,result);
-    //   if (event) {
-    //     console.log(result)
-    //     let eventResult = event.returnValues
-    //     let row = 0
-    //     console.log(DOM.elid(`flight-row-${row}`))
-    //     console.log(eventResult)
-    //     // Loop through all the flights which are displayed on the page and update the status
-    //     // of the flight corresponding to the event
-    //     while (document.body.contains(DOM.elid(`flight-row-${row}`))) {
-    //       let flightRow = DOM.elid(`flight-row-${row}`)
-    //       if (
-    //         flightRow.children[0].innerText == eventResult.airline &&
-    //         flightRow.children[1].innerText == eventResult.flight &&
-    //         flightRow.children[2].innerText == eventResult.timestamp
-    //       ) {
-    //         flightRow.children[6].innerText = eventResult.status
-    //       }
-    //       row += 1
-    //     }
-    //   }
-    // })
-    // Display the list of flights the moment there is at least one flight on it
-    // if (flightList.length > 0) {
-    //   displayFlights(flightList, contract)
-    // }
-    // Airline registers new flight
-    // DOM.elid("submit-flight").addEventListener("click", (event) => {
-    //   event.preventDefault()
-    //   // Catch the data in the new flight form
-    //   let newFlightForm = document.forms.flightdata
-    //   let flight = newFlightForm.elements.flightnumber.value
-    //   let airline = newFlightForm.elements.flightairline.value
-    //   // Write transaction on the Smart Contract
-    //   contract.registerNewFlight(flight, airline, (error, result, payload) => {
-    //     if (result) {
-    //       flightList.push([payload.airline, payload.flight, payload.timestamp])
-    //       // Display the list of registered flights
-    //       displayFlights(flightList, contract)
-    //     }
-    //     if (error) {
-    //       alert(error)
-    //     }
-    //   })
-    // })
-  })
+  contract = await new Contract("localhost")
 
   // get events
   getPastAppLogs()
@@ -123,6 +34,12 @@ let contract = null
     operationRadios.filter(`[value=${result}]`).prop("checked", true)
   })
 
+  for (const airlineAddress of contract.airlines) {
+    $("#new-airline-address").append(
+      $("<option>", { value: airlineAddress, text: airlineAddress })
+    )
+  }
+
   // onClick handler
   $("#authorize-app-contract").click(onAuthorizeAppContract)
   $("#get-data-contract-status").click(getDataContractStatus)
@@ -132,6 +49,13 @@ let contract = null
     ).val()
 
     setDataContractStatus(operationRadio === "true" ? true : false)
+  })
+  $("#get-airlines").click(getAirlines)
+  $("#register-new-airline").click(() => {
+    const airlineName = $("#new-airline-name").val()
+    const airlineAdress = $("#new-airline-address").val()
+
+    registerNewAirlines(airlineName, airlineAdress)
   })
 })()
 

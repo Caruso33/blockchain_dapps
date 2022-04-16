@@ -1,5 +1,5 @@
 pragma solidity ^0.4.25;
-// pragma experimental ABIEncoderV2;
+pragma experimental ABIEncoderV2;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
@@ -55,6 +55,8 @@ contract FlightSuretyData {
     uint256 initialAirlineFunding = 10 ether; // what airlines have to bring in initially
     uint256 registeredAirlineCount = 0; // Number of airlines registered
     uint256 activeAirlineCount = 0; // Number of airlines registered and active
+
+    address[] airlineAddresses = new address[](0); // Array of addresses of airlines
     mapping(address => Airline) airlines;
     mapping(address => mapping(address => bool)) airlineRegistrationVotes;
 
@@ -185,7 +187,9 @@ contract FlightSuretyData {
      * @dev Modifier that requires the sender account to be one of the authorized accounts
      */
     modifier requireCallerAuthorized() {
-        require(authorizedContracts[msg.sender], "Caller is not authorized");
+        require(
+            authorizedContracts[msg.sender], "Caller is not authorized"
+        );
         _;
     }
 
@@ -285,6 +289,25 @@ contract FlightSuretyData {
         returns (uint256)
     {
         return returnUncreditedInsurancesLockTime;
+    }
+
+    function getAirlines() public view returns (address[], string[]) {
+        address[] memory resultAddresses = new address[](
+            airlineAddresses.length
+        );
+        string[] memory resultNames = new string[](airlineAddresses.length);
+
+        for (uint256 i = 0; i < airlineAddresses.length; i++) {
+            if (airlines[airlineAddresses[i]].isRegistered) {
+                address airlineAddress = airlineAddresses[i];
+                resultAddresses[i] = airlineAddress;
+
+                string airlineName = airlines[airlineAddresses[i]].name;
+                resultNames[i] = airlineName;
+            }
+        }
+
+        return (resultAddresses, resultNames);
     }
 
     function getAirline(address airlineAddress)
@@ -417,6 +440,7 @@ contract FlightSuretyData {
             insuranceBalance: 0
         });
 
+        airlineAddresses.push(airlineAddress);
         airlines[airlineAddress] = airline;
 
         emit AirlineCreated(airlineAddress, airlineName);
