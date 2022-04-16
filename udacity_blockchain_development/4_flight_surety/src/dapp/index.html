@@ -187,8 +187,12 @@
           </div>
 
           <div class="input-group col-4">
+            <button class="btn btn-secondary" type="button" id="get-airlines">
+              Get Airlines
+            </button>
+
             <button
-              class="btn btn-primary"
+              class="btn btn-primary ml-1"
               type="button"
               id="authorize-app-contract"
             >
@@ -204,20 +208,22 @@
               id="flight-airline-selector"
               name="flightairline"
             >
-              <option>Airlines</option>
+              <option>Airline to Vote for</option>
             </select>
           </div>
 
-          <div class="col-8">
-            <button class="btn btn-secondary" type="button" id="get-airlines">
-              Get Airlines
-            </button>
-
-            <button
-              class="btn btn-primary ml-1"
-              type="button"
-              id="vote-airline"
+          <div class="col-4">
+            <select
+              class="custom-select"
+              id="flight-airline-selector"
+              name="flightairline"
             >
+              <option>Voting Airline</option>
+            </select>
+          </div>
+
+          <div class="col-4">
+            <button class="btn btn-primary" type="button" id="vote-airline">
               Vote for Airline
             </button>
           </div>
@@ -232,6 +238,16 @@
               name="fundairline"
               placeholder="Funding: X Ether"
             />
+          </div>
+
+          <div class="col-4">
+            <select
+              class="custom-select"
+              id="flight-airline-selector"
+              name="flightairline"
+            >
+              <option>Funding Airline</option>
+            </select>
           </div>
 
           <div class="input-group col-4">
@@ -416,11 +432,16 @@
       <div class="container">
         <h2 id="transaction-logs">Transaction Logs</h2>
         <div>
+          <h3>New Events</h3>
           <ul id="log-events">
             <!-- Events will appear here from app.js -->
           </ul>
           <br />
           <hr />
+          <h3>Past Events</h3>
+          <ul id="past-log-events">
+            <!-- Events will appear here from app.js -->
+          </ul>
         </div>
       </div>
     </main>

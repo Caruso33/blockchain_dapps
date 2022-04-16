@@ -10,6 +10,13 @@ export {
   setDataContractStatus,
 }
 
+function onPastEvent(eventLog) {
+  $("#past-log-events").append("<li>" + eventLog + "</li>")
+}
+function onEvent(eventLog) {
+  $("#log-events").append("<li>" + eventLog + "</li>")
+}
+
 function getPastAppLogs() {
   contract.flightSuretyApp
     .getPastEvents("allEvents", { fromBlock: 0 })
@@ -18,9 +25,11 @@ function getPastAppLogs() {
         console.log(
           `flightSuretyApp.getPastEvents error: ${error}, event:  ${event}`
         )
+        onPastEvent(`${event.event}: ${event.args}`)
       }
     })
 }
+
 function getPastDataLogs() {
   contract.flightSuretyData
     .getPastEvents("allEvents", { fromBlock: 0 })
@@ -29,27 +38,26 @@ function getPastDataLogs() {
         console.log(
           `flightSuretyData.getPastEvents error: ${error}, event:  ${event}`
         )
+        onPastEvent(`${event.event}: ${event.args}`)
       }
     })
 }
 
 function getAllAppEvents() {
-  contract.flightSuretyApp.events.allEvents().then((events) => {
-    for (const event of events) {
-      console.log(
-        `flightSuretyApp.getAllAppEvents error: ${error}, event:  ${event}`
-      )
-    }
+  contract.flightSuretyApp.events.allEvents((error, event) => {
+    console.log(
+      `flightSuretyApp.getAllAppEvents error: ${error}, event:  ${event}`
+    )
+    onEvent(`${event.event}: ${event.args}`)
   })
 }
 
 function getAllDataEvents() {
-  contract.flightSuretyApp.events.allEvents().then((events) => {
-    for (const event of events) {
-      console.log(
-        `flightSuretyData.getAllDataEvents error: ${error}, event:  ${event}`
-      )
-    }
+  contract.flightSuretyApp.events.allEvents((error, event) => {
+    console.log(
+      `flightSuretyData.getAllDataEvents error: ${error}, event:  ${event}`
+    )
+    onEvent(`${event.event}: ${event.args}`)
   })
 }
 

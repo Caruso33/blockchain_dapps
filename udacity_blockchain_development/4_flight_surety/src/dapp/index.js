@@ -108,6 +108,7 @@ let contract = null
     // })
   })
 
+  // get events
   getPastAppLogs()
   getPastDataLogs()
   getAllAppEvents()
