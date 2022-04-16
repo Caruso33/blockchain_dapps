@@ -67,7 +67,7 @@ function getAllDataEvents() {
 function onAuthorizeAppContract() {
   contract.flightSuretyData.methods
     .authorizeCaller(contract.flightSuretyAppAddress)
-    .send({ from: contract.owner }, (error, result) => {
+    .send({ from: contract.owner }, (error, _result) => {
       if (error) {
         console.log(error)
         return
@@ -93,12 +93,10 @@ function getDataContractStatus() {
 }
 
 function setDataContractStatus(mode) {
-  console.log({ mode })
-
   return new Promise((resolve, reject) => {
     contract.flightSuretyData.methods
       .setOperatingStatus(mode)
-      .call((error, result) => {
+      .send({ from: contract.owner }, (error, result) => {
         if (error) {
           console.error(error)
           return reject(error)

@@ -42,7 +42,11 @@ let contract = null
 
   // onClick handler
   $("#authorize-app-contract").click(onAuthorizeAppContract)
-  $("#get-data-contract-status").click(getDataContractStatus)
+  $("#get-data-contract-status").click(async () => {
+    const mode =await  getDataContractStatus()
+    const operationRadios = $("input:radio[name=data-isoperational]")
+    operationRadios.filter(`[value=${mode}]`).prop("checked", true)
+  })
   $("#set-data-contract-status").click(() => {
     const operationRadio = $(
       "input:radio[name=data-isoperational]:checked"

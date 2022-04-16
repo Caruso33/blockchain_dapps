@@ -419,7 +419,7 @@ contract FlightSuretyData {
     function createAirline(string airlineName, address airlineAddress)
         external
         requireIsOperational
-        requireCallerAuthorized
+        // requireCallerAuthorized
         returns (uint256)
     {
         require(
