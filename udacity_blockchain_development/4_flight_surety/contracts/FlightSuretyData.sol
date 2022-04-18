@@ -302,62 +302,33 @@ contract FlightSuretyData {
         returns (
             address[],
             string[],
-            address[],
-            string[],
-            address[],
             string[]
         )
     {
-        address[] memory activeAirlineAddresses = new address[](
-            activeAirlineCount
-        );
-        string[] memory activeAirlineNames = new string[](activeAirlineCount);
-
-        address[] memory registeredAddresses = new address[](
-            registeredAirlineCount
-        );
-        string[] memory registeredNames = new string[](registeredAirlineCount);
-
-        uint256 unRegisteredAirlineCount = airlineAddresses.length -
-            registeredAirlineCount;
-        address[] memory unRegisteredAddresses = new address[](
-            unRegisteredAirlineCount
-        );
-        string[] memory unRegisteredNames = new string[](
-            unRegisteredAirlineCount
-        );
-
-        uint256 j = 0;
-        uint256 k = 0;
-        uint256 l = 0;
+        address[] memory addresses = new address[](airlineAddresses.length);
+        string[] memory names = new string[](airlineAddresses.length);
+        string[] memory status = new string[](airlineAddresses.length);
 
         for (uint256 i = 0; i < airlineAddresses.length; i++) {
             address currentAirlineAddress = airlineAddresses[i];
             string currentAirlineName = airlines[currentAirlineAddress].name;
 
-            if (airlines[airlineAddresses[i]].isActive) {
-                activeAirlineAddresses[j] = currentAirlineAddress;
-                activeAirlineNames[j] = currentAirlineName;
-                j = j.add(1);
+            if (airlines[currentAirlineAddress].isActive) {
+                addresses[i] = currentAirlineAddress;
+                names[i] = currentAirlineName;
+                status[i] = "active";
             } else if (airlines[currentAirlineAddress].isRegistered) {
-                registeredAddresses[k] = currentAirlineAddress;
-                registeredNames[k] = currentAirlineName;
-                k = k.add(1);
+                addresses[i] = currentAirlineAddress;
+                names[i] = currentAirlineName;
+                status[i] = "registered";
             } else {
-                unRegisteredAddresses[l] = currentAirlineAddress;
-                unRegisteredNames[l] = currentAirlineName;
-                l = l.add(1);
+                addresses[i] = currentAirlineAddress;
+                names[i] = currentAirlineName;
+                status[i] = "unregistered";
             }
         }
 
-        return (
-            activeAirlineAddresses,
-            activeAirlineNames,
-            registeredAddresses,
-            registeredNames,
-            unRegisteredAddresses,
-            unRegisteredNames
-        );
+        return (addresses, names, status);
     }
 
     function getAirline(address airlineAddress)

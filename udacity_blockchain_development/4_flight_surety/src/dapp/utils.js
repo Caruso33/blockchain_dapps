@@ -119,61 +119,32 @@ function getAirlines() {
         return reject(error)
       }
 
-      const [
-        activeAddresses,
-        activeNames,
-        registeredAddresses,
-        registeredNames,
-        unRegisteredAddresses,
-        unRegisteredNames,
-      ] = [result[0], result[1], result[2], result[3], result[4], result[5]]
-
-      console.log({result})
-      const airlineTypes = [
-        activeAddresses,
-        registeredAddresses,
-        unRegisteredAddresses,
+      const [airlineAddresses, airlineNames, airlineStatus] = [
+        result[0],
+        result[1],
+        result[2],
       ]
-      const activeAirlines = [],
-        registeredAirlines = [],
-        unRegisteredAirlines = []
 
-      airlineTypes.forEach((_, i) => {
-        let addresses = null,
-          names = null,
-          targetArray = null,
-          arrayName = null
-        if (i === 0) {
-          addresses = activeAddresses
-          names = activeNames
-          targetArray = activeAirlines
-          arrayName = "Active"
-        } else if (i === 1) {
-          addresses = registeredAddresses
-          names = registeredNames
-          targetArray = registeredAirlines
-          arrayName = "Registered"
-        } else if (i === 2) {
-          addresses = unRegisteredAddresses
-          names = unRegisteredNames
-          targetArray = unRegisteredAirlines
-          arrayName = "Unregistered"
-        } else throw Error("Invalid index")
+      const airlines = []
 
-        console.log({addresses})
-        console.log({i})
-        for (let j = 0; j < addresses.length; j++) {
-          const airline = { address: addresses[j], name: names[j] }
-
-          targetArray.push(airline)
-
-          console.log(
-            `${arrayName} airline address: ${airline.address}, name: ${airline.name}`
-          )
+      for (let i = 0; i < airlineAddresses.length; i++) {
+        const airline = {
+          address: airlineAddresses[i],
+          name: airlineNames[i],
+          status: airlineStatus[i],
         }
-      })
 
-      resolve([activeAirlines, registeredAirlines, unRegisteredAirlines])
+        airlines.push(airline)
+
+        console.log(
+          `${
+            airline.status[0].toUpperCase() + airline.status.slice(1)
+          } airline address: ${airline.address}, name: ${airline.name}`
+        )
+      }
+      // })
+
+      resolve(airlines)
     })
   })
 }

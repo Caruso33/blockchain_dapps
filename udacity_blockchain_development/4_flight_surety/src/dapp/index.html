@@ -162,11 +162,17 @@
         </div>
 
         <div class="row mt-3">
+          <label class="col-4 field">Active Airlines </label>
           <label class="col-4 field">Registered Airlines </label>
           <label class="col-4 field">Unregistered Airlines </label>
         </div>
 
         <div class="row mt-3">
+          <div class="col-4">
+            <select id="active-airlines" class="custom-select">
+              <option>Active Airline</option>
+            </select>
+          </div>
           <div class="col-4">
             <select id="registered-airlines" class="custom-select">
               <option>Registered Airline</option>
@@ -177,7 +183,9 @@
               <option>Unregistered Airline</option>
             </select>
           </div>
+        </div>
 
+        <div class="row mt-3">
           <div class="col-4">
             <button class="btn btn-secondary" type="button" id="get-airlines">
               Get Airlines

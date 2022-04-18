@@ -56,13 +56,28 @@ let contract = null
   })
 
   $("#get-airlines").click(async () => {
-    const [activeAirlines,registeredAirlines, unRegisteredAirlines] = await getAirlines()
-    console.log({activeAirlines})
-console.log({registeredAirlines})
-console.log({unRegisteredAirlines})
+    const airlines = await getAirlines()
+
+    const activeAirlines = airlines.filter(
+      (airline) => airline.status === "active"
+    )
+    const registeredAirlines = airlines.filter(
+      (airline) => airline.status === "registered"
+    )
+    const unRegisteredAirlines = airlines.filter(
+      (airline) => airline.status === "unregistered"
+    )
+
+    activeAirlines.forEach((airline) => {
+      $("#active-airlines").append(
+        $("<option>", { value: airline.name, text: airline.name })
+      )
+    })
+
     const registeredSelection = [
       $("#registered-airlines"),
       $("#voting-airline"),
+      $("#flight-airline-selector")
     ]
     registeredSelection.forEach((option) => {
       registeredAirlines.forEach((airline) => {
