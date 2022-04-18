@@ -1,5 +1,5 @@
 import { contract } from "./index"
-
+import { onPastEvent, onEvent } from "./ui"
 export {
   getPastAppLogs,
   getPastDataLogs,
@@ -12,22 +12,16 @@ export {
   registerNewAirlines,
 }
 
-function onPastEvent(eventLog) {
-  $("#past-log-events").append("<li>" + eventLog + "</li>")
-}
-function onEvent(eventLog) {
-  $("#log-events").append("<li>" + eventLog + "</li>")
-}
-
 function getPastAppLogs() {
   contract.flightSuretyApp
     .getPastEvents("allEvents", { fromBlock: 0 })
     .then((events) => {
-      for (const event of events) {
-        console.log(
-          `flightSuretyApp.getPastEvents error: ${error}, event:  ${event}`
-        )
-        onPastEvent(`${event.event}: ${event.args}`)
+      for (const event of events.reverse()) {
+        const returnValues = JSON.stringify(event.returnValues)
+        const msg = `${event.event}: ${returnValues}`
+
+        console.log(`flightSuretyApp.getPastEvents event: ${msg}`)
+        onPastEvent(msg)
       }
     })
 }
@@ -36,31 +30,37 @@ function getPastDataLogs() {
   contract.flightSuretyData
     .getPastEvents("allEvents", { fromBlock: 0 })
     .then((events) => {
-      console.log({ events })
-      for (const event of events) {
-        console.log(
-          `flightSuretyData.getPastEvents error: ${error}, event:  ${event}`
-        )
-        onPastEvent(`${event.event}: ${event.args}`)
+      for (const event of events.reverse()) {
+        const returnValues = JSON.stringify(event.returnValues)
+        const msg = `${event.event}: ${returnValues}`
+
+        console.log(`flightSuretyData.getPastEvents event: ${msg}`)
+        onPastEvent(msg)
       }
     })
 }
 
 function getAllAppEvents() {
   contract.flightSuretyApp.events.allEvents((error, event) => {
+    const returnValues = JSON.stringify(event.returnValues)
+    const msg = `${event.event}: ${returnValues}`
+
     console.log(
-      `flightSuretyApp.getAllAppEvents error: ${error}, event:  ${event}`
+      `flightSuretyApp.getAllAppEvents error: ${error}, event: ${msg}`
     )
-    onEvent(`${event.event}: ${event.args}`)
+    onEvent(msg)
   })
 }
 
 function getAllDataEvents() {
-  contract.flightSuretyApp.events.allEvents((error, event) => {
+  contract.flightSuretyData.events.allEvents((error, event) => {
+    const returnValues = JSON.stringify(event.returnValues)
+    const msg = `${event.event}: ${returnValues}`
+
     console.log(
-      `flightSuretyData.getAllDataEvents error: ${error}, event:  ${event}`
+      `flightSuretyData.getAllDataEvents error: ${error}, event: ${msg}`
     )
-    onEvent(`${event.event}: ${event.args}`)
+    onEvent(msg)
   })
 }
 
@@ -119,13 +119,61 @@ function getAirlines() {
         return reject(error)
       }
 
-      const [airlineAddresses, airlineNames] = [result[0], result[1]]
+      const [
+        activeAddresses,
+        activeNames,
+        registeredAddresses,
+        registeredNames,
+        unRegisteredAddresses,
+        unRegisteredNames,
+      ] = [result[0], result[1], result[2], result[3], result[4], result[5]]
 
-      console.log(
-        `Airlines addresses: ${airlineAddresses}, airline names: ${airlineNames}`
-      )
+      console.log({result})
+      const airlineTypes = [
+        activeAddresses,
+        registeredAddresses,
+        unRegisteredAddresses,
+      ]
+      const activeAirlines = [],
+        registeredAirlines = [],
+        unRegisteredAirlines = []
 
-      resolve(result)
+      airlineTypes.forEach((_, i) => {
+        let addresses = null,
+          names = null,
+          targetArray = null,
+          arrayName = null
+        if (i === 0) {
+          addresses = activeAddresses
+          names = activeNames
+          targetArray = activeAirlines
+          arrayName = "Active"
+        } else if (i === 1) {
+          addresses = registeredAddresses
+          names = registeredNames
+          targetArray = registeredAirlines
+          arrayName = "Registered"
+        } else if (i === 2) {
+          addresses = unRegisteredAddresses
+          names = unRegisteredNames
+          targetArray = unRegisteredAirlines
+          arrayName = "Unregistered"
+        } else throw Error("Invalid index")
+
+        console.log({addresses})
+        console.log({i})
+        for (let j = 0; j < addresses.length; j++) {
+          const airline = { address: addresses[j], name: names[j] }
+
+          targetArray.push(airline)
+
+          console.log(
+            `${arrayName} airline address: ${airline.address}, name: ${airline.name}`
+          )
+        }
+      })
+
+      resolve([activeAirlines, registeredAirlines, unRegisteredAirlines])
     })
   })
 }
@@ -138,7 +186,7 @@ function registerNewAirlines(airlineName, airlineAdress) {
   return new Promise((resolve, reject) => {
     contract.flightSuretyApp.methods
       .createAirline(airlineName, airlineAdress)
-      .send({ from: contract.owner }, (error, result) => {
+      .send({ from: contract.owner, gas: "5000000" }, (error, result) => {
         if (error) {
           console.error(error)
           return reject(error)

@@ -162,8 +162,32 @@
         </div>
 
         <div class="row mt-3">
-          <label class="col-4 field">Airlines Address </label>
-          <label class="col-4 field">Airlines Name </label>
+          <label class="col-4 field">Registered Airlines </label>
+          <label class="col-4 field">Unregistered Airlines </label>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-4">
+            <select id="registered-airlines" class="custom-select">
+              <option>Registered Airline</option>
+            </select>
+          </div>
+          <div class="col-4">
+            <select id="unregistered-airlines" class="custom-select">
+              <option>Unregistered Airline</option>
+            </select>
+          </div>
+
+          <div class="col-4">
+            <button class="btn btn-secondary" type="button" id="get-airlines">
+              Get Airlines
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <label class="col-4 field">Airline Address </label>
+          <label class="col-4 field">Airline Name </label>
         </div>
 
         <div class="row">
@@ -183,12 +207,8 @@
           </div>
 
           <div class="input-group col-4">
-            <button class="btn btn-secondary" type="button" id="get-airlines">
-              Get Airlines
-            </button>
-
             <button
-              class="btn btn-primary ml-1"
+              class="btn btn-primary"
               type="button"
               id="register-new-airline"
             >
@@ -201,7 +221,7 @@
           <div class="col-4">
             <select
               class="custom-select"
-              id="flight-airline-selector"
+              id="airline-to-vote-for"
               name="flightairline"
             >
               <option>Airline to Vote for</option>
@@ -211,7 +231,7 @@
           <div class="col-4">
             <select
               class="custom-select"
-              id="flight-airline-selector"
+              id="voting-airline"
               name="flightairline"
             >
               <option>Voting Airline</option>

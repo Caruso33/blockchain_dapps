@@ -68,6 +68,7 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
+    event Log(string msg, string value);
     event AuthorizeCaller(address contractAddress);
     event DeauthorizeCaller(address contractAddress);
 
@@ -188,7 +189,10 @@ contract FlightSuretyData {
      */
     modifier requireCallerAuthorized() {
         require(
-            authorizedContracts[msg.sender], "Caller is not authorized"
+            authorizedContracts[msg.sender] ||
+                authorizedContracts[tx.origin] ||
+                msg.sender == contractOwner,
+            "Caller is not authorized"
         );
         _;
     }
@@ -241,11 +245,12 @@ contract FlightSuretyData {
         public
         requireContractOwner
     {
-        authorizedContracts[contractAddress] = true;
         if (!authorizedContracts[contractAddress]) {
             authorizedContractCount = authorizedContractCount.add(1);
             emit AuthorizeCaller(contractAddress);
         }
+
+        authorizedContracts[contractAddress] = true;
     }
 
     function deauthorizeCaller(address contractAddress)
@@ -291,23 +296,68 @@ contract FlightSuretyData {
         return returnUncreditedInsurancesLockTime;
     }
 
-    function getAirlines() public view returns (address[], string[]) {
-        address[] memory resultAddresses = new address[](
-            airlineAddresses.length
+    function getAirlines()
+        public
+        view
+        returns (
+            address[],
+            string[],
+            address[],
+            string[],
+            address[],
+            string[]
+        )
+    {
+        address[] memory activeAirlineAddresses = new address[](
+            activeAirlineCount
         );
-        string[] memory resultNames = new string[](airlineAddresses.length);
+        string[] memory activeAirlineNames = new string[](activeAirlineCount);
+
+        address[] memory registeredAddresses = new address[](
+            registeredAirlineCount
+        );
+        string[] memory registeredNames = new string[](registeredAirlineCount);
+
+        uint256 unRegisteredAirlineCount = airlineAddresses.length -
+            registeredAirlineCount;
+        address[] memory unRegisteredAddresses = new address[](
+            unRegisteredAirlineCount
+        );
+        string[] memory unRegisteredNames = new string[](
+            unRegisteredAirlineCount
+        );
+
+        uint256 j = 0;
+        uint256 k = 0;
+        uint256 l = 0;
 
         for (uint256 i = 0; i < airlineAddresses.length; i++) {
-            if (airlines[airlineAddresses[i]].isRegistered) {
-                address airlineAddress = airlineAddresses[i];
-                resultAddresses[i] = airlineAddress;
+            address currentAirlineAddress = airlineAddresses[i];
+            string currentAirlineName = airlines[currentAirlineAddress].name;
 
-                string airlineName = airlines[airlineAddresses[i]].name;
-                resultNames[i] = airlineName;
+            if (airlines[airlineAddresses[i]].isActive) {
+                activeAirlineAddresses[j] = currentAirlineAddress;
+                activeAirlineNames[j] = currentAirlineName;
+                j = j.add(1);
+            } else if (airlines[currentAirlineAddress].isRegistered) {
+                registeredAddresses[k] = currentAirlineAddress;
+                registeredNames[k] = currentAirlineName;
+                k = k.add(1);
+            } else {
+                unRegisteredAddresses[l] = currentAirlineAddress;
+                unRegisteredNames[l] = currentAirlineName;
+                l = l.add(1);
             }
         }
 
-        return (resultAddresses, resultNames);
+        return (
+            activeAirlineAddresses,
+            activeAirlineNames,
+            registeredAddresses,
+            registeredNames,
+            unRegisteredAddresses,
+            unRegisteredNames
+        );
     }
 
     function getAirline(address airlineAddress)
@@ -411,6 +461,23 @@ contract FlightSuretyData {
         return (payoutInsurees, payoutAmount, payoutAddresses);
     }
 
+    // function toAsciiString(address x) internal pure returns (string memory) {
+    //     bytes memory s = new bytes(40);
+    //     for (uint256 i = 0; i < 20; i++) {
+    //         bytes1 b = bytes1(uint8(uint256(uint160(x)) / (2**(8 * (19 - i)))));
+    //         bytes1 hi = bytes1(uint8(b) / 16);
+    //         bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+    //         s[2 * i] = char(hi);
+    //         s[2 * i + 1] = char(lo);
+    //     }
+    //     return string(s);
+    // }
+
+    // function char(bytes1 b) internal pure returns (bytes1 c) {
+    //     if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+    //     else return bytes1(uint8(b) + 0x57);
+    // }
+
     /**
      * @dev Add an airline to the registration queue
      *      Can only be called from FlightSuretyApp contract
@@ -419,7 +486,7 @@ contract FlightSuretyData {
     function createAirline(string airlineName, address airlineAddress)
         external
         requireIsOperational
-        // requireCallerAuthorized
+        requireCallerAuthorized
         returns (uint256)
     {
         require(

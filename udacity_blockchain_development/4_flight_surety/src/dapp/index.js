@@ -43,7 +43,7 @@ let contract = null
   // onClick handler
   $("#authorize-app-contract").click(onAuthorizeAppContract)
   $("#get-data-contract-status").click(async () => {
-    const mode =await  getDataContractStatus()
+    const mode = await getDataContractStatus()
     const operationRadios = $("input:radio[name=data-isoperational]")
     operationRadios.filter(`[value=${mode}]`).prop("checked", true)
   })
@@ -54,7 +54,37 @@ let contract = null
 
     setDataContractStatus(operationRadio === "true" ? true : false)
   })
-  $("#get-airlines").click(getAirlines)
+
+  $("#get-airlines").click(async () => {
+    const [activeAirlines,registeredAirlines, unRegisteredAirlines] = await getAirlines()
+    console.log({activeAirlines})
+console.log({registeredAirlines})
+console.log({unRegisteredAirlines})
+    const registeredSelection = [
+      $("#registered-airlines"),
+      $("#voting-airline"),
+    ]
+    registeredSelection.forEach((option) => {
+      registeredAirlines.forEach((airline) => {
+        option.append(
+          $("<option>", { value: airline.name, text: airline.name })
+        )
+      })
+    })
+
+    const unRegisteredSelection = [
+      $("#unregistered-airlines"),
+      $("#airline-to-vote-for"),
+    ]
+    unRegisteredSelection.forEach((option) => {
+      unRegisteredAirlines.forEach((airline) => {
+        option.append(
+          $("<option>", { value: airline.name, text: airline.name })
+        )
+      })
+    })
+  })
+
   $("#register-new-airline").click(() => {
     const airlineName = $("#new-airline-name").val()
     const airlineAdress = $("#new-airline-address").val()
