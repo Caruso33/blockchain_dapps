@@ -18,6 +18,7 @@ import {
   requestFlightStatus,
   freezeFlight,
   creditInsurees,
+  buyInsurance,
 } from "./utils"
 
 export { contract }
@@ -48,6 +49,12 @@ let contract = null
     )
   }
 
+  for (const insureeAddress of contract.insurees) {
+    $("#flight-insurance-insurees").append(
+      $("<option>", { value: insureeAddress, text: insureeAddress })
+    )
+  }
+
   // onClick handler
   $("#authorize-app-contract").click(onAuthorizeAppContract)
   $("#get-data-contract-status").click(async () => {
@@ -63,7 +70,7 @@ let contract = null
     setDataContractStatus(operationRadio === "true" ? true : false)
   })
 
-  $("#get-airlines").click(async () => {
+  $(".get-airlines").click(async () => {
     const airlines = await getAirlines()
 
     const activeAirlines = airlines.filter(
@@ -76,7 +83,11 @@ let contract = null
       (airline) => airline.status === "unregistered"
     )
 
-    const activeSelection = [$("#active-airlines"), $("#flight-airlines")]
+    const activeSelection = [
+      $("#active-airlines"),
+      $("#flight-airlines"),
+      $("#airline-insurance-selector"),
+    ]
     activeSelection.forEach((option) => {
       activeAirlines.forEach((airline) => {
         option.append(
@@ -139,15 +150,17 @@ let contract = null
     registerFlight(airlineAddress, flightName)
   })
 
-  $("#get-flights").click(async () => {
+  $(".get-flights").click(async () => {
     const airlineAddress = $("#flight-airlines").val()
 
     const flights = await getFlights(airlineAddress)
 
+    const selector = [$("#flights-selector"), $("#flight-insurance-selector")]
+
     for (const flight of flights) {
-      $("#flights-selector").append(
-        $("<option>", { value: flight, text: flight })
-      )
+      selector.forEach((option) => {
+        option.append($("<option>", { value: flight, text: flight }))
+      })
     }
   })
 
@@ -185,5 +198,14 @@ let contract = null
     const flightName = $("#flight-name").val()
 
     creditInsurees(airlineAddress, flightName)
+  })
+
+  $("#buy-insurance").click(() => {
+    const airlineAddress = $("#flight-airlines").val()
+    const flightName = $("#flight-name").val()
+    const insureeAddress = $("#flight-insurance-insurees").val()
+    const insuranceAmount = $("#insurance-amount").val()
+
+    buyInsurance(airlineAddress, flightName, insureeAddress, insuranceAmount)
   })
 }

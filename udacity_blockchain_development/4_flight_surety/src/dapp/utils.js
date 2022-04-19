@@ -18,6 +18,7 @@ export {
   requestFlightStatus,
   freezeFlight,
   creditInsurees,
+  buyInsurance as buyInsunce,
 }
 
 function getPastAppLogs() {
@@ -333,7 +334,7 @@ function creditInsurees(airlineAddress, flightName) {
   return new Promise((resolve, reject) => {
     contract.flightSuretyData.methods
       .creditInsurees(airlineAddress, flightName)
-      .call({ from: contract.owner }, (error, result) => {
+      .send({ from: contract.owner }, (error, result) => {
         if (error) {
           console.error(error)
           return reject(error)
@@ -343,5 +344,30 @@ function creditInsurees(airlineAddress, flightName) {
 
         resolve(result)
       })
+  })
+}
+
+function buyInsurance(
+  airlineAddress,
+  flightName,
+  insureeAddress,
+  insuranceAmount
+) {
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyData.methods
+      .buyInsuranceForFlight(airlineAddress, flightName)
+      .send(
+        { from: insureeAddress, value: insuranceAmount },
+        (error, result) => {
+          if (error) {
+            console.error(error)
+            return reject(error)
+          }
+
+          console.log(`Flight insuree bought: ${result}`)
+
+          resolve(result)
+        }
+      )
   })
 }
