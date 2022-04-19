@@ -12,6 +12,9 @@ import {
   registerNewAirlines,
   fundAirline,
   voteForAirline,
+  registerFlight,
+  getFlights,
+  getFlight,
 } from "./utils"
 
 export { contract }
@@ -70,10 +73,13 @@ let contract = null
       (airline) => airline.status === "unregistered"
     )
 
-    activeAirlines.forEach((airline) => {
-      $("#active-airlines").append(
-        $("<option>", { value: airline.address, text: airline.name })
-      )
+    const activeSelection = [$("#active-airlines"), $("#flight-airlines")]
+    activeSelection.forEach((option) => {
+      activeAirlines.forEach((airline) => {
+        option.append(
+          $("<option>", { value: airline.address, text: airline.name })
+        )
+      })
     })
 
     const registeredSelection = [
@@ -121,5 +127,44 @@ let contract = null
     const votingAirline = $("#voting-airline").val()
 
     voteForAirline(airlineToVoteFor, votingAirline)
+  })
+
+  $("#register-flight").click(() => {
+    const airlineAddress = $("#flight-airlines").val()
+    const flightName = $("#flight-name").val()
+
+    registerFlight(airlineAddress, flightName)
+  })
+
+  $("#get-flights").click(async () => {
+    const airlineAddress = $("#flight-airlines").val()
+
+    const flights = await getFlights(airlineAddress)
+
+    for (const flight of flights) {
+      $("#flights-selector").append(
+        $("<option>", { value: flight, text: flight })
+      )
+    }
+  })
+
+  $("#get-flight-status").click(async () => {
+    const airlineAddress = $("#flight-airlines").val()
+    const flightName = $("#flight-name").val()
+
+    const flight = await getFlight(airlineAddress, flightName)
+
+    $("#flight-status").val(flight[1])
+    $("#flight-freezeTimestamp").val(flight[3])
+    $("#flight-lastUpdatedTimestamp").val(flight[4])
+
+    $("#flight-landed").val(flight[6])
+    $("#flight-insurancePrice").val(flight[7])
+    $("#flight-insuranceaddresses").val(flight[8].length)
+  })
+
+  $("#request-flight-status").click(() => {
+    const airlineAddress = $("#flight-airlines").val()
+    const flightName = $("#flight-name").val()
   })
 }

@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>FlightSurety</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css"
@@ -84,13 +81,8 @@
                 Operational
               </label>
 
-              <input
-                class="form-check-input"
-                type="radio"
-                name="data-isoperational"
-                id="data-operational"
-                value="true"
-              />
+              <input class="form-check-input" type="radio" isoperational"
+              id="data-operational" value="true" />
             </div>
           </div>
 
@@ -100,13 +92,8 @@
                 Not Operational
               </label>
 
-              <input
-                class="form-check-input"
-                type="radio"
-                name="data-isoperational"
-                id="data-not-operational"
-                value="false"
-              />
+              <input class="form-check-input" type="radio" isoperational"
+              id="data-not-operational" value="false" />
             </div>
           </div>
         </div>
@@ -209,7 +196,6 @@
               type="text"
               id="new-airline-name"
               class="form-control"
-              name="airlinename"
               placeholder="Airline XYZ"
             />
           </div>
@@ -250,21 +236,13 @@
 
         <div class="row mt-3">
           <div class="col-4">
-            <select
-              class="custom-select"
-              id="airline-to-vote-for"
-              name="flightairline"
-            >
+            <select class="custom-select" id="airline-to-vote-for">
               <option>Airline to Vote for</option>
             </select>
           </div>
 
           <div class="col-4">
-            <select
-              class="custom-select"
-              id="voting-airline"
-              name="flightairline"
-            >
+            <select class="custom-select" id="voting-airline">
               <option>Voting Airline</option>
             </select>
           </div>
@@ -283,19 +261,13 @@
         </div>
 
         <div class="row">
-          <label class="col-4 field" for="flight-airline-selector"
-            >Airline</label
-          >
+          <label class="col-4 field" for="flight-airlines"> Airline </label>
           <label class="col-4 field" for="flight-name">Flight Name</label>
         </div>
 
         <div class="row">
           <div class="col-4">
-            <select
-              class="custom-select text-truncate"
-              id="flight-airline-selector"
-              name="flightairline"
-            >
+            <select class="custom-select text-truncate" id="flight-airlines">
               <option>Airlines</option>
             </select>
           </div>
@@ -304,7 +276,6 @@
             <input
               type="text"
               id="flight-name"
-              name="flightname"
               class="form-control"
               placeholder="Flight XYZ"
             />
@@ -315,22 +286,13 @@
               Get Airlines
             </button>
 
-            <input
-              type="submit"
-              class="btn btn-primary"
-              id="submit-flight"
-              value="Register flight"
-            />
+            <input type="submit" class="btn btn-primary" id="register-flight" />
           </div>
         </div>
 
         <div class="row mt-3">
           <div class="col-4">
-            <select
-              class="custom-select text-truncate"
-              id="flight-selector"
-              name="flights"
-            >
+            <select class="custom-select text-truncate" id="flights-selector">
               <option>Flights</option>
             </select>
           </div>
@@ -343,18 +305,7 @@
         </div>
 
         <div class="row mt-3">
-          <div class="col-4">
-            <input type="text" id=flight-status" class="form-control"
-            name="flightstatus" placeholder="Flight status" disabled />
-          </div>
-
-          <div class="col-4">
-            <input type="text" id=flight-request-timestamp" class="form-control"
-            name="requesttimestap" placeholder="Flight status request timestamp"
-            disabled />
-          </div>
-
-          <div class="col-4">
+          <div class="col-12">
             <button
               class="btn btn-secondary"
               type="button"
@@ -366,11 +317,75 @@
         </div>
 
         <div class="row mt-3">
+          <div class="col-4">
+            <input
+              type="text"
+              id="flight-status"
+              class="form-control"
+              placeholder="Flight status"
+              disabled
+            />
+          </div>
+
+          <div class="col-4">
+            <input
+              type="text"
+              id="flight-freezeTimestamp"
+              class="form-control"
+              placeholder="Flight freeze time"
+              disabled
+            />
+          </div>
+
+          <div class="col-4">
+            <input
+              type="text"
+              id="flight-lastUpdatedTimestamp"
+              class="form-control"
+              placeholder="Flight last updated"
+              disabled
+            />
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-4">
+            <input
+              type="text"
+              id="flight-landed"
+              class="form-control"
+              placeholder="Flight has landed"
+              disabled
+            />
+          </div>
+
+          <div class="col-4">
+            <input
+              type="text"
+              id="flight-insurancePrice"
+              class="form-control"
+              placeholder="Flight insurance price"
+              disabled
+            />
+          </div>
+
+          <div class="col-4">
+            <input
+              type="text"
+              id="flight-insuranceaddresses"
+              class="form-control"
+              placeholder="Flight insurees"
+              disabled
+            />
+          </div>
+        </div>
+
+        <div class="row mt-3">
           <div class="col-12">
             <button
               class="btn btn-primary"
               type="button"
-              id="get-flight-status"
+              id="request-flight-status"
             >
               Request New Flight Status
             </button>
@@ -398,7 +413,6 @@
             <select
               class="custom-select text-truncate"
               id="flight-airline-selector"
-              name="airlines"
             >
               <option>Airlines</option>
             </select>
@@ -413,11 +427,7 @@
 
         <div class="row mt-3">
           <div class="col-6">
-            <select
-              class="custom-select text-truncate"
-              id="flight-selector"
-              name="flights"
-            >
+            <select class="custom-select text-truncate" id="flight-selector">
               <option>Flights</option>
             </select>
           </div>
@@ -435,7 +445,6 @@
               type="number"
               id="fund-airline"
               class="form-control"
-              name="buyinsurance"
               placeholder="Insurance: X Ether"
             />
           </div>

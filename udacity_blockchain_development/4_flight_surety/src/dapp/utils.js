@@ -12,6 +12,9 @@ export {
   registerNewAirlines,
   fundAirline,
   voteForAirline,
+  registerFlight,
+  getFlights,
+  getFlight,
 }
 
 function getPastAppLogs() {
@@ -193,9 +196,6 @@ function fundAirline(airlineAddress, amount) {
 }
 
 function voteForAirline(airlineToVoteFor, votingAirline) {
-  console.log({ airlineToVoteFor })
-  console.log({ votingAirline })
-
   if (
     airlineToVoteFor === "Airline to Vote for" ||
     votingAirline === "Voting Airline"
@@ -213,6 +213,73 @@ function voteForAirline(airlineToVoteFor, votingAirline) {
         }
 
         console.log(`Airline voted for: ${result}`)
+
+        resolve(result)
+      })
+  })
+}
+
+function registerFlight(airlineAddress, flightName) {
+  if (airlineAddress === "Airlines") {
+    return alert("Please select a correct airline")
+  } else if ((flightName = "")) {
+    return alert("Please provide a flight name")
+  }
+
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyData.methods
+      .registerFlightForInsurance(airlineAddress, flightName)
+      .send({ from: contract.owner }, (error, result) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
+        }
+
+        console.log(`Registered flight for insurance: ${result}`)
+
+        resolve(result)
+      })
+  })
+}
+
+function getFlights(airlineAddress) {
+  if (airlineAddress === "Airlines") {
+    return alert("Please select a correct airline")
+  }
+
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyData.methods
+      .getFlights(airlineAddress)
+      .call({ from: contract.owner }, (error, result) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
+        }
+
+        console.log(`Airline flights: ${result}`)
+
+        resolve(result)
+      })
+  })
+}
+
+function getFlight(airlineAddress, flightName) {
+  if (airlineAddress === "Airlines") {
+    return alert("Please select a correct airline")
+  } else if ((flightName = "")) {
+    return alert("Please provide a flight name")
+  }
+
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyData.methods
+      .getFlight(airlineAddress, flightName)
+      .call({ from: contract.owner }, (error, result) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
+        }
+
+        console.log(`Flight: ${result}`)
 
         resolve(result)
       })
