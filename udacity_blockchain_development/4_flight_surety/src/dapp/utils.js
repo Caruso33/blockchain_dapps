@@ -10,6 +10,8 @@ export {
   setDataContractStatus,
   getAirlines,
   registerNewAirlines,
+  fundAirline,
+  voteForAirline,
 }
 
 function getPastAppLogs() {
@@ -164,6 +166,53 @@ function registerNewAirlines(airlineName, airlineAdress) {
         }
 
         console.log(`Airline registered: ${result}`)
+
+        resolve(result)
+      })
+  })
+}
+
+function fundAirline(airlineAddress, amount) {
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyApp.methods
+      .provideAirlinefunding(airlineAddress)
+      .send(
+        { from: airlineAddress, value: amount, gas: "5000000" },
+        (error, result) => {
+          if (error) {
+            console.error(error)
+            return reject(error)
+          }
+
+          console.log(`Airline funded: ${result}`)
+
+          resolve(result)
+        }
+      )
+  })
+}
+
+function voteForAirline(airlineToVoteFor, votingAirline) {
+  console.log({ airlineToVoteFor })
+  console.log({ votingAirline })
+
+  if (
+    airlineToVoteFor === "Airline to Vote for" ||
+    votingAirline === "Voting Airline"
+  ) {
+    return alert("Please select correct airlines")
+  }
+
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyApp.methods
+      .voteForAirline(airlineToVoteFor)
+      .send({ from: votingAirline, gas: "5000000" }, (error, result) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
+        }
+
+        console.log(`Airline voted for: ${result}`)
 
         resolve(result)
       })
