@@ -25,7 +25,7 @@ export { contract }
 
 let contract = null
 
-;async () => {
+;(async () => {
   contract = await new Contract("localhost")
 
   // get events
@@ -208,4 +208,4 @@ let contract = null
 
     buyInsurance(airlineAddress, flightName, insureeAddress, insuranceAmount)
   })
-}
+})()
