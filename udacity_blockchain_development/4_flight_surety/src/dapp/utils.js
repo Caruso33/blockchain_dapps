@@ -18,7 +18,7 @@ export {
   requestFlightStatus,
   freezeFlight,
   creditInsurees,
-  buyInsurance as buyInsunce,
+  buyInsurance,
 }
 
 function getPastAppLogs() {
