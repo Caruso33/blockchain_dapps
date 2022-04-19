@@ -15,6 +15,9 @@ import {
   registerFlight,
   getFlights,
   getFlight,
+  requestFlightStatus,
+  freezeFlight,
+  creditInsurees,
 } from "./utils"
 
 export { contract }
@@ -166,5 +169,21 @@ let contract = null
   $("#request-flight-status").click(() => {
     const airlineAddress = $("#flight-airlines").val()
     const flightName = $("#flight-name").val()
+
+    requestFlightStatus(airlineAddress, flightName)
+  })
+
+  $("#freeze-flight").click(() => {
+    const airlineAddress = $("#flight-airlines").val()
+    const flightName = $("#flight-name").val()
+
+    freezeFlight(airlineAddress, flightName)
+  })
+
+  $("#credit-insurees").click(() => {
+    const airlineAddress = $("#flight-airlines").val()
+    const flightName = $("#flight-name").val()
+
+    creditInsurees(airlineAddress, flightName)
   })
 }

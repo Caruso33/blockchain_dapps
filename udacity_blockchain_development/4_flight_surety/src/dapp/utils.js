@@ -15,6 +15,9 @@ export {
   registerFlight,
   getFlights,
   getFlight,
+  requestFlightStatus,
+  freezeFlight,
+  creditInsurees,
 }
 
 function getPastAppLogs() {
@@ -280,6 +283,63 @@ function getFlight(airlineAddress, flightName) {
         }
 
         console.log(`Flight: ${result}`)
+
+        resolve(result)
+      })
+  })
+}
+
+function requestFlightStatus(airlineAddress, flightName) {
+  if (airlineAddress === "Airlines") {
+    return alert("Please select a correct airline")
+  } else if ((flightName = "")) {
+    return alert("Please provide a flight name")
+  }
+
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyApp.methods
+      .requestFlightStatus(airlineAddress, flightName)
+      .call({ from: contract.owner }, (error, result) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
+        }
+
+        console.log(`Flight status requested: ${result}`)
+
+        resolve(result)
+      })
+  })
+}
+
+function freezeFlight(airlineAddress, flightName) {
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyData.methods
+      .freezeFlight(airlineAddress, flightName)
+      .call({ from: airlineAddress }, (error, result) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
+        }
+
+        console.log(`Flight is frozen: ${result}`)
+
+        resolve(result)
+      })
+  })
+}
+
+function creditInsurees(airlineAddress, flightName) {
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyData.methods
+      .creditInsurees(airlineAddress, flightName)
+      .call({ from: contract.owner }, (error, result) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
+        }
+
+        console.log(`Flight insurees credited: ${result}`)
 
         resolve(result)
       })
