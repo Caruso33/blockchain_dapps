@@ -1,3 +1,4 @@
+import web3 from "web3"
 import { contract } from "./index"
 import { onPastEvent, onEvent } from "./ui"
 export {
@@ -19,6 +20,7 @@ export {
   freezeFlight,
   creditInsurees,
   buyInsurance,
+  filterUniqAirlines,
 }
 
 function getPastAppLogs() {
@@ -122,39 +124,44 @@ function setDataContractStatus(mode) {
 
 function getAirlines() {
   return new Promise((resolve, reject) => {
-    contract.flightSuretyData.methods.getAirlines().call((error, result) => {
-      if (error) {
-        console.error(error)
-        return reject(error)
-      }
-
-      const [airlineAddresses, airlineNames, airlineStatus] = [
-        result[0],
-        result[1],
-        result[2],
-      ]
-
-      const airlines = []
-
-      for (let i = 0; i < airlineAddresses.length; i++) {
-        const airline = {
-          address: airlineAddresses[i],
-          name: airlineNames[i],
-          status: airlineStatus[i],
+    contract.flightSuretyData.methods
+      .getAirlines()
+      .call({ from: contract.owner }, (error, result) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
         }
 
-        airlines.push(airline)
+        const [airlineAddresses, airlineNames, airlineStatus] = [
+          result[0],
+          result[1],
+          result[2],
+        ]
 
         console.log(
-          `${
-            airline.status[0].toUpperCase() + airline.status.slice(1)
-          } airline address: ${airline.address}, name: ${airline.name}`
+          `getAirlines success ${result[0].length} active, ${result[1].length} registered, ${result[2].length} unregistered`
         )
-      }
-      // })
 
-      resolve(airlines)
-    })
+        const airlines = []
+
+        for (let i = 0; i < airlineAddresses.length; i++) {
+          const airline = {
+            address: airlineAddresses[i],
+            name: airlineNames[i],
+            status: airlineStatus[i],
+          }
+
+          airlines.push(airline)
+
+          console.log(
+            `${
+              airline.status[0].toUpperCase() + airline.status.slice(1)
+            } airline address: ${airline.address}, name: ${airline.name}`
+          )
+        }
+
+        resolve(airlines)
+      })
   })
 }
 
@@ -181,21 +188,23 @@ function registerNewAirlines(airlineName, airlineAdress) {
 
 function fundAirline(airlineAddress, amount) {
   return new Promise((resolve, reject) => {
-    contract.flightSuretyApp.methods
-      .provideAirlinefunding(airlineAddress)
-      .send(
-        { from: airlineAddress, value: amount, gas: "5000000" },
-        (error, result) => {
-          if (error) {
-            console.error(error)
-            return reject(error)
-          }
-
-          console.log(`Airline funded: ${result}`)
-
-          resolve(result)
+    contract.flightSuretyApp.methods.provideAirlinefunding(airlineAddress).send(
+      {
+        from: airlineAddress,
+        value: web3.utils.toWei(amount),
+        gas: "5000000",
+      },
+      (error, result) => {
+        if (error) {
+          console.error(error)
+          return reject(error)
         }
-      )
+
+        console.log(`Airline funded: ${result}`)
+
+        resolve(result)
+      }
+    )
   })
 }
 
@@ -370,4 +379,17 @@ function buyInsurance(
         }
       )
   })
+}
+
+function filterUniqAirlines(airline, select) {
+  let alreadyExist = false
+  $(select)
+    .children("option")
+    .each((_i, option) => {
+      if ($(option).val() === airline.address) alreadyExist = true
+    })
+
+  if (alreadyExist) return false
+
+  return true
 }

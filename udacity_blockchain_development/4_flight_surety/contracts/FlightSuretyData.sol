@@ -13,7 +13,7 @@ contract FlightSuretyData {
     /********************************************************************************************/
 
     struct Airline {
-        bytes32 name;
+        string name;
         address account;
         // registered through voting (automatically if less than 4 airlines) and up to provide funding
         bool isRegistered;
@@ -31,7 +31,7 @@ contract FlightSuretyData {
     }
 
     struct Flight {
-        bytes32 name;
+        string name;
         uint8 statusCode;
         uint256 registeredTimestamp;
         uint256 freezeTimestamp;
@@ -60,7 +60,7 @@ contract FlightSuretyData {
     mapping(address => Airline) airlines;
     mapping(address => mapping(address => bool)) airlineRegistrationVotes;
 
-    mapping(address => bytes32[]) airlineFlights;
+    mapping(address => string[]) airlineFlights;
     mapping(bytes32 => Flight) flights;
 
     mapping(bytes32 => Insuree[]) registeredPayouts;
@@ -69,60 +69,60 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
-    event Log(bytes32 msg, bytes32 value);
+    event Log(string msg, string value);
     event AuthorizeCaller(address contractAddress);
     event DeauthorizeCaller(address contractAddress);
 
-    event AirlineCreated(address airlineAddress, bytes32 airlineName);
+    event AirlineCreated(address airlineAddress, string airlineName);
     event AirlineRegistered(
         address airlineAddress,
-        bytes32 airlineName,
+        string airlineName,
         uint256 registeredAirlineCount
     );
     event AirlineRegistrationVoted(
         address airlineAddress,
-        bytes32 airlineName,
+        string airlineName,
         address voter
     );
-    event AirlineFunded(address airlineAddress, bytes32 airlineName);
+    event AirlineFunded(address airlineAddress, string airlineName);
 
     event FlightRegistered(
         address airlineAddress,
-        bytes32 airlineName,
-        bytes32 flightName,
+        string airlineName,
+        string flightName,
         uint256 timestamp,
         uint256 insurancePrice
     );
     event FlightFrozen(
         address airlineAddress,
-        bytes32 airlineName,
-        bytes32 flightName,
+        string airlineName,
+        string flightName,
         uint256 timestamp
     );
     event FlightInsuranceBought(
         address airlineAddress,
-        bytes32 airlineName,
-        bytes32 flightName,
+        string airlineName,
+        string flightName,
         uint256 timestamp,
         address insureeAddress,
         uint256 insurancePrice
     );
     event CreditInsuree(
         address airlineAddress,
-        bytes32 airlineName,
-        bytes32 flightName,
+        string airlineName,
+        string flightName,
         address insureeAddress,
         uint256 insuranceAmount
     );
     event PayoutInsurance(
-        bytes32 flightName,
+        string flightName,
         address insureeAddress,
         uint256 payoutAmount
     );
     event ReturnUncreditedInsurance(
         address airlineAddress,
-        bytes32 airlineName,
-        bytes32 flightName,
+        string airlineName,
+        string flightName,
         address insureeAddress,
         uint256 insuranceAmount
     );
@@ -302,17 +302,17 @@ contract FlightSuretyData {
         view
         returns (
             address[],
-            bytes32[],
-            bytes32[]
+            string[],
+            string[]
         )
     {
         address[] memory addresses = new address[](airlineAddresses.length);
-        bytes32[] memory names = new bytes32[](airlineAddresses.length);
-        bytes32[] memory status = new bytes32[](airlineAddresses.length);
+        string[] memory names = new string[](airlineAddresses.length);
+        string[] memory status = new string[](airlineAddresses.length);
 
         for (uint256 i = 0; i < airlineAddresses.length; i++) {
             address currentAirlineAddress = airlineAddresses[i];
-            bytes32 currentAirlineName = airlines[currentAirlineAddress].name;
+            string currentAirlineName = airlines[currentAirlineAddress].name;
 
             if (airlines[currentAirlineAddress].isActive) {
                 addresses[i] = currentAirlineAddress;
@@ -336,7 +336,7 @@ contract FlightSuretyData {
         public
         view
         returns (
-            bytes32,
+            string,
             address,
             bool,
             bool,
@@ -355,19 +355,11 @@ contract FlightSuretyData {
         );
     }
 
-    function getFlights(address airlineAddress)
-        public
-        view
-        returns (bytes32[])
-    {
-        return airlineFlights[airlineAddress];
-    }
-
-    function getFlight(address airlineAddress, bytes32 flightName)
+    function getFlight(address airlineAddress, string flightName)
         public
         view
         returns (
-            bytes32,
+            string,
             uint8,
             uint256,
             uint256,
@@ -395,7 +387,7 @@ contract FlightSuretyData {
 
     function getInsuree(
         address airlineAddress,
-        bytes32 flightName,
+        string flightName,
         address insureeAddress
     )
         public
@@ -414,7 +406,7 @@ contract FlightSuretyData {
         return (insuree.account, insuree.insuranceAmount, insuree.isCredited);
     }
 
-    function getRegisteredPayouts(address airlineAddress, bytes32 flightName)
+    function getRegisteredPayouts(address airlineAddress, string flightName)
         public
         view
         returns (
@@ -463,7 +455,7 @@ contract FlightSuretyData {
      *      Can only be called from FlightSuretyApp contract
      *
      */
-    function createAirline(bytes32 airlineName, address airlineAddress)
+    function createAirline(string airlineName, address airlineAddress)
         external
         requireIsOperational
         requireCallerAuthorized
@@ -584,7 +576,7 @@ contract FlightSuretyData {
      */
     function registerFlightForInsurance(
         address airlineAddress,
-        bytes32 flightName,
+        string flightName,
         uint256 insurancePrice
     ) external requireIsOperational requireAirlineAuthorized {
         Airline storage airline = airlines[airlineAddress];
@@ -602,11 +594,6 @@ contract FlightSuretyData {
         bytes32 flightKey = getKey(airlineAddress, flightName, 0);
         address[] memory emptyArray;
 
-        require(
-            flights[flightKey].airline == address(0),
-            "Flight does already exist"
-        );
-
         Flight memory flight = Flight({
             name: flightName,
             statusCode: 0,
@@ -621,8 +608,6 @@ contract FlightSuretyData {
 
         flights[flightKey] = flight;
 
-        // airlineFlights[airlineAddress].push(flightName);
-
         emit FlightRegistered(
             airlineAddress,
             airline.name,
@@ -632,7 +617,7 @@ contract FlightSuretyData {
         );
     }
 
-    function freezeFlight(address airlineAddress, bytes32 flightName)
+    function freezeFlight(address airlineAddress, string flightName)
         external
         requireIsOperational
         requireAirlineAuthorized
@@ -666,7 +651,7 @@ contract FlightSuretyData {
     //  * @dev Buy insurance for a flight
     //  *
     //  */
-    function buyInsuranceForFlight(address airlineAddress, bytes32 flightName)
+    function buyInsuranceForFlight(address airlineAddress, string flightName)
         external
         payable
         requireIsOperational
@@ -712,7 +697,7 @@ contract FlightSuretyData {
         );
     }
 
-    function creditInsurees(address airlineAddress, bytes32 flightName)
+    function creditInsurees(address airlineAddress, string flightName)
         public
         requireIsOperational
         requireCallerAuthorized
@@ -762,7 +747,7 @@ contract FlightSuretyData {
      *  @dev Transfers eligible payout funds to insurees
      *
      */
-    function payoutInsurance(address airlineAddress, bytes32 flightName)
+    function payoutInsurance(address airlineAddress, string flightName)
         external
         payable
         requireCallerAuthorized
@@ -792,7 +777,7 @@ contract FlightSuretyData {
 
     function returnUncreditedInsurances(
         address airlineAddress,
-        bytes32 flightName
+        string flightName
     ) public requireIsOperational requireAirlineAuthorized {
         bytes32 flightKey = getKey(airlineAddress, flightName, 0);
 
@@ -839,7 +824,7 @@ contract FlightSuretyData {
     // setter
     function setFlightStatus(
         address airlineAddress,
-        bytes32 flightName,
+        string flightName,
         uint8 statusCode
     ) external requireCallerAuthorized {
         bytes32 flightKey = getKey(airlineAddress, flightName, 0);
@@ -867,7 +852,7 @@ contract FlightSuretyData {
 
     function getKey(
         address keyAddress,
-        bytes32 key,
+        string memory key,
         uint256 value
     ) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(keyAddress, key, value));

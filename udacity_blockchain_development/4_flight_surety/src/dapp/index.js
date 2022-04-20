@@ -19,6 +19,7 @@ import {
   freezeFlight,
   creditInsurees,
   buyInsurance,
+  filterUniqAirlines,
 } from "./utils"
 
 export { contract }
@@ -70,54 +71,62 @@ let contract = null
     setDataContractStatus(operationRadio === "true" ? true : false)
   })
 
-  $(".get-airlines").click(async () => {
-    const airlines = await getAirlines()
+  $("[name=get-airlines]").each((_i, element) => {
+    $(element).click(async () => {
+      const airlines = await getAirlines()
 
-    const activeAirlines = airlines.filter(
-      (airline) => airline.status === "active"
-    )
-    const registeredAirlines = airlines.filter(
-      (airline) => airline.status === "registered"
-    )
-    const unRegisteredAirlines = airlines.filter(
-      (airline) => airline.status === "unregistered"
-    )
+      const activeAirlines = airlines.filter(
+        (airline) => airline.status === "active"
+      )
+      const registeredAirlines = airlines.filter(
+        (airline) => airline.status === "registered"
+      )
+      const unRegisteredAirlines = airlines.filter(
+        (airline) => airline.status === "unregistered"
+      )
 
-    const activeSelection = [
-      $("#active-airlines"),
-      $("#flight-airlines"),
-      $("#airline-insurance-selector"),
-    ]
-    activeSelection.forEach((option) => {
-      activeAirlines.forEach((airline) => {
-        option.append(
-          $("<option>", { value: airline.address, text: airline.name })
-        )
+      const activeSelection = [
+        $("#active-airlines"),
+        $("#flight-airlines"),
+        $("#insurance-airlines"),
+      ]
+      activeSelection.forEach((select) => {
+        activeAirlines
+          .filter((airline) => filterUniqAirlines(airline, select))
+          .forEach((airline) => {
+            select.append(
+              $("<option>", { value: airline.address, text: airline.name })
+            )
+          })
       })
-    })
 
-    const registeredSelection = [
-      $("#registered-airlines"),
-      $("#voting-airline"),
-      $("#flight-airline-selector"),
-    ]
-    registeredSelection.forEach((option) => {
-      registeredAirlines.forEach((airline) => {
-        option.append(
-          $("<option>", { value: airline.name, text: airline.name })
-        )
+      const registeredSelection = [
+        $("#registered-airlines"),
+        $("#funding-airlines"),
+        $("#voting-airline"),
+      ]
+      registeredSelection.forEach((select) => {
+        registeredAirlines
+          .filter((airline) => filterUniqAirlines(airline, select))
+          .forEach((airline) => {
+            select.append(
+              $("<option>", { value: airline.address, text: airline.name })
+            )
+          })
       })
-    })
 
-    const unRegisteredSelection = [
-      $("#unregistered-airlines"),
-      $("#airline-to-vote-for"),
-    ]
-    unRegisteredSelection.forEach((option) => {
-      unRegisteredAirlines.forEach((airline) => {
-        option.append(
-          $("<option>", { value: airline.name, text: airline.name })
-        )
+      const unRegisteredSelection = [
+        $("#unregistered-airlines"),
+        $("#airline-to-vote-for"),
+      ]
+      unRegisteredSelection.forEach((select) => {
+        unRegisteredAirlines
+          .filter((airline) => filterUniqAirlines(airline, select))
+          .forEach((airline) => {
+            select.append(
+              $("<option>", { value: airline.address, text: airline.name })
+            )
+          })
       })
     })
   })
@@ -130,7 +139,7 @@ let contract = null
   })
 
   $("#fund-airline").click(() => {
-    const fundAirlineAddress = $("#fund-airline").val()
+    const fundAirlineAddress = $("#funding-airlines").val()
     const fundAirlineAmount = $("#fund-airline-amount").val()
 
     fundAirline(fundAirlineAddress, fundAirlineAmount)
@@ -150,19 +159,21 @@ let contract = null
     registerFlight(airlineAddress, flightName)
   })
 
-  $(".get-flights").click(async () => {
-    const airlineAddress = $("#flight-airlines").val()
+  $("[name=get-flights]").each((_i, element) =>
+    $(element).click(async () => {
+      const airlineAddress = $("#flight-airlines").val()
 
-    const flights = await getFlights(airlineAddress)
+      const flights = await getFlights(airlineAddress)
 
-    const selector = [$("#flights-selector"), $("#flight-insurance-selector")]
+      const selector = [$("#flights-selector"), $("#flight-insurance-selector")]
 
-    for (const flight of flights) {
-      selector.forEach((option) => {
-        option.append($("<option>", { value: flight, text: flight }))
-      })
-    }
-  })
+      for (const flight of flights) {
+        selector.forEach((option) => {
+          option.append($("<option>", { value: flight, text: flight }))
+        })
+      }
+    })
+  )
 
   $("#get-flight-status").click(async () => {
     const airlineAddress = $("#flight-airlines").val()

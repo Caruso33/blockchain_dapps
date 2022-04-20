@@ -69,7 +69,7 @@ contract FlightSuretyApp {
      * @dev Add an airline to the registration queue
      *
      */
-    function createAirline(bytes32 airlineName, address airlineAddress)
+    function createAirline(string airlineName, address airlineAddress)
         external
         returns (uint256)
     {
@@ -112,7 +112,7 @@ contract FlightSuretyApp {
      */
     function registerFlightForInsurance(
         address airlineAddress,
-        bytes32 flightName,
+        string flightName,
         uint256 insurancePrice
     ) external {
         // FlightSuretyData.Flight memory flight =
@@ -123,11 +123,11 @@ contract FlightSuretyApp {
         );
     }
 
-    function freezeFlight(address airlineAddress, bytes32 flightName) external {
+    function freezeFlight(address airlineAddress, string flightName) external {
         flightSuretyData.freezeFlight(airlineAddress, flightName);
     }
 
-    function buyInsuranceForFlight(address airlineAddress, bytes32 flightName)
+    function buyInsuranceForFlight(address airlineAddress, string flightName)
         external
         payable
     {
@@ -135,7 +135,7 @@ contract FlightSuretyApp {
         flightSuretyData.buyInsuranceForFlight(airlineAddress, flightName);
     }
 
-    // function creditInsurees(address airlineAddress, bytes32 flightName)
+    // function creditInsurees(address airlineAddress, string flightName)
     //     external
     //
     // {
@@ -143,7 +143,7 @@ contract FlightSuretyApp {
     //     flightSuretyData.creditInsurees(airlineAddress, flightName);
     // }
 
-    function payoutInsurance(address airlineAddress, bytes32 flightName)
+    function payoutInsurance(address airlineAddress, string flightName)
         external
         payable
     {
@@ -152,7 +152,7 @@ contract FlightSuretyApp {
 
     function returnUncreditedInsurances(
         address airlineAddress,
-        bytes32 flightName
+        string flightName
     ) external {
         flightSuretyData.returnUncreditedInsurances(airlineAddress, flightName);
     }
@@ -163,7 +163,7 @@ contract FlightSuretyApp {
      */
     function processFlightStatus(
         address airlineAddress,
-        bytes32 flightName,
+        string flightName,
         uint8 statusCode
     ) internal {
         require(
@@ -184,7 +184,7 @@ contract FlightSuretyApp {
     }
 
     // Generate a request for oracles to fetch flight information
-    function requestFlightStatus(address airline, bytes32 flight) external {
+    function requestFlightStatus(address airline, string flight) external {
         uint8 index = getRandomIndex(msg.sender);
 
         uint256 timestamp = block.timestamp;
@@ -236,14 +236,14 @@ contract FlightSuretyApp {
     // Event fired each time an oracle submits a response
     event FlightStatusInfo(
         address airline,
-        bytes32 flight,
+        string flight,
         uint256 timestamp,
         uint8 status
     );
 
     event OracleReport(
         address airline,
-        bytes32 flight,
+        string flight,
         uint256 timestamp,
         uint8 status
     );
@@ -254,7 +254,7 @@ contract FlightSuretyApp {
     event OracleRequest(
         uint8 index,
         address airline,
-        bytes32 flight,
+        string flight,
         uint256 timestamp
     );
 
@@ -283,7 +283,7 @@ contract FlightSuretyApp {
     function submitOracleResponse(
         uint8 index,
         address airline,
-        bytes32 flight,
+        string flight,
         uint256 timestamp,
         uint8 statusCode
     ) external {
