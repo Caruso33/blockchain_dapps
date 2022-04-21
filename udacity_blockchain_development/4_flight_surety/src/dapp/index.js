@@ -13,7 +13,7 @@ import {
   fundAirline,
   voteForAirline,
   registerFlight,
-  getFlights,
+  getFlightKeys,
   getFlight,
   requestFlightStatus,
   freezeFlight,
@@ -155,21 +155,27 @@ let contract = null
   $("#register-flight").click(() => {
     const airlineAddress = $("#flight-airlines").val()
     const flightName = $("#flight-name").val()
+    const insuranceAmount = $("#insurance-amount").val()
 
-    registerFlight(airlineAddress, flightName)
+    registerFlight(airlineAddress, flightName, insuranceAmount)
   })
 
   $("[name=get-flights]").each((_i, element) =>
     $(element).click(async () => {
       const airlineAddress = $("#flight-airlines").val()
 
-      const flights = await getFlights(airlineAddress)
+      const flightKeys = await getFlightKeys(airlineAddress)
 
-      const selector = [$("#flights-selector"), $("#flight-insurance-selector")]
+      const flightPromises = flightKeys.map((flightKey) => {
+        return getFlight(flightKey)
+      })
+      const flights = await Promise.all(flightPromises)
+
+      const selector = [$("#airline-flights"), $("#insurance-flights")]
 
       for (const flight of flights) {
         selector.forEach((option) => {
-          option.append($("<option>", { value: flight, text: flight }))
+          option.append($("<option>", { value: flight.name, text: flight.name }))
         })
       }
     })

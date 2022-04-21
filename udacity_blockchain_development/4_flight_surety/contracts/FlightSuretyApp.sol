@@ -115,7 +115,6 @@ contract FlightSuretyApp {
         string flightName,
         uint256 insurancePrice
     ) external {
-        // FlightSuretyData.Flight memory flight =
         flightSuretyData.registerFlightForInsurance(
             airlineAddress,
             flightName,

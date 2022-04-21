@@ -291,7 +291,18 @@
             />
           </div>
 
-          <div class="col-4">
+          <div class="input-group col-4">
+            <input
+              type="number"
+              id="insurance-amount"
+              class="form-control"
+              placeholder="Max Insurance: X Ether"
+            />
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-12">
             <button class="btn btn-secondary" type="button" name="get-airlines">
               Get Airlines
             </button>
@@ -304,7 +315,7 @@
 
         <div class="row mt-3">
           <div class="col-4">
-            <select class="custom-select text-truncate" id="flights-selector">
+            <select class="custom-select text-truncate" id="airline-flights">
               <option>Flights</option>
             </select>
           </div>
@@ -432,19 +443,13 @@
 
         <div class="row mt-3">
           <div class="col-4">
-            <select
-              class="custom-select text-truncate"
-              id="insurance-airlines"
-            >
+            <select class="custom-select text-truncate" id="insurance-airlines">
               <option>Airlines</option>
             </select>
           </div>
 
           <div class="col-4">
-            <select
-              class="custom-select text-truncate"
-              id="insurance-flights"
-            >
+            <select class="custom-select text-truncate" id="insurance-flights">
               <option>Flights</option>
             </select>
           </div>

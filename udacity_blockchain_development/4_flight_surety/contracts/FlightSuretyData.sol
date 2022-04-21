@@ -60,7 +60,7 @@ contract FlightSuretyData {
     mapping(address => Airline) airlines;
     mapping(address => mapping(address => bool)) airlineRegistrationVotes;
 
-    mapping(address => string[]) airlineFlights;
+    mapping(address => bytes32[]) airlineFlights;
     mapping(bytes32 => Flight) flights;
 
     mapping(bytes32 => Insuree[]) registeredPayouts;
@@ -69,6 +69,7 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
+    event LogInt(string msg, uint256 value);
     event Log(string msg, string value);
     event AuthorizeCaller(address contractAddress);
     event DeauthorizeCaller(address contractAddress);
@@ -312,7 +313,8 @@ contract FlightSuretyData {
 
         for (uint256 i = 0; i < airlineAddresses.length; i++) {
             address currentAirlineAddress = airlineAddresses[i];
-            string currentAirlineName = airlines[currentAirlineAddress].name;
+            string storage currentAirlineName = airlines[currentAirlineAddress]
+                .name;
 
             if (airlines[currentAirlineAddress].isActive) {
                 addresses[i] = currentAirlineAddress;
@@ -355,7 +357,20 @@ contract FlightSuretyData {
         );
     }
 
-    function getFlight(address airlineAddress, string flightName)
+    function getFlightKeys(address airlineAddress) public returns (bytes32[]) {
+        bytes32[] memory airlineFlightKeys = airlineFlights[airlineAddress];
+        return airlineFlightKeys;
+    }
+
+    function getFlightKey(address airlineAddress, string flightName)
+        public
+        returns (bytes32)
+    {
+        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
+        return flightKey;
+    }
+
+    function getFlight(bytes32 flightKey)
         public
         view
         returns (
@@ -370,7 +385,6 @@ contract FlightSuretyData {
             address[]
         )
     {
-        bytes32 flightKey = getKey(airlineAddress, flightName, 0);
         Flight storage flight = flights[flightKey];
         return (
             flight.name,
@@ -607,6 +621,8 @@ contract FlightSuretyData {
         });
 
         flights[flightKey] = flight;
+
+        airlineFlights[airlineAddress].push(flightKey);
 
         emit FlightRegistered(
             airlineAddress,
