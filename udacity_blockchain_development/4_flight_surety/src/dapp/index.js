@@ -1,26 +1,27 @@
-import Contract from "./contract"
-import "./flightsurety.css"
 import {
-  getPastAppLogs,
-  getPastDataLogs,
+  buyInsurance,
+  creditInsurees,
+  freezeFlight,
+  fundAirline,
+  getAirlines,
   getAllAppEvents,
   getAllDataEvents,
-  onAuthorizeAppContract,
   getDataContractStatus,
-  setDataContractStatus,
-  getAirlines,
-  registerNewAirlines,
-  fundAirline,
-  voteForAirline,
-  registerFlight,
   getFlightKeys,
+  getFlightKey,
   getFlight,
+  getPastAppLogs,
+  getPastDataLogs,
+  onAuthorizeAppContract,
+  registerFlight,
+  registerNewAirlines,
   requestFlightStatus,
-  freezeFlight,
-  creditInsurees,
-  buyInsurance,
-  filterUniqAirlines,
-} from "./utils"
+  setDataContractStatus,
+  voteForAirline,
+} from "./api"
+import Contract from "./contract"
+import "./flightsurety.css"
+import { filterUniqAirlines } from "./utils"
 
 export { contract }
 
@@ -160,22 +161,25 @@ let contract = null
     registerFlight(airlineAddress, flightName, insuranceAmount)
   })
 
-  $("[name=get-flights]").each((_i, element) =>
+  $("#get-flights-management,#get-flights-passenger").each((_i, element) =>
     $(element).click(async () => {
-      const airlineAddress = $("#flight-airlines").val()
+      const airlineAddress = element.id.includes("passenger")
+        ? $("#insurance-airlines").val()
+        : $("#flight-airlines").val()
 
       const flightKeys = await getFlightKeys(airlineAddress)
 
-      const flightPromises = flightKeys.map((flightKey) => {
-        return getFlight(flightKey)
-      })
-      const flights = await Promise.all(flightPromises)
+      const flights = await Promise.all(
+        flightKeys.map((flightKey) => getFlight(flightKey))
+      )
 
       const selector = [$("#airline-flights"), $("#insurance-flights")]
 
       for (const flight of flights) {
         selector.forEach((option) => {
-          option.append($("<option>", { value: flight.name, text: flight.name }))
+          option.append(
+            $("<option>", { value: flight.name, text: flight.name })
+          )
         })
       }
     })
@@ -185,15 +189,16 @@ let contract = null
     const airlineAddress = $("#flight-airlines").val()
     const flightName = $("#flight-name").val()
 
-    const flight = await getFlight(airlineAddress, flightName)
+    const flightKey = await getFlightKey(airlineAddress, flightName)
+    const flight = await getFlight(flightKey)
 
-    $("#flight-status").val(flight[1])
-    $("#flight-freezeTimestamp").val(flight[3])
-    $("#flight-lastUpdatedTimestamp").val(flight[4])
+    $("#flight-status").val(flight.statusCode)
+    $("#flight-freezeTimestamp").val(flight.freezeTimestamp)
+    $("#flight-lastUpdatedTimestamp").val(flight.lastUpdatedTimestamp)
 
-    $("#flight-landed").val(flight[6])
-    $("#flight-insurancePrice").val(flight[7])
-    $("#flight-insuranceaddresses").val(flight[8].length)
+    $("#flight-landed").val(flight.landed)
+    $("#flight-insurancePrice").val(flight.insurancePrice)
+    $("#flight-insuranceaddresses").val(flight.insureeAddresses.length)
   })
 
   $("#request-flight-status").click(() => {
@@ -218,8 +223,8 @@ let contract = null
   })
 
   $("#buy-insurance").click(() => {
-    const airlineAddress = $("#flight-airlines").val()
-    const flightName = $("#flight-name").val()
+    const airlineAddress = $("#insurance-airlines").val()
+    const flightName = $("#insurance-flights").val()
     const insureeAddress = $("#flight-insurance-insurees").val()
     const insuranceAmount = $("#insurance-amount").val()
 
