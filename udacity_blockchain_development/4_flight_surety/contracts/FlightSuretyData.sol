@@ -719,10 +719,6 @@ contract FlightSuretyData {
             "Flight is not frozen, it's too early to credit insurees"
         );
 
-        // registeredPayouts[flightKey] = new Insuree[](0);
-        // Insuree[] storage insurees = registeredPayouts[flightKey];
-        // Insuree[] memory insurees = new Insuree[flight.insureeAddresses](0);
-
         for (uint256 i = 0; i < flight.insureeAddresses.length; i++) {
             address insureeAddress = flight.insureeAddresses[i];
             Insuree storage insuree = flight.insurees[insureeAddress];
@@ -742,8 +738,7 @@ contract FlightSuretyData {
                     insuranceAmount
                 );
 
-                // insurees[i] = insuree;
-                // registeredPayouts[flightKey][i] = insuree;
+                registeredPayouts[flightKey].push(insuree);
 
                 emit CreditInsuree(
                     airlineAddress,
@@ -771,23 +766,15 @@ contract FlightSuretyData {
         for (uint256 i = 0; i < insurees.length; i++) {
             Insuree storage insuree = insurees[i];
 
-            if (insuree.account == tx.origin && insuree.insuranceAmount > 0) {
-                address insureeAddress = insuree.account;
-                uint256 insuranceAmount = insuree.insuranceAmount;
+            address insureeAddress = insuree.account;
+            uint256 insuranceAmount = insuree.insuranceAmount;
 
-                delete insurees[i];
+            delete insurees[i];
 
-                insureeAddress.transfer(insuranceAmount);
+            insureeAddress.transfer(insuranceAmount);
 
-                emit PayoutInsurance(
-                    flightName,
-                    insureeAddress,
-                    insuranceAmount
-                );
-            }
+            emit PayoutInsurance(flightName, insureeAddress, insuranceAmount);
         }
-
-        // registeredPayouts[flightKey] = insurees;
     }
 
     function returnUncreditedInsurances(
