@@ -76,11 +76,11 @@ contract("Oracles", async (accounts) => {
       value: activationFee,
     })
 
-    const flight = "Flight 001"
+    const flightName = "Flight 001"
     const insurancePrice = web3.utils.toWei("0.01", "ether")
     await config.flightSuretyApp.registerFlightForInsurance(
       airlines[0].address,
-      flight,
+      flightName,
       insurancePrice,
       { from: airlines[0].address }
     )
@@ -89,7 +89,7 @@ contract("Oracles", async (accounts) => {
 
     const event = await config.flightSuretyApp.requestFlightStatus(
       airlines[0].address,
-      flight,
+      flightName,
       { from: airlines[0].address }
     )
 
@@ -98,7 +98,7 @@ contract("Oracles", async (accounts) => {
         resolve([ev.index.toNumber(), ev.timestamp.toNumber()])
       })
     })
-    console.log({requestIndex, timestamp})
+    console.log({ requestIndex, timestamp })
 
     const submitEvents = await submitOracleResponses(
       config,
@@ -106,7 +106,7 @@ contract("Oracles", async (accounts) => {
       airlines,
       TEST_ORACLES_COUNT,
       requestIndex,
-      flight,
+      flightName,
       timestamp,
       STATUS_CODE_ON_TIME
     )
@@ -142,6 +142,172 @@ contract("Oracles", async (accounts) => {
       })
 
       assert.ok(flightStatusWasEmitted, "FlightStatusInfo was not emitted")
+
+      await config.flightSuretyData.payoutInsurees(airlineAddress, flightName, {
+        from: config.owner,
+      })
+    }
+  })
+
+  it.only("oracle consensus triggers crediting of insurees", async () => {
+    const airlineAddress = airlines[0].address
+
+    await config.flightSuretyData.authorizeCaller(
+      config.flightSuretyApp.address
+    )
+    await config.flightSuretyData.authorizeCaller(config.owner)
+
+    await createAirlines(config, airlines)
+
+    await voteForAirlines(config, airlines)
+
+    await config.flightSuretyData.provideAirlinefunding(airlineAddress, {
+      from: airlineAddress,
+      value: activationFee,
+    })
+
+    const flightName = "Flight 001"
+    const insurancePrice = web3.utils.toWei("0.01", "ether")
+    await config.flightSuretyApp.registerFlightForInsurance(
+      airlineAddress,
+      flightName,
+      insurancePrice,
+      { from: airlineAddress }
+    )
+
+    await config.flightSuretyData.buyInsuranceForFlight(
+      airlineAddress,
+      flightName,
+      { from: accounts[5], value: insurancePrice }
+    )
+    await config.flightSuretyData.buyInsuranceForFlight(
+      airlineAddress,
+      flightName,
+      { from: accounts[6], value: insurancePrice }
+    )
+
+    await config.flightSuretyData.freezeFlight(airlineAddress, flightName, {
+      from: airlineAddress,
+    })
+
+    await registerOracles(config, accounts, TEST_ORACLES_COUNT)
+
+    const event = await config.flightSuretyApp.requestFlightStatus(
+      airlineAddress,
+      flightName,
+      { from: airlineAddress }
+    )
+
+    const [requestIndex, timestamp] = await new Promise((resolve, reject) => {
+      truffleAssert.eventEmitted(event, "OracleRequest", (ev) => {
+        resolve([ev.index.toNumber(), ev.timestamp.toNumber()])
+      })
+    })
+    console.log({ requestIndex, timestamp })
+
+    const airlineBefore = await config.flightSuretyData.getAirline(
+      airlineAddress
+    )
+
+    const submitEvents = await submitOracleResponses(
+      config,
+      accounts,
+      airlines,
+      TEST_ORACLES_COUNT,
+      requestIndex,
+      flightName,
+      timestamp,
+      STATUS_CODE_LATE_AIRLINE
+    )
+
+    const hasEnoughResponses =
+      submitEvents.filter((event) => !!event).length >= MIN_RESPONSES
+
+    submitEvents.forEach(async (event) => {
+      if (!event) return
+
+      truffleAssert.eventEmitted(event, "OracleReport", (ev) => {
+        return (
+          ev.airline === airlineAddress &&
+          ev.status.toNumber() === STATUS_CODE_LATE_AIRLINE
+        )
+      })
+    })
+
+    if (hasEnoughResponses) {
+      let insureesWereCredited = false
+
+      const airline = await config.flightSuretyData.getAirline(airlineAddress)
+
+      const flightKey = await config.flightSuretyData.getFlightKey(
+        airlineAddress,
+        flightName
+      )
+      const flight = await config.flightSuretyData.getFlight(flightKey)
+
+      assert(
+        parseInt(airline[5]) ===
+          parseInt(airlineBefore[5] - 3 * insurancePrice),
+        "Insurance balance is not updated correctly"
+      )
+      assert(
+        parseInt(flight[1]) === STATUS_CODE_LATE_AIRLINE,
+        "Status code was not updated correctly"
+      )
+
+      // submitEvents.forEach((event) => {
+      //   if (!event) return
+
+      //   event.logs.forEach((log) => {
+      //     console.log( log.event )
+      //     if (log.event === "CreditInsuree") {
+      //       console.log({ log })
+      //     }
+
+      //     if (
+      //       log.event === "CreditInsuree" &&
+      //       (log.args.insureeAddress === accounts[5] ||
+      //         log.args.insureeAddress === accounts[6]) &&
+      //       log.args.insuranceAmount.toNumber() === 1.5 * insurancePrice
+      //     ) {
+      //       insureesWereCredited = true
+      //     }
+      //   })
+      // })
+
+      // assert.ok(insureesWereCredited, "CreditInsuree was not emitted")
+
+      // const registeredPayouts =
+      //   await config.flightSuretyData.getRegisteredPayouts(
+      //     airlineAddress,
+      //     flightName
+      //   )
+
+      // assert.equal(
+      //   registeredPayouts[0],
+      //   2,
+      //   "Insuree length not credited correctly"
+      // )
+      // assert.equal(
+      //   registeredPayouts[1],
+      //   3 * insurancePrice,
+      //   "Insurance amount not credited correctly"
+      // )
+      // assert.ok(
+      //   registeredPayouts[2].includes(accounts[5]),
+      //   "Insuree is not registered for payout"
+      // )
+      // assert.ok(
+      //   registeredPayouts[2].includes(accounts[6]),
+      //   "Insuree is not registered for payout"
+      // )
+
+      // await truffleAssert.reverts(
+      //   config.flightSuretyData.creditInsurees(airlineAddress, flightName, {
+      //     from: config.owner,
+      //   }),
+      //   "Flight is already credited, payouts are ready"
+      // )
     }
   })
 
@@ -201,10 +367,11 @@ contract("Oracles", async (accounts) => {
     }
     console.log({ hasEnoughResponses })
 
-    const flightStatus = await config.flightSuretyApp.getFlight(
+    const flightKey = await config.flightSuretyData.getFlightKey(
       airlines[0].address,
       flight
     )
+    const flightStatus = await config.flightSuretyData.getFlight(flightKey)
 
     assert(
       parseInt(flightStatus[1].toNumber()) == STATUS_CODE_ON_TIME,

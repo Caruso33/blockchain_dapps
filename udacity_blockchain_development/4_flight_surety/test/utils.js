@@ -75,7 +75,7 @@ async function submitOracleResponses(
   requestIndex,
   flight,
   timestamp,
-  STATUS_CODE_ON_TIME
+  STATUS_CODE
 ) {
   const promises = []
   for (let i = 1; i <= TEST_ORACLES_COUNT; i++) {
@@ -96,7 +96,7 @@ async function submitOracleResponses(
             airlines[0].address,
             flight,
             timestamp,
-            STATUS_CODE_ON_TIME,
+            STATUS_CODE,
             { from: accounts[i] }
           )
 

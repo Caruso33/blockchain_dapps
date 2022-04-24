@@ -69,8 +69,6 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
-    event LogInt(uint256 msg);
-    event LogStr(string msg);
     event AuthorizeCaller(address contractAddress);
     event DeauthorizeCaller(address contractAddress);
 
@@ -191,9 +189,7 @@ contract FlightSuretyData {
      */
     modifier requireCallerAuthorized() {
         require(
-            authorizedContracts[msg.sender] ||
-                authorizedContracts[tx.origin] ||
-                msg.sender == contractOwner,
+            authorizedContracts[msg.sender] || authorizedContracts[tx.origin],
             "Caller is not authorized"
         );
         _;
