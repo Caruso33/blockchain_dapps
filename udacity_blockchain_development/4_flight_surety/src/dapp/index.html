@@ -271,7 +271,7 @@
         </div>
 
         <div class="row">
-          <label class="col-4 field" for="flight-airlines"> Airline </label>
+          <label class="col-4 field" for="flight-airlines">Airline </label>
           <label class="col-4 field" for="flight-name">Flight Name</label>
         </div>
 
@@ -321,7 +321,11 @@
           </div>
 
           <div class="col-6">
-            <button class="btn btn-secondary" type="button" name="get-flights-management">
+            <button
+              class="btn btn-secondary"
+              type="button"
+              id="get-flights-management"
+            >
               Get Flights
             </button>
           </div>
@@ -332,13 +336,60 @@
             <button class="btn btn-primary" type="button" id="freeze-flight">
               Freeze Flight
             </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <label class="col-4 field">Number Insurees</label>
+          <label class="col-4 field">Payout Amount</label>
+          <label class="col-4 field">Payout Addresses</label>
+        </div>
+
+        <div class="row">
+          <div class="col-4">
+            <input
+              type="number"
+              id="number-insurees"
+              class="form-control"
+              placeholder="Number of Insurees"
+            />
+          </div>
+
+          <div class="col-4">
+            <input
+              type="number"
+              id="payout-amount"
+              class="form-control"
+              placeholder="Payout Amount"
+            />
+          </div>
+
+          <div class="col-4">
+            <input
+              type="text"
+              id="payout-addresses"
+              class="form-control"
+              placeholder="Payout Addresses"
+            />
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-12">
+            <button
+              class="btn btn-primary"
+              type="button"
+              id="get-registered-payouts"
+            >
+              Get Registered Payouts
+            </button>
 
             <button
               class="btn btn-primary ml-1"
               type="button"
-              id="credit-insurees"
+              id="payout-insurees"
             >
-              Credit Insurees
+              Payout Insurees
             </button>
           </div>
         </div>
@@ -350,6 +401,40 @@
         </div>
 
         <div class="row mt-3">
+          <div class="col-4">
+            <select class="custom-select text-truncate" id="status-airlines">
+              <option>Airlines</option>
+            </select>
+          </div>
+
+          <div class="col-4">
+            <select class="custom-select text-truncate" id="status-flights">
+              <option>Flights</option>
+            </select>
+          </div>
+
+          <div class="col-4">
+            <button class="btn btn-secondary" type="button" name="get-airlines">
+              Get Airlines
+            </button>
+
+            <button
+              class="btn btn-secondary ml-1"
+              type="button"
+              id="get-flights-status"
+            >
+              Get Flights
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <label class="col-4 field">Flight Status</label>
+          <label class="col-4 field">Freeze Timestamp</label>
+          <label class="col-4 field">Last updated Timestamp</label>
+        </div>
+
+        <div class="row">
           <div class="col-4">
             <input
               type="text"
@@ -382,6 +467,12 @@
         </div>
 
         <div class="row mt-3">
+          <label class="col-4 field">Flight has landed</label>
+          <label class="col-4 field">Flight Insurance Price (Ether)</label>
+          <label class="col-4 field">Insurancees (no. addresses)</label>
+        </div>
+
+        <div class="row">
           <div class="col-4">
             <input
               type="text"

@@ -17,26 +17,32 @@ function run_app() {
     new Web3.providers.WebsocketProvider(config.url.replace("http", "ws"))
   )
   web3.eth.defaultAccount = web3.eth.accounts[0]
-  const flightSuretyData = new web3.eth.Contract(
-    FlightSuretyData.abi,
-    config.appAddress
-  )
+  // const flightSuretyData = new web3.eth.Contract(
+  //   FlightSuretyData.abi,
+  //   config.appAddress
+  // )
   const flightSuretyApp = new web3.eth.Contract(
     FlightSuretyApp.abi,
     config.appAddress
   )
 
   // Retrieving oracle accounts and storing them in variable oracleAccounts
-  const totalOracles = 10
-  const oracleInitialIndex = 1
+  const totalOracles = 19
+  const oracleInitialIndex = 11
 
   let accounts = []
   let oraclesAddresses = []
-  let indexes = []
+  let indexes = {}
 
   getAccounts(web3, oracleInitialIndex)
     .then((oracleAccounts) => {
-      accounts = oracleAccounts
+      accounts = oracleAccounts.filter((acc) => !!acc)
+
+      if (accounts.length < totalOracles) {
+        throw new Error(
+          `Not enough accounts to register ${totalOracles} oracles.`
+        )
+      }
 
       return registerOracles(flightSuretyApp, accounts, totalOracles)
     })
@@ -46,11 +52,34 @@ function run_app() {
       return getOracleIndexes(flightSuretyApp, totalOracles, accounts)
     })
     .then((oracleIndexes) => {
-      indexes = oracleIndexes
+      indexes = oracleIndexes.reduce((acc, ele) => {
+        const key = Object.keys(ele)[0]
+        const value = ele[key]
+
+        acc[key] = value
+
+        return acc
+      }, {})
 
       console.log("Oracle Indexes: ", indexes)
     })
-    .catch((e) => console.log(e.message))
+    .then(() => {
+      flightSuretyApp.events.OracleRequest(
+        {
+          // fromBlock: 0
+        },
+        (error, event) =>
+          onOracleRequest(error, event, flightSuretyApp, accounts, indexes)
+      )
+
+      flightSuretyApp.events.FlightStatusInfo(
+        {
+          // fromBlock: 0
+        },
+        onFlightStatusInfo
+      )
+    })
+    .catch((e) => console.log("Catch server.js ", e.message))
 
   // flightSuretyData.event.on("change", (error, result) => {
   //   if (error) {
@@ -60,12 +89,6 @@ function run_app() {
 
   //   console.log("change: ", result)
   // })
-
-  flightSuretyApp.events.OracleRequest({ fromBlock: 0 }, (error, event) =>
-    onOracleRequest(error, event, flightSuretyApp, accounts, indexes)
-  )
-
-  flightSuretyApp.events.FlightStatusInfo({ fromBlock: 0 }, onFlightStatusInfo)
 
   const app = express()
   app.get("/api", (req, res) => {

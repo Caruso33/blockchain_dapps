@@ -57,7 +57,7 @@ export default class Contract {
     return new Promise(async (resolve, reject) => {
       this.web3.eth.getAccounts((error, accounts) => {
         if (error) {
-          console.log(error)
+          console.error(error.message)
           return reject(error)
         }
 

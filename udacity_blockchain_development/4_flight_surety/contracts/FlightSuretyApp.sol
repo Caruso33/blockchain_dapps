@@ -130,23 +130,13 @@ contract FlightSuretyApp {
         external
         payable
     {
-        // FlightSuretyData.Flight memory flight =
         flightSuretyData.buyInsuranceForFlight(airlineAddress, flightName);
     }
 
-    // function creditInsurees(address airlineAddress, string flightName)
-    //     external
-    //
-    // {
-    //     // FlightSuretyData.Flight memory flight =
-    //     flightSuretyData.creditInsurees(airlineAddress, flightName);
-    // }
-
-    function payoutInsurance(address airlineAddress, string flightName)
+    function payoutInsurees(address airlineAddress, string flightName)
         external
-        payable
     {
-        flightSuretyData.payoutInsurance(airlineAddress, flightName);
+        flightSuretyData.payoutInsurees(airlineAddress, flightName);
     }
 
     function returnUncreditedInsurances(
@@ -244,7 +234,8 @@ contract FlightSuretyApp {
         address airline,
         string flight,
         uint256 timestamp,
-        uint8 status
+        uint8 status,
+        address oracle
     );
 
     // Event fired when flight status request is submitted
@@ -310,7 +301,7 @@ contract FlightSuretyApp {
 
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
-        emit OracleReport(airline, flight, timestamp, statusCode);
+        emit OracleReport(airline, flight, timestamp, statusCode, msg.sender);
 
         if (
             oracleResponses[key].responses[statusCode].length >= MIN_RESPONSES

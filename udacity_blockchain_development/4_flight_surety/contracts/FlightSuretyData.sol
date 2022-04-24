@@ -69,8 +69,8 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
-    event LogInt(string msg, uint256 value);
-    event Log(string msg, string value);
+    event LogInt(uint256 msg);
+    event LogStr(string msg);
     event AuthorizeCaller(address contractAddress);
     event DeauthorizeCaller(address contractAddress);
 
@@ -357,13 +357,18 @@ contract FlightSuretyData {
         );
     }
 
-    function getFlightKeys(address airlineAddress) public returns (bytes32[]) {
+    function getFlightKeys(address airlineAddress)
+        public
+        view
+        returns (bytes32[])
+    {
         bytes32[] memory airlineFlightKeys = airlineFlights[airlineAddress];
         return airlineFlightKeys;
     }
 
     function getFlightKey(address airlineAddress, string flightName)
         public
+        pure
         returns (bytes32)
     {
         bytes32 flightKey = getKey(airlineAddress, flightName, 0);
@@ -446,23 +451,6 @@ contract FlightSuretyData {
 
         return (payoutInsurees, payoutAmount, payoutAddresses);
     }
-
-    // function toAsciiString(address x) internal pure returns (string memory) {
-    //     bytes memory s = new bytes(40);
-    //     for (uint256 i = 0; i < 20; i++) {
-    //         bytes1 b = bytes1(uint8(uint256(uint160(x)) / (2**(8 * (19 - i)))));
-    //         bytes1 hi = bytes1(uint8(b) / 16);
-    //         bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
-    //         s[2 * i] = char(hi);
-    //         s[2 * i + 1] = char(lo);
-    //     }
-    //     return string(s);
-    // }
-
-    // function char(bytes1 b) internal pure returns (bytes1 c) {
-    //     if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
-    //     else return bytes1(uint8(b) + 0x57);
-    // }
 
     /**
      * @dev Add an airline to the registration queue
@@ -594,6 +582,7 @@ contract FlightSuretyData {
         uint256 insurancePrice
     ) external requireIsOperational requireAirlineAuthorized {
         Airline storage airline = airlines[airlineAddress];
+
         require(airline.account != address(0), "Airline does not exist");
         require(
             airlineAddress == tx.origin,
@@ -639,6 +628,7 @@ contract FlightSuretyData {
         requireAirlineAuthorized
     {
         Airline storage airline = airlines[airlineAddress];
+
         require(
             airline.account == tx.origin,
             "Cannot freeze flight insurance for another airline"
@@ -714,9 +704,10 @@ contract FlightSuretyData {
     }
 
     function creditInsurees(address airlineAddress, string flightName)
-        public
+        internal
         requireIsOperational
         requireCallerAuthorized
+        returns (address[])
     {
         bytes32 flightKey = getKey(airlineAddress, flightName, 0);
         Flight storage flight = flights[flightKey];
@@ -728,11 +719,9 @@ contract FlightSuretyData {
             "Flight is not frozen, it's too early to credit insurees"
         );
 
-        Insuree[] storage insurees = registeredPayouts[flightKey];
-        require(
-            insurees.length == 0,
-            "Flight is already credited, payouts are ready"
-        );
+        // registeredPayouts[flightKey] = new Insuree[](0);
+        // Insuree[] storage insurees = registeredPayouts[flightKey];
+        // Insuree[] memory insurees = new Insuree[flight.insureeAddresses](0);
 
         for (uint256 i = 0; i < flight.insureeAddresses.length; i++) {
             address insureeAddress = flight.insureeAddresses[i];
@@ -740,13 +729,21 @@ contract FlightSuretyData {
 
             if (!insuree.isCredited) {
                 Airline storage airline = airlines[airlineAddress];
-                airline.insuranceBalance = airline.insuranceBalance.sub(
-                    insuree.insuranceAmount
-                );
-
-                insurees.push(insuree);
+                uint256 insuranceAmount = insuree
+                    .insuranceAmount
+                    // 1.5 the initial insurance value
+                    .mul(15)
+                    .div(10);
 
                 insuree.isCredited = true;
+                insuree.insuranceAmount = insuranceAmount;
+
+                airline.insuranceBalance = airline.insuranceBalance.sub(
+                    insuranceAmount
+                );
+
+                // insurees[i] = insuree;
+                // registeredPayouts[flightKey][i] = insuree;
 
                 emit CreditInsuree(
                     airlineAddress,
@@ -763,7 +760,7 @@ contract FlightSuretyData {
      *  @dev Transfers eligible payout funds to insurees
      *
      */
-    function payoutInsurance(address airlineAddress, string flightName)
+    function payoutInsurees(address airlineAddress, string flightName)
         external
         payable
         requireCallerAuthorized
@@ -789,6 +786,8 @@ contract FlightSuretyData {
                 );
             }
         }
+
+        // registeredPayouts[flightKey] = insurees;
     }
 
     function returnUncreditedInsurances(
@@ -861,7 +860,7 @@ contract FlightSuretyData {
         }
 
         // Passengers are credited if flight is late due to the airline
-        if (statusCode == 20) {
+        if (statusCode == 20 || statusCode == 40) {
             creditInsurees(airlineAddress, flightName);
         }
     }

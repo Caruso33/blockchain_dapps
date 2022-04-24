@@ -1,10 +1,16 @@
 export { onPastEvent, onEvent }
 
-function onPastEvent(eventLog) {
-  $("#past-log-events").append("<li>" + eventLog + "</li>")
+function onPastEvent(source = "", eventLog) {
+  const sourceLogging = source ? source + ": " : ""
+  const eventLogging = `<pre>${eventLog}</pre>`
+
+  $("#past-log-events").append("<li>" + sourceLogging + eventLogging + "</li>")
 }
-function onEvent(eventLog) {
-  $("#log-events").append("<li>" + eventLog + "</li>")
+function onEvent(source = "", eventLog) {
+  const sourceLogging = source ? source + ": " : ""
+  const eventLogging = `<pre>${eventLog}</pre>`
+
+  $("#log-events").append("<li>" + sourceLogging + eventLogging + "</li>")
 }
 
 // let notificationHasShown = false

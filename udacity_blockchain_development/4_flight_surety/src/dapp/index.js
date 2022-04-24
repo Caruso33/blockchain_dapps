@@ -1,18 +1,20 @@
+import web3 from "web3"
 import {
   buyInsurance,
-  creditInsurees,
   freezeFlight,
   fundAirline,
   getAirlines,
   getAllAppEvents,
   getAllDataEvents,
   getDataContractStatus,
-  getFlightKeys,
-  getFlightKey,
   getFlight,
+  getFlightKey,
+  getFlightKeys,
   getPastAppLogs,
   getPastDataLogs,
+  getRegisteredPayouts,
   onAuthorizeAppContract,
+  payoutInsurees,
   registerFlight,
   registerNewAirlines,
   requestFlightStatus,
@@ -21,7 +23,7 @@ import {
 } from "./api"
 import Contract from "./contract"
 import "./flightsurety.css"
-import { filterUniqAirlines } from "./utils"
+import { filterUniqAirlines, filterUniqFlights } from "./utils"
 
 export { contract }
 
@@ -89,6 +91,7 @@ let contract = null
       const activeSelection = [
         $("#active-airlines"),
         $("#flight-airlines"),
+        $("#status-airlines"),
         $("#insurance-airlines"),
       ]
       activeSelection.forEach((select) => {
@@ -161,49 +164,79 @@ let contract = null
     registerFlight(airlineAddress, flightName, insuranceAmount)
   })
 
-  $("#get-flights-management,#get-flights-passenger").each((_i, element) =>
-    $(element).click(async () => {
-      const airlineAddress = element.id.includes("passenger")
-        ? $("#insurance-airlines").val()
-        : $("#flight-airlines").val()
+  $("#get-flights-management,#get-flights-status,#get-flights-passenger").each(
+    (_i, element) =>
+      $(element).click(async () => {
+        let airlineAddress = null
 
-      const flightKeys = await getFlightKeys(airlineAddress)
+        if (element.id.includes("passenger"))
+          airlineAddress = $("#insurance-airlines").val()
+        if (element.id.includes("status"))
+          airlineAddress = $("#status-airlines").val()
+        else airlineAddress = $("#flight-airlines").val()
 
-      const flights = await Promise.all(
-        flightKeys.map((flightKey) => getFlight(flightKey))
-      )
+        const flightKeys = await getFlightKeys(airlineAddress)
 
-      const selector = [$("#airline-flights"), $("#insurance-flights")]
+        const flights = await Promise.all(
+          flightKeys.map((flightKey) => getFlight(flightKey))
+        )
 
-      for (const flight of flights) {
-        selector.forEach((option) => {
-          option.append(
-            $("<option>", { value: flight.name, text: flight.name })
-          )
+        const selector = [
+          $("#airline-flights"),
+          $("#status-flights"),
+          $("#insurance-flights"),
+        ]
+
+        selector.forEach((select) => {
+          flights
+            .filter((flight) => filterUniqFlights(flight, select))
+            .forEach((flight) => {
+              select.append(
+                $("<option>", { value: flight.name, text: flight.name })
+              )
+            })
         })
-      }
-    })
+      })
   )
 
   $("#get-flight-status").click(async () => {
-    const airlineAddress = $("#flight-airlines").val()
-    const flightName = $("#flight-name").val()
+    const statusCodeMapping = {
+      0: "UNKNOWN",
+      10: "ON_TIME",
+      20: "LATE_AIRLINE",
+      30: "LATE_WEATHER",
+      40: "LATE_TECHNICAL",
+      50: "LATE_OTHER",
+    }
+
+    const airlineAddress = $("#status-airlines").val()
+    const flightName = $("#status-flights").val()
 
     const flightKey = await getFlightKey(airlineAddress, flightName)
     const flight = await getFlight(flightKey)
 
-    $("#flight-status").val(flight.statusCode)
-    $("#flight-freezeTimestamp").val(flight.freezeTimestamp)
-    $("#flight-lastUpdatedTimestamp").val(flight.lastUpdatedTimestamp)
+    $("#flight-status").val(
+      `${flight.statusCode} --> ${statusCodeMapping[flight.statusCode]}`
+    )
+    $("#flight-freezeTimestamp").val(
+      flight.freezeTimestamp == 0
+        ? flight.freezeTimestamp
+        : new Date(1000 * flight.freezeTimestamp)
+    )
+    $("#flight-lastUpdatedTimestamp").val(
+      new Date(1000 * flight.lastUpdatedTimestamp)
+    )
 
     $("#flight-landed").val(flight.landed)
-    $("#flight-insurancePrice").val(flight.insurancePrice)
+    $("#flight-insurancePrice").val(
+      web3.utils.fromWei(flight.insurancePrice, "ether")
+    )
     $("#flight-insuranceaddresses").val(flight.insureeAddresses.length)
   })
 
   $("#request-flight-status").click(() => {
-    const airlineAddress = $("#flight-airlines").val()
-    const flightName = $("#flight-name").val()
+    const airlineAddress = $("#status-airlines").val()
+    const flightName = $("#status-flights").val()
 
     requestFlightStatus(airlineAddress, flightName)
   })
@@ -215,11 +248,23 @@ let contract = null
     freezeFlight(airlineAddress, flightName)
   })
 
-  $("#credit-insurees").click(() => {
+  $("#get-registered-payouts").click(async () => {
     const airlineAddress = $("#flight-airlines").val()
     const flightName = $("#flight-name").val()
 
-    creditInsurees(airlineAddress, flightName)
+    const [numberInsurees, payoutAmount, payoutAddresses] =
+      await getRegisteredPayouts(airlineAddress, flightName)
+
+    $("#number-insurees").val(numberInsurees)
+    $("#payout-amount").val(web3.utils.fromWei(payoutAmount, "ether"))
+    $("#payout-addresses").val(payoutAddresses.length)
+  })
+
+  $("#payout-insurees").click(() => {
+    const airlineAddress = $("#flight-airlines").val()
+    const flightName = $("#flight-name").val()
+
+    payoutInsurees(airlineAddress, flightName)
   })
 
   $("#buy-insurance").click(() => {

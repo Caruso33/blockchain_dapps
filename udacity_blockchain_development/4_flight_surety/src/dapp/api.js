@@ -19,7 +19,8 @@ export {
   getFlight,
   requestFlightStatus,
   freezeFlight,
-  creditInsurees,
+  getRegisteredPayouts,
+  payoutInsurees,
   buyInsurance,
 }
 
@@ -28,11 +29,11 @@ function getPastAppLogs() {
     .getPastEvents("allEvents", { fromBlock: 0 })
     .then((events) => {
       for (const event of events.reverse()) {
-        const returnValues = JSON.stringify(event.returnValues)
+        const returnValues = JSON.stringify(event.returnValues, null, 2)
         const msg = `${event.event}: ${returnValues}`
 
         console.log(`flightSuretyApp.getPastEvents event: ${msg}`)
-        onPastEvent(msg)
+        onPastEvent("flightSuretyApp", msg)
       }
     })
 }
@@ -42,36 +43,36 @@ function getPastDataLogs() {
     .getPastEvents("allEvents", { fromBlock: 0 })
     .then((events) => {
       for (const event of events.reverse()) {
-        const returnValues = JSON.stringify(event.returnValues)
+        const returnValues = JSON.stringify(event.returnValues, null, 2)
         const msg = `${event.event}: ${returnValues}`
 
         console.log(`flightSuretyData.getPastEvents event: ${msg}`)
-        onPastEvent(msg)
+        onPastEvent("flightSuretyData", msg)
       }
     })
 }
 
 function getAllAppEvents() {
   contract.flightSuretyApp.events.allEvents((error, event) => {
-    const returnValues = JSON.stringify(event.returnValues)
+    const returnValues = JSON.stringify(event.returnValues, null, 2)
     const msg = `${event.event}: ${returnValues}`
 
     console.log(
       `flightSuretyApp.getAllAppEvents error: ${error}, event: ${msg}`
     )
-    onEvent(msg)
+    onEvent("flightSuretyApp", msg)
   })
 }
 
 function getAllDataEvents() {
   contract.flightSuretyData.events.allEvents((error, event) => {
-    const returnValues = JSON.stringify(event.returnValues)
+    const returnValues = JSON.stringify(event.returnValues, null, 2)
     const msg = `${event.event}: ${returnValues}`
 
     console.log(
       `flightSuretyData.getAllDataEvents error: ${error}, event: ${msg}`
     )
-    onEvent(msg)
+    onEvent("flightSuretyData", msg)
   })
 }
 
@@ -80,7 +81,7 @@ function onAuthorizeAppContract() {
     .authorizeCaller(contract.flightSuretyAppAddress)
     .send({ from: contract.owner }, (error, _result) => {
       if (error) {
-        console.log(error)
+        console.log(error.message)
         return
       }
 
@@ -92,7 +93,7 @@ function getDataContractStatus() {
   return new Promise((resolve, reject) => {
     contract.flightSuretyData.methods.isOperational().call((error, result) => {
       if (error) {
-        console.error(error)
+        console.error(error.message)
         return reject(error)
       }
 
@@ -109,7 +110,7 @@ function setDataContractStatus(mode) {
       .setOperatingStatus(mode)
       .send({ from: contract.owner }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
@@ -128,7 +129,7 @@ function getAirlines() {
       .getAirlines()
       .call({ from: contract.owner }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
@@ -175,7 +176,7 @@ function registerNewAirlines(airlineName, airlineAdress) {
       .createAirline(airlineName, airlineAdress)
       .send({ from: contract.owner, gas: "5000000" }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
@@ -200,7 +201,7 @@ function fundAirline(airlineAddress, amount) {
       },
       (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
@@ -225,7 +226,7 @@ function voteForAirline(airlineToVoteFor, votingAirline) {
       .voteForAirline(airlineToVoteFor)
       .send({ from: votingAirline, gas: "5000000" }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
@@ -254,7 +255,7 @@ function registerFlight(airlineAddress, flightName, insuranceAmount) {
         { from: airlineAddress, gas: web3.utils.toWei("5", "mwei") },
         (error, result) => {
           if (error) {
-            console.error(error)
+            console.error(error.message)
             return reject(error)
           }
 
@@ -276,7 +277,7 @@ function getFlightKeys(airlineAddress) {
       .getFlightKeys(airlineAddress)
       .call({ from: contract.owner }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
@@ -299,7 +300,7 @@ function getFlightKey(airlineAddress, flightName) {
       .getFlightKey(airlineAddress, flightName)
       .call({ from: contract.owner }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
@@ -316,7 +317,7 @@ function getFlight(flightKey) {
       .getFlight(flightKey)
       .call({ from: contract.owner }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
@@ -342,20 +343,20 @@ function getFlight(flightKey) {
 function requestFlightStatus(airlineAddress, flightName) {
   if (airlineAddress === "Airlines") {
     return alert("Please select a correct airline")
-  } else if ((flightName = "")) {
+  } else if (flightName === "") {
     return alert("Please provide a flight name")
   }
 
   return new Promise((resolve, reject) => {
     contract.flightSuretyApp.methods
       .requestFlightStatus(airlineAddress, flightName)
-      .call({ from: contract.owner }, (error, result) => {
+      .send({ from: contract.owner }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
-        console.log(`Flight status requested: ${result}`)
+        console.log(`Flight status requested: ${JSON.stringify(result)}`)
 
         resolve(result)
       })
@@ -363,33 +364,74 @@ function requestFlightStatus(airlineAddress, flightName) {
 }
 
 function freezeFlight(airlineAddress, flightName) {
+  if (airlineAddress === "Airlines") {
+    return alert("Please select a correct airline")
+  } else if (flightName === "") {
+    return alert("Please provide a flight name")
+  }
+
   return new Promise((resolve, reject) => {
     contract.flightSuretyData.methods
       .freezeFlight(airlineAddress, flightName)
-      .call({ from: airlineAddress }, (error, result) => {
+      .send({ from: airlineAddress }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
-        console.log(`Flight is frozen: ${result}`)
+        console.log(`Flight is frozen: ${JSON.stringify(result)}`)
 
         resolve(result)
       })
   })
 }
 
-function creditInsurees(airlineAddress, flightName) {
+function getRegisteredPayouts(airlineAddress, flightName) {
+  if (airlineAddress === "Airlines") {
+    return alert("Please select a correct airline")
+  } else if (flightName === "") {
+    return alert("Please provide a flight name")
+  }
+
   return new Promise((resolve, reject) => {
     contract.flightSuretyData.methods
-      .creditInsurees(airlineAddress, flightName)
-      .send({ from: contract.owner }, (error, result) => {
+      .getRegisteredPayouts(airlineAddress, flightName)
+      .call({ from: contract.owner }, (error, result) => {
         if (error) {
-          console.error(error)
+          console.error(error.message)
           return reject(error)
         }
 
-        console.log(`Flight insurees credited: ${result}`)
+        const numberInsurees = result[0]
+        const payoutAmount = result[1]
+        const payoutAddresses = result[2]
+
+        console.log(
+          `Registered payouts for flight ${flightName} Number of Insurees ${numberInsurees}, Payout Amount ${payoutAmount}, Payout Addresses ${payoutAddresses}`
+        )
+
+        resolve([numberInsurees, payoutAmount, payoutAddresses])
+      })
+  })
+}
+
+function payoutInsurees(airlineAddress, flightName) {
+  if (airlineAddress === "Airlines") {
+    return alert("Please select a correct airline")
+  } else if (flightName === "") {
+    return alert("Please provide a flight name")
+  }
+
+  return new Promise((resolve, reject) => {
+    contract.flightSuretyApp.methods
+      .payoutInsurees(airlineAddress, flightName)
+      .send({ from: contract.owner }, (error, result) => {
+        if (error) {
+          console.error(error.message)
+          return reject(error)
+        }
+
+        console.log(`Flight insurees paid out: ${result}`)
 
         resolve(result)
       })
@@ -413,7 +455,7 @@ function buyInsurance(
         },
         (error, result) => {
           if (error) {
-            console.error(error)
+            console.error(error.message)
             return reject(error)
           }
 

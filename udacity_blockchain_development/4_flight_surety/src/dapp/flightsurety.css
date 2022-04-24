@@ -63,3 +63,7 @@ label.form {
 li {
   word-break: break-word;
 }
+
+pre {
+  color: inherit;
+}

@@ -1,3 +1,5 @@
+const web3 = require("web3")
+
 module.exports = {
   getAccounts,
   registerOracles,
@@ -59,8 +61,6 @@ function getOracleIndexes(flightSuretyApp, totalOracles, accounts) {
 function registerOracles(flightSuretyApp, oracleAccounts, totalOracles) {
   return getRegistrationFee(flightSuretyApp)
     .then((registrationFee) => {
-      const transactionGas = "2000000"
-
       const promises = []
 
       for (let i = 0; i < totalOracles; i++) {
@@ -72,7 +72,7 @@ function registerOracles(flightSuretyApp, oracleAccounts, totalOracles) {
               {
                 from: oracleAddress,
                 value: registrationFee,
-                gas: transactionGas,
+                gas: web3.utils.toWei("5", "mwei"),
               },
               (error, result) => {
                 if (error) {
@@ -101,51 +101,85 @@ function onOracleRequest(
   oracleAccounts,
   oracleIndexes
 ) {
-  const statusCodes = [0, 10, 20, 30, 40, 50]
+  const statusCodeMapping = {
+    STATUS_CODE_UNKNOWN: 0,
+    STATUS_CODE_ON_TIME: 10,
+    STATUS_CODE_LATE_AIRLINE: 20,
+    STATUS_CODE_LATE_WEATHER: 30,
+    STATUS_CODE_LATE_TECHNICAL: 40,
+    STATUS_CODE_LATE_OTHER: 50,
+  }
 
-  if (error) console.log(error)
+  if (error) {
+    console.error("onOracleRequest", error.message)
+    return
+  }
 
-  if (event) {
-    console.log("onOracleRequest: ", event)
+  console.log("onOracleRequest: ", JSON.stringify(event.returnValues, null, 2))
 
-    const eventResult = event.returnValues
-    // Loop through all oracles and submit the response of those with an index
-    // matching the one of the request
-    for (let oracle of oracleAccounts) {
-      const indexes = oracleIndexes[oracle]
+  const eventResult = event.returnValues
+  const requestIndex = eventResult.index
 
-      if (indexes) {
-        if (
-          eventResult.index == parseInt(indexes[0]) ||
-          eventResult.index == parseInt(indexes[1]) ||
-          eventResult.index == parseInt(indexes[2])
-        ) {
-          const statusIndex = Math.floor(Math.random() * statusCodes.length)
-          const status = statusCodes[statusIndex]
+  const oracleIndexAccounts = oracleAccounts.filter((oracleAccount) =>
+    !oracleIndexes[oracleAccount].includes(requestIndex) ? false : true
+  )
 
-          flightSuretyApp.methods
-            .submitOracleResponse(
-              eventResult.index,
-              eventResult.airline,
-              eventResult.flight,
-              eventResult.timestamp,
-              status
-            )
-            .send({ from: oracle, gas: transactionGas }, (error, result) => {
-              if (error) console.log(error)
+  console.log({ oracleIndexAccounts })
 
-              console.log(
-                `Response ${status} from oracle (${indexes}) ${oracle}: ${result}`
+  for (let oracleAccount of oracleIndexAccounts) {
+    const oracleIndex = oracleIndexes[oracleAccount]
+
+    // const statusCodeLength = Object.keys(statusCodeMapping).length
+    // const statusIndex = Math.floor(Math.random() * statusCodeLength)
+
+    const statusIndex = 2 // -> STATUS_CODE_LATE_AIRLINE for testing purpose
+    const status =
+      statusCodeMapping[Object.keys(statusCodeMapping)[statusIndex]]
+
+    // console.log(
+    //   `Response ${
+    //     Object.keys(statusCodeMapping)[statusIndex]
+    //   }: ${status} from oracle (${oracleIndex.join(", ")}) ${oracleAccount}`
+    // )
+
+    console.log({ oracleAccount })
+
+    try {
+      flightSuretyApp.methods
+        .submitOracleResponse(
+          parseInt(requestIndex),
+          eventResult.airline,
+          eventResult.flight,
+          parseInt(eventResult.timestamp),
+          parseInt(status)
+        )
+        .send(
+          { from: oracleAccount, gas: web3.utils.toWei("5", "mwei") },
+          (error, result) => {
+            if (error) {
+              console.error(
+                `submitOracleResponse send from oracle ${oracleAccount} ${error.message}`
               )
-            })
-        }
-      }
+              return
+            }
+
+            console.log(
+              `Response ${
+                Object.keys(statusCodeMapping)[statusIndex]
+              }: ${status} from oracle (${oracleIndex.join(
+                ", "
+              )}) ${oracleAccount}: ${result}`
+            )
+          }
+        )
+    } catch (e) {
+      console.log("submitOracleResponse ", e.message)
     }
   }
 }
 
 function onFlightStatusInfo(error, event) {
-  if (error) console.log(error)
+  if (error) console.error(error.message)
 
   console.log(event)
 }
