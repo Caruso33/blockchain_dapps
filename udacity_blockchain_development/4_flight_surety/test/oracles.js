@@ -255,26 +255,6 @@ contract("Oracles", async (accounts) => {
         "Status code was not updated correctly"
       )
 
-      // submitEvents.forEach((event) => {
-      //   if (!event) return
-
-      //   event.logs.forEach((log) => {
-      //     console.log( log.event )
-      //     if (log.event === "CreditInsuree") {
-      //       console.log({ log })
-      //     }
-
-      //     if (
-      //       log.event === "CreditInsuree" &&
-      //       (log.args.insureeAddress === accounts[5] ||
-      //         log.args.insureeAddress === accounts[6]) &&
-      //       log.args.insuranceAmount.toNumber() === 1.5 * insurancePrice
-      //     ) {
-      //       insureesWereCredited = true
-      //     }
-      //   })
-      // })
-
       // assert.ok(insureesWereCredited, "CreditInsuree was not emitted")
 
       // const registeredPayouts =

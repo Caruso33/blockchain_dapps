@@ -77,46 +77,43 @@ async function submitOracleResponses(
   timestamp,
   STATUS_CODE
 ) {
-  const promises = []
+  const events = []
+
   for (let i = 1; i <= TEST_ORACLES_COUNT; i++) {
-    promises.push(
-      new Promise(async (resolve, reject) => {
-        try {
-          let oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({
-            from: accounts[i],
-          })
-          oracleIndexes = oracleIndexes.map((index) => index.toNumber())
-
-          if (!oracleIndexes.includes(requestIndex)) {
-            return resolve()
-          }
-
-          const event = await config.flightSuretyApp.submitOracleResponse(
-            requestIndex,
-            airlines[0].address,
-            flight,
-            timestamp,
-            STATUS_CODE,
-            { from: accounts[i] }
-          )
-
-          resolve(event)
-        } catch (err) {
-          if (
-            err.message.includes(
-              "Oracle response is already closed, minimum responses met"
-            )
-          )
-            return resolve()
-
-          console.log("error", err.message)
-          reject(err)
-        }
+    try {
+      let oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({
+        from: accounts[i],
       })
-    )
+      oracleIndexes = oracleIndexes.map((index) => index.toNumber())
+
+      if (!oracleIndexes.includes(requestIndex)) {
+        continue
+      }
+
+      const event = await config.flightSuretyApp.submitOracleResponse(
+        requestIndex,
+        airlines[0].address,
+        flight,
+        timestamp,
+        STATUS_CODE,
+        { from: accounts[i] }
+      )
+
+      events.push(event)
+    } catch (err) {
+      if (
+        err.message.includes(
+          "Oracle response is already closed, minimum responses met"
+        )
+      )
+        continue
+
+      console.log("error", err.message)
+      throw Error(e.message)
+    }
   }
 
-  return Promise.all(promises)
+  return events
 }
 
 function advanceTime(time) {
