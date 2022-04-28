@@ -11,5 +11,9 @@
       "type": "field"
     }
   ],
-  "outputs": []
+  "outputs": [
+    {
+      "type": "field"
+    }
+  ]
 }
