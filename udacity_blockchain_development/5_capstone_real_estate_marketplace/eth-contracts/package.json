@@ -6,6 +6,7 @@
   "scripts": {
     "compile": "truffle compile",
     "migrate:reset": "truffle migrate --reset",
+    "deploy:rinkeby": "rm -rf build/contracts && truffle deploy --network rinkeby",
     "dev": "lite-server",
     "test": "truffle test"
   },

@@ -5,14 +5,7 @@ pragma experimental ABIEncoderV2;
 import "./verifier.sol";
 import "./ERC721Mintable.sol";
 
-contract ZokratesVerifier is Verifier {
-    // function verifyTx(
-    //     uint256[2] memory a,
-    //     uint256[2][2] memory b,
-    //     uint256[2] memory c,
-    //     uint256[2] memory input
-    // ) public returns (bool r);
-}
+contract ZokratesVerifier is Verifier {}
 
 // TODO define another contract named SolnSquareVerifier that inherits from your ERC721Mintable class
 contract SolnSquareVerifier is ERC721Token {
@@ -31,7 +24,11 @@ contract SolnSquareVerifier is ERC721Token {
     mapping(bytes32 => Solution) uniqueSolutions;
 
     // TODO Create an event to emit when a solution is added
-    event SolutionAdded(address indexed owner, uint256 indexed index);
+    event SolutionAdded(
+        address indexed owner,
+        uint256 indexed index,
+        bytes32 key
+    );
 
     constructor(
         address verifierAddress,
@@ -53,7 +50,7 @@ contract SolnSquareVerifier is ERC721Token {
 
         uniqueSolutions[_key] = solution;
 
-        emit SolutionAdded(_owner, _index);
+        emit SolutionAdded(_owner, _index, _key);
     }
 
     // TODO Create a function to mint new NFT only after the solution has been verified

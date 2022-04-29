@@ -26,6 +26,7 @@ contract Ownable {
 
     constructor() internal {
         _owner = msg.sender;
+        emit OwnershipTransferred(address(0), _owner);
     }
 
     modifier onlyOwner() {
@@ -39,6 +40,7 @@ contract Ownable {
             "newOwner is not allowed to be the 0 address"
         );
         _owner = newOwner;
+        emit OwnershipTransferred(address(0), _owner);
     }
 }
 
@@ -64,18 +66,19 @@ contract Pausable is Ownable {
         _;
     }
 
-    modifier paused() {
+    modifier whenPaused() {
         require(_paused, "contract is not paused");
         _;
     }
 
-    function setPaused(bool _newPaused) public onlyOwner {
-        _paused = _newPaused;
-        if (_paused) {
-            emit Paused(msg.sender);
-        } else {
-            emit Unpaused(msg.sender);
-        }
+    function pause() public whenNotPaused {
+        _paused = true;
+        emit Paused(msg.sender);
+    }
+
+    function unpause() public whenPaused {
+        _paused = false;
+        emit Unpaused(msg.sender);
     }
 }
 
@@ -171,7 +174,8 @@ contract ERC721 is Pausable, ERC165 {
 
     function balanceOf(address owner) public view returns (uint256) {
         // TODO return the token balance of given address
-        return _ownedTokensCount[owner].current();
+        // return _ownedTokensCount[owner].current();
+        return Counters.current(_ownedTokensCount[owner]);
     }
 
     function ownerOf(uint256 tokenId) public view returns (address) {
@@ -183,19 +187,19 @@ contract ERC721 is Pausable, ERC165 {
     function approve(address to, uint256 tokenId) public {
         // TODO require the given address to not be the owner of the tokenId
         require(
-            ownerOf(tokenId) != msg.sender,
+            to != ownerOf(tokenId),
             "msg.sender is the owner of the tokenId"
         );
         // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true
         require(
             msg.sender == ownerOf(tokenId) ||
-                isApprovedForAll(msg.sender, msg.sender),
+                isApprovedForAll(ownerOf(tokenId), msg.sender),
             "msg.sender is not the owner of the tokenId or isApprovedForAll() is false"
         );
         // TODO add 'to' address to token approvals
         _tokenApprovals[tokenId] = to;
         // TODO emit Approval Event
-        emit Approval(msg.sender, to, tokenId);
+        emit Approval(ownerOf(tokenId), to, tokenId);
     }
 
     function getApproved(uint256 tokenId) public view returns (address) {
@@ -293,7 +297,7 @@ contract ERC721 is Pausable, ERC165 {
         require(to != address(0), "to address is invalid");
         // TODO mint tokenId to given address & increase token count of owner
         _tokenOwner[tokenId] = to;
-        _ownedTokensCount[to].increment();
+        Counters.increment(_ownedTokensCount[to]);
         // TODO emit Transfer event
         emit Transfer(address(0), to, tokenId);
     }
@@ -315,9 +319,10 @@ contract ERC721 is Pausable, ERC165 {
         // TODO: clear approval
         _clearApproval(tokenId);
         // TODO: update token counts & transfer ownership of the token ID
-        _ownedTokensCount[from].decrement();
-        _ownedTokensCount[to].increment();
+        Counters.decrement(_ownedTokensCount[from]);
+        Counters.increment(_ownedTokensCount[to]);
         _tokenOwner[tokenId] = to;
+
         // TODO: emit correct event
         emit Transfer(from, to, tokenId);
     }
@@ -589,7 +594,7 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     }
 
     function tokenURI(uint256 tokenId) external view returns (string memory) {
-        require(_exists(tokenId));
+        require(_exists(tokenId), "Token does not exist");
         return _tokenURIs[tokenId];
     }
 
@@ -609,13 +614,12 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //  1) Pass in appropriate values for the inherited ERC721Metadata contract
 //      - make the base token uri: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/
 contract ERC721Token is ERC721Metadata {
+    string private baseURI =
+        "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/";
+
     constructor(string memory name, string memory symbol)
         public
-        ERC721Metadata(
-            name,
-            symbol,
-            "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/"
-        )
+        ERC721Metadata(name, symbol, baseURI)
     {}
 
     //  2) create a public mint() that does the following:
@@ -626,7 +630,7 @@ contract ERC721Token is ERC721Metadata {
     function mint(address to, uint256 tokenId) public onlyOwner returns (bool) {
         super._mint(to, tokenId);
 
-        _setTokenURI(tokenId);
+        super._setTokenURI(tokenId);
 
         return true;
     }

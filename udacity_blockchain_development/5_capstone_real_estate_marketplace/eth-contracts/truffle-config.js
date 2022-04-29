@@ -27,7 +27,7 @@
 require("dotenv").config()
 
 const HDWalletProvider = require("truffle-hdwallet-provider")
-const fs = require("fs")
+// const fs = require("fs")
 
 const mnemonic = process.env["mnemonic"]
 const infura_rinkeby_url = process.env["infura_rinkeby_url"]
@@ -62,8 +62,8 @@ module.exports = {
       },
       skipDryRun: true,
       network_id: 4,
-      // gas: 6900000,
-      // gasPrice: 200000000000,
+      gas: 6900000,
+      gasPrice: 200000000000,
     },
 
     // Another network with more advanced options...
