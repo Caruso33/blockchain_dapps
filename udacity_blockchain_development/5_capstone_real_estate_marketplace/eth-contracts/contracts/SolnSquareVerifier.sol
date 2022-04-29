@@ -5,7 +5,14 @@ pragma experimental ABIEncoderV2;
 import "./verifier.sol";
 import "./ERC721Mintable.sol";
 
-contract ZokratesVerifier is Verifier {}
+contract ZokratesVerifier is Verifier {
+    // function verifyTx(
+    //     uint256[2] memory a,
+    //     uint256[2][2] memory b,
+    //     uint256[2] memory c,
+    //     uint256[2] memory input
+    // ) public returns (bool r);
+}
 
 // TODO define another contract named SolnSquareVerifier that inherits from your ERC721Mintable class
 contract SolnSquareVerifier is ERC721Token {
@@ -13,18 +20,18 @@ contract SolnSquareVerifier is ERC721Token {
 
     // TODO define a solutions struct that can hold an index & an address
     struct Solution {
-        uint256 tokenId;
         address owner;
+        uint256 index;
     }
 
     // TODO define an array of the above struct
     Solution[] solutionArray;
 
     // TODO define a mapping to store unique solutions submitted
-    mapping(uint256 => Solution) uniqueSolutions;
+    mapping(bytes32 => Solution) uniqueSolutions;
 
     // TODO Create an event to emit when a solution is added
-    event SolutionAdded(uint256 indexed tokenId, address indexed owner);
+    event SolutionAdded(address indexed owner, uint256 indexed index);
 
     constructor(
         address verifierAddress,
@@ -35,29 +42,35 @@ contract SolnSquareVerifier is ERC721Token {
     }
 
     // TODO Create a function to add the solutions to the array and emit the event
-    function addSolution(uint256 _tokenId, address _owner) public {
-        Solution memory solution = Solution(_tokenId, _owner);
+    function addSolution(
+        address _owner,
+        uint256 _index,
+        bytes32 _key
+    ) public {
+        Solution memory solution = Solution(_owner, _index);
 
         solutionArray.push(solution);
 
-        uniqueSolutions[_tokenId] = solution;
+        uniqueSolutions[_key] = solution;
 
-        emit SolutionAdded(_tokenId, _owner);
+        emit SolutionAdded(_owner, _index);
     }
 
     // TODO Create a function to mint new NFT only after the solution has been verified
     //  - make sure the solution is unique (has not been used before)
     //  - make sure you handle metadata as well as tokenSupply
-    function mint(
+    function mintToken(
         address _to,
-        uint256 _tokenId,
+        uint256 _index,
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c,
         uint256[2] memory input
     ) public {
+        bytes32 key = keccak256(abi.encodePacked(a, b, c, input));
+
         require(
-            uniqueSolutions[_tokenId].owner == address(0x0),
+            uniqueSolutions[key].owner == address(0x0),
             "This solution has already been used"
         );
 
@@ -66,6 +79,8 @@ contract SolnSquareVerifier is ERC721Token {
             "Solution is incorrect"
         );
 
-        super.mint(_to, _tokenId);
+        addSolution(_to, _index, key);
+
+        super.mint(_to, _index);
     }
 }
