@@ -4,7 +4,7 @@ const SolnSquareVerifier = artifacts.require("SolnSquareVerifier")
 const proof = require("../../zokrates/proof")
 const truffleAssert = require("truffle-assertions")
 
-contract.only("SolnSquareVerifier", (accounts) => {
+contract("SolnSquareVerifier", (accounts) => {
   let contract = null
 
   const account_one = accounts[0]

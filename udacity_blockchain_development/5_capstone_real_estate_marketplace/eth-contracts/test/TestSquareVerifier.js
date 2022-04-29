@@ -7,15 +7,17 @@ const proof = require("../../zokrates/proof")
 
 // Test verification with incorrect proof
 contract("ZokratesVerifier", (accounts) => {
+  let contract = null
+
   const account_one = accounts[0]
 
   describe("Test verification with correct proof", () => {
     beforeEach(async () => {
-      this.contract = await ZokratesVerifier.new({ from: account_one })
+      contract = await ZokratesVerifier.new({ from: account_one })
     })
 
     it("verification with correct proof", async function () {
-      const result = await this.contract.verifyTx.call(
+      const result = await contract.verifyTx.call(
         proof.proof.a,
         proof.proof.b,
         proof.proof.c,
@@ -29,7 +31,7 @@ contract("ZokratesVerifier", (accounts) => {
     // Test verification with incorrect proof
     it("Test verification with incorrect proof", async function () {
       const inputs = [1, 2]
-      const result = await this.contract.verifyTx.call(
+      const result = await contract.verifyTx.call(
         proof.proof.a,
         proof.proof.b,
         proof.proof.c,
