@@ -13,7 +13,7 @@ contract SolnSquareVerifier is ERC721Token {
 
     // TODO define a solutions struct that can hold an index & an address
     struct Solution {
-        uint256 index;
+        uint256 tokenId;
         address owner;
     }
 
@@ -24,7 +24,7 @@ contract SolnSquareVerifier is ERC721Token {
     mapping(uint256 => Solution) uniqueSolutions;
 
     // TODO Create an event to emit when a solution is added
-    event SolutionAdded(uint256 indexed index, address indexed owner);
+    event SolutionAdded(uint256 indexed tokenId, address indexed owner);
 
     constructor(
         address verifierAddress,
@@ -35,45 +35,37 @@ contract SolnSquareVerifier is ERC721Token {
     }
 
     // TODO Create a function to add the solutions to the array and emit the event
-    function addSolution(uint256 _index, address _owner) public {
-        Solution memory solution = Solution(_index, _owner);
+    function addSolution(uint256 _tokenId, address _owner) public {
+        Solution memory solution = Solution(_tokenId, _owner);
 
         solutionArray.push(solution);
 
-        uniqueSolutions[_index] = solution;
+        uniqueSolutions[_tokenId] = solution;
 
-        emit SolutionAdded(_index, _owner);
+        emit SolutionAdded(_tokenId, _owner);
     }
 
     // TODO Create a function to mint new NFT only after the solution has been verified
     //  - make sure the solution is unique (has not been used before)
     //  - make sure you handle metadata as well as tokenSupply
-
-    function mint(uint256 _index, address _to) public {
+    function mint(
+        address _to,
+        uint256 _tokenId,
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[2] memory input
+    ) public {
         require(
-            uniqueSolutions[_index].owner == address(0x0),
-            "Solution already used"
+            uniqueSolutions[_tokenId].owner == address(0x0),
+            "This solution has already been used"
         );
-        super.mint(_to, _index);
+
+        require(
+            zokratesContract.verifyTx(a, b, c, input),
+            "Solution is incorrect"
+        );
+
+        super.mint(_to, _tokenId);
     }
-
-    // function mint(
-    //     address _to,
-    //     uint256 _tokenId,
-    //     uint256[2] memory a,
-    //     uint256[2][2] memory b,
-    //     uint256[2] memory c,
-    //     uint256[2] memory input
-    // ) public {
-    //     require(
-    //         uniqueSolutions[_index].owner == 0x0,
-    //         "This solution has already been used"
-    //     );
-    //     require(
-    //         zokratesContract.verifyTx(a, b, c, input),
-    //         "Solution is incorrect"
-    //     );
-
-    //     super.mint(_to, _index);
-    // }
 }
