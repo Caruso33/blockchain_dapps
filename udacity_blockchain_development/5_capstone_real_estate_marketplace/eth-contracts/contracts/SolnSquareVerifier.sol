@@ -78,6 +78,6 @@ contract SolnSquareVerifier is ERC721Token {
 
         addSolution(_to, _index, key);
 
-        super.mint(_to, _index);
+        mint(_to, _index);
     }
 }

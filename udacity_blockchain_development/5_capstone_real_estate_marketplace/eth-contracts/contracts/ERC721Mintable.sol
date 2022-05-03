@@ -614,12 +614,16 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //  1) Pass in appropriate values for the inherited ERC721Metadata contract
 //      - make the base token uri: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/
 contract ERC721Token is ERC721Metadata {
-    string private baseURI =
-        "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/";
+    // string private baseURI =
+    //     "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/";
 
     constructor(string memory name, string memory symbol)
         public
-        ERC721Metadata(name, symbol, baseURI)
+        ERC721Metadata(
+            name,
+            symbol,
+            "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/"
+        )
     {}
 
     //  2) create a public mint() that does the following:
