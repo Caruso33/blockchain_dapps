@@ -212,3 +212,6 @@ Update the api-key in packages/hardhat/package.json file. You can get your key [
 
 ExampleExternalContract 0x62F05333a588cCA44F695caB03D2cE0F58Ec66dF
 Staker 0x2B12B235f29F93E2a941aa9C627CA873D4941FCe
+
+https://abashed-bears.surge.sh/
+https://rinkeby.etherscan.io/address/0x2B12B235f29F93E2a941aa9C627CA873D4941FCe
