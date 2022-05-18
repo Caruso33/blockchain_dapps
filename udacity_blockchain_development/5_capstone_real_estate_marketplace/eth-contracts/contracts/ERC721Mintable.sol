@@ -555,10 +555,8 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     string private _name;
     string private _symbol;
     string private _baseTokenURI;
-
     // TODO: create private mapping of tokenId's to token uri's called '_tokenURIs'
-    mapping(uint256 => string) private _tokenURIs;
-
+    mapping(uint256 => string) _tokenURIs;
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
 
     /*
@@ -614,9 +612,6 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //  1) Pass in appropriate values for the inherited ERC721Metadata contract
 //      - make the base token uri: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/
 contract ERC721Token is ERC721Metadata {
-    // string private baseURI =
-    //     "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/";
-
     constructor(string memory name, string memory symbol)
         public
         ERC721Metadata(
