@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/tobias/.nvm/versions/node/v16.15.0/bin/node /Users/tobias/.nvm/versions/node/v16.15.0/bin/yarn add -D @types/hardhat
+  /Users/tobias/.nvm/versions/node/v16.15.0/bin/node /Users/tobias/.nvm/versions/node/v16.15.0/bin/yarn add -D @types/solidity-ast
 
 PATH: 
   /usr/local/bin/platform-tools:/Users/tobias/.nvm/versions/node/v16.15.0/bin:/opt/miniconda3/bin:/opt/miniconda3/condabin:/Users/tobias/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/usr/local/go/bin:/Library/Apple/usr/bin
@@ -14,7 +14,7 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2fhardhat: Not found
+  Error: https://registry.yarnpkg.com/@types%2fsolidity-ast: Not found
       at Request.params.callback [as _callback] (/Users/tobias/.nvm/versions/node/v16.15.0/lib/node_modules/yarn/lib/cli.js:66138:18)
       at Request.self.callback (/Users/tobias/.nvm/versions/node/v16.15.0/lib/node_modules/yarn/lib/cli.js:140883:22)
       at Request.emit (node:events:527:28)
@@ -42,6 +42,7 @@ npm manifest:
       "@nomiclabs/hardhat-ethers": "^2.0.6",
       "@nomiclabs/hardhat-etherscan": "^3.0.3",
       "@nomiclabs/hardhat-waffle": "^2.0.3",
+      "@openzeppelin/contracts": "^4.6.0",
       "@typechain/ethers-v5": "^7.2.0",
       "@typechain/hardhat": "^2.3.1",
       "@types/chai": "^4.3.1",
@@ -724,6 +725,11 @@ Lockfile:
     dependencies:
       "@types/sinon-chai" "^3.2.3"
       "@types/web3" "1.0.19"
+  
+  "@openzeppelin/contracts@^4.6.0":
+    version "4.6.0"
+    resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.6.0.tgz#c91cf64bc27f573836dba4122758b4743418c1b3"
+    integrity sha512-8vi4d50NNya/bQqCmaVzvHNmwHvS0OBKb7HNtuNwEE3scXWrP31fKQoGxNMT+KbzmrNZzatE3QK5p2gFONI/hg==
   
   "@resolver-engine/core@^0.3.3":
     version "0.3.3"

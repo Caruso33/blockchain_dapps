@@ -10,7 +10,16 @@ contract Exchange is Ownable {
 
     uint256 public feePercent;
 
-    mapping(address => uint256) public balances;
+    mapping(address => mapping(address => uint256)) public tokenBalances;
+
+    // Events
+
+    event DepositEvent(
+        address token,
+        address user,
+        uint256 amount,
+        uint256 balance
+    );
 
     constructor(address _feeAccount, uint256 _feePercent) {
         feeAccount = _feeAccount;
@@ -22,7 +31,18 @@ contract Exchange is Ownable {
     function withdrawEther() public {}
 
     function depositToken(address _token, uint256 _amount) public {
-        Token(_token).transferFrom(msg.sender, address(this), _amount);
+        require(_amount > 0, "Amount must be greater than 0");
+        require(
+            Token(_token).transferFrom(msg.sender, address(this), _amount),
+            "Depositing of token failed"
+        );
+        tokenBalances[_token][msg.sender] += _amount;
+        emit DepositEvent(
+            _token,
+            msg.sender,
+            _amount,
+            tokenBalances[_token][msg.sender]
+        );
     }
 
     function withdrawToken() public {}

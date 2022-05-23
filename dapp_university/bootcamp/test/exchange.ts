@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { ContractFactory, Contract, BigNumber } from "ethers";
+import { ContractFactory, Contract, BigNumber, Event } from "ethers";
 import { ethers } from "hardhat";
 
 describe("Exchange contract", async function () {
@@ -15,7 +15,7 @@ describe("Exchange contract", async function () {
     const Contract = await ethers.getContractFactory("Exchange");
 
     contract = await Contract.deploy(await feeAccount.getAddress(), feePercent);
-    await contract.deployed();
+    contract = await contract.deployed();
   });
 
   describe("Exchange contract deployment", () => {
@@ -45,18 +45,20 @@ describe("Exchange contract", async function () {
       TokenContract = await ethers.getContractFactory("Token");
       tokenContract = await TokenContract.deploy();
 
-      await tokenContract.deployed();
+      tokenContract = await tokenContract.deployed();
       await tokenContract.transfer(tokenUser.address, tokenAmount);
     });
 
     async function approveAndDepositToken() {
-      await tokenContract
+      const txApprove = await tokenContract
         .connect(tokenUser)
         .approve(contract.address, tokenAmount);
 
-      await contract
+      const txDeposit = await contract
         .connect(tokenUser)
         .depositToken(tokenContract.address, tokenAmount);
+
+      return { txApprove, txDeposit };
     }
 
     it("can deposit a token", async () => {
@@ -64,17 +66,124 @@ describe("Exchange contract", async function () {
     });
 
     it("tracks the token deposit", async () => {
+      // token contract
       const tokenBalanceBefore = await tokenContract.balanceOf(
         contract.address
       );
-
       await approveAndDepositToken();
-
       const tokenBalanceAfter = await tokenContract.balanceOf(contract.address);
 
       expect(tokenBalanceAfter.sub(tokenBalanceBefore).toString()).to.equal(
         tokenAmount.toString()
       );
+
+      // exchange contract
+      const tokenBalanceUser = await contract.tokenBalances(
+        tokenContract.address,
+        tokenUser.address
+      );
+      expect(tokenBalanceUser.toString()).to.equal(tokenAmount.toString());
+
+      const tokenBalanceOwner = await contract.tokenBalances(
+        tokenContract.address,
+        owner.getAddress()
+      );
+      expect(tokenBalanceOwner.toString()).to.equal("0");
+    });
+
+    it("emits a deposit event", async () => {
+      const { txDeposit } = await approveAndDepositToken();
+      const tx = await txDeposit.wait();
+
+      const event: Event = tx.events.find(
+        (e: Event) => e.event === "DepositEvent"
+      );
+      // listen events on transaction
+      // eslint-disable-next-line
+      expect(event).to.not.be.undefined;
+      expect(event.args).to.deep.equal([
+        tokenContract.address,
+        tokenUser.address,
+        tokenAmount,
+        tokenAmount,
+      ]);
+
+      // listen events on contract
+      // 1st method
+      contract.on("DepositEvent", (from, to, amount, event) => {
+        expect(from).to.equal(tokenUser.address);
+        expect(to).to.equal(contract.address);
+        expect(amount.toString()).to.equal(tokenAmount.toString());
+        expect(event.event).to.equal("DepositEvent");
+      });
+
+      // 2nd method
+      expect(contract)
+        .to.emit(contract, "DepositEvent")
+        .withArgs(
+          tokenContract.address,
+          tokenUser.address,
+          tokenAmount,
+          tokenAmount
+        );
+    });
+
+    describe("Exchange contract failure", () => {
+      it("fails when is not approved first", async () => {
+        // await expect(contract.depositToken(tokenContract.address, tokenAmount))
+        //   .to.be.reverted;
+
+        await expect(
+          contract.depositToken(tokenContract.address, tokenAmount)
+        ).to.be.revertedWith("ERC20: insufficient allowance");
+      });
+
+      it("fails when the amount is zero", async () => {
+        await tokenContract
+          .connect(tokenUser)
+          .approve(contract.address, tokenAmount);
+
+        await expect(
+          contract.depositToken(tokenContract.address, ethers.constants.Zero)
+        ).to.be.revertedWith("Amount must be greater than 0");
+      });
+
+      it("fails when the amount is negative", async () => {
+        await tokenContract
+          .connect(tokenUser)
+          .approve(contract.address, tokenAmount);
+
+        await expect(
+          contract.depositToken(
+            tokenContract.address,
+            ethers.utils.parseUnits("-1", 18)
+          )
+        ).to.be.reverted;
+      });
+
+      it("rejects ether deposits", async () => {
+        await tokenContract
+          .connect(tokenUser)
+          .approve(contract.address, tokenAmount);
+
+        // TODO:
+        // await expect(
+        //   contract.depositToken(
+        //     tokenContract.address,
+        //     ethers.utils.parseUnits("-1", 18)
+        //   )
+        // ).to.be.reverted;
+      });
+
+      it("fails when the token does not exist", async () => {
+        await tokenContract
+          .connect(tokenUser)
+          .approve(contract.address, tokenAmount);
+
+        await expect(
+          contract.depositToken(ethers.constants.AddressZero, tokenAmount)
+        ).to.be.revertedWith("function call to a non-contract account");
+      });
     });
   });
 });
