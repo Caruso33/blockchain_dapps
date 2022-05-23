@@ -7,13 +7,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Exchange is Ownable {
     address public feeAccount;
-
     uint256 public feePercent;
 
-    mapping(address => mapping(address => uint256)) public tokenBalances;
+    address constant ETHER = address(0);
+
+    mapping(address => mapping(address => uint256)) public balances;
 
     // Events
-
     event DepositEvent(
         address token,
         address user,
@@ -26,22 +26,35 @@ contract Exchange is Ownable {
         feePercent = _feePercent;
     }
 
-    function depositEther() public {}
+    function depositEther() public payable {
+        require(msg.value > 0, "Amount must be greater than 0");
+        balances[ETHER][msg.sender] += msg.value;
+        emit DepositEvent(
+            ETHER,
+            msg.sender,
+            msg.value,
+            balances[ETHER][msg.sender]
+        );
+    }
 
     function withdrawEther() public {}
 
     function depositToken(address _token, uint256 _amount) public {
+        require(
+            _token != ETHER,
+            "No ether should be sent with this transaction"
+        );
         require(_amount > 0, "Amount must be greater than 0");
         require(
             Token(_token).transferFrom(msg.sender, address(this), _amount),
             "Depositing of token failed"
         );
-        tokenBalances[_token][msg.sender] += _amount;
+        balances[_token][msg.sender] += _amount;
         emit DepositEvent(
             _token,
             msg.sender,
             _amount,
-            tokenBalances[_token][msg.sender]
+            balances[_token][msg.sender]
         );
     }
 
@@ -56,4 +69,8 @@ contract Exchange is Ownable {
     function fillOrder() public {}
 
     function chargeFee() public {}
+
+    fallback() external {
+        revert();
+    }
 }

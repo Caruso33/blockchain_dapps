@@ -11,6 +11,8 @@ describe("Exchange contract", async function () {
   const owner: SignerWithAddress = accounts[0];
   const feeAccount: SignerWithAddress = accounts[1];
 
+  const ETHER_ADDRESS = "0x0000000000000000000000000000000000000000";
+
   beforeEach(async () => {
     const Contract = await ethers.getContractFactory("Exchange");
 
@@ -35,16 +37,16 @@ describe("Exchange contract", async function () {
     });
   });
 
-  describe("Exchange contract tokens", () => {
+  describe("Exchange contract ether/tokens", () => {
     let TokenContract: ContractFactory;
     let tokenContract: Contract;
     const tokenUser: SignerWithAddress = accounts[2];
+    const etherAmount: BigNumber = ethers.utils.parseEther("1");
     const tokenAmount: BigNumber = ethers.utils.parseUnits("10", 18);
 
     beforeEach(async () => {
       TokenContract = await ethers.getContractFactory("Token");
       tokenContract = await TokenContract.deploy();
-
       tokenContract = await tokenContract.deployed();
       await tokenContract.transfer(tokenUser.address, tokenAmount);
     });
@@ -60,6 +62,19 @@ describe("Exchange contract", async function () {
 
       return { txApprove, txDeposit };
     }
+
+    it("can deposit ether", async () => {
+      await contract
+        .connect(tokenUser)
+        .depositEther({ value: ethers.utils.parseEther("1") });
+    });
+
+    it("tracks the ether deposit", async () => {
+      await contract.connect(tokenUser).depositEther({ value: etherAmount });
+      const result = await contract.balances(ETHER_ADDRESS, tokenUser.address);
+
+      expect(result).to.equal(etherAmount);
+    });
 
     it("can deposit a token", async () => {
       await approveAndDepositToken();
@@ -78,13 +93,13 @@ describe("Exchange contract", async function () {
       );
 
       // exchange contract
-      const tokenBalanceUser = await contract.tokenBalances(
+      const tokenBalanceUser = await contract.balances(
         tokenContract.address,
         tokenUser.address
       );
       expect(tokenBalanceUser.toString()).to.equal(tokenAmount.toString());
 
-      const tokenBalanceOwner = await contract.tokenBalances(
+      const tokenBalanceOwner = await contract.balances(
         tokenContract.address,
         owner.getAddress()
       );
@@ -130,8 +145,8 @@ describe("Exchange contract", async function () {
 
     describe("Exchange contract failure", () => {
       it("fails when is not approved first", async () => {
-        // await expect(contract.depositToken(tokenContract.address, tokenAmount))
-        //   .to.be.reverted;
+        await expect(contract.depositToken(tokenContract.address, tokenAmount))
+          .to.be.reverted;
 
         await expect(
           contract.depositToken(tokenContract.address, tokenAmount)
@@ -166,13 +181,13 @@ describe("Exchange contract", async function () {
           .connect(tokenUser)
           .approve(contract.address, tokenAmount);
 
-        // TODO:
-        // await expect(
-        //   contract.depositToken(
-        //     tokenContract.address,
-        //     ethers.utils.parseUnits("-1", 18)
-        //   )
-        // ).to.be.reverted;
+        await expect(
+          contract.depositToken(tokenContract.address, tokenAmount, {
+            value: ethers.utils.parseEther("1"),
+          })
+        ).to.be.reverted;
+
+        await expect(contract.depositToken(0, tokenAmount)).to.be.reverted;
       });
 
       it("fails when the token does not exist", async () => {
@@ -180,9 +195,20 @@ describe("Exchange contract", async function () {
           .connect(tokenUser)
           .approve(contract.address, tokenAmount);
 
+        const addressOne = "0x0000000000000000000000000000000000000001";
+
         await expect(
-          contract.depositToken(ethers.constants.AddressZero, tokenAmount)
+          contract.depositToken(addressOne, tokenAmount)
         ).to.be.revertedWith("function call to a non-contract account");
+      });
+
+      it("reverts if ether is sent to fallback", async () => {
+        await expect(
+          tokenUser.sendTransaction({
+            to: contract.address,
+            value: ethers.utils.parseEther("1"),
+          })
+        ).to.be.reverted;
       });
     });
   });
