@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { ContractFactory, Contract } from "ethers";
+import { ContractFactory, Contract, BigNumber } from "ethers";
 import { ethers } from "hardhat";
 
 describe("Exchange contract", async function () {
@@ -38,29 +38,38 @@ describe("Exchange contract", async function () {
   describe("Exchange contract tokens", () => {
     let TokenContract: ContractFactory;
     let tokenContract: Contract;
+    const tokenUser: SignerWithAddress = accounts[2];
+    const tokenAmount: BigNumber = ethers.utils.parseUnits("10", 18);
 
     beforeEach(async () => {
       TokenContract = await ethers.getContractFactory("Token");
       tokenContract = await TokenContract.deploy();
+
       await tokenContract.deployed();
+      await tokenContract.transfer(tokenUser.address, tokenAmount);
     });
 
-    it("can deposit a token", async () => {
-      const tokenAmount = ethers.utils.parseUnits("10", 18);
-
-      const tokenUser = accounts[2];
-      await tokenContract.transfer(tokenUser.address, tokenAmount);
-
+    async function approveAndDepositToken() {
       await tokenContract
         .connect(tokenUser)
         .approve(contract.address, tokenAmount);
 
-      const tokenBalanceBefore = await tokenContract.balanceOf(
-        contract.address
-      );
       await contract
         .connect(tokenUser)
         .depositToken(tokenContract.address, tokenAmount);
+    }
+
+    it("can deposit a token", async () => {
+      await approveAndDepositToken();
+    });
+
+    it("tracks the token deposit", async () => {
+      const tokenBalanceBefore = await tokenContract.balanceOf(
+        contract.address
+      );
+
+      await approveAndDepositToken();
+
       const tokenBalanceAfter = await tokenContract.balanceOf(contract.address);
 
       expect(tokenBalanceAfter.sub(tokenBalanceBefore).toString()).to.equal(
