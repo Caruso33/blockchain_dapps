@@ -493,8 +493,11 @@ describe("Exchange contract", async function () {
       });
 
       describe("failure", () => {
-        // it("reverts when the order is already filled", async () => {
-        // });
+        it("reverts when the order isn't owned by sender", async () => {
+          await expect(
+            contract.connect(accounts[3]).cancelOrder(orderId)
+          ).to.be.revertedWith("Only user can cancel order");
+        });
       });
     });
 
