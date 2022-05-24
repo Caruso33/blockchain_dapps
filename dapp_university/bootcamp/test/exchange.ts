@@ -1,6 +1,12 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { expect, assert } from "chai";
-import { ContractFactory, Contract, BigNumber, Event } from "ethers";
+import { assert, expect } from "chai";
+import {
+  BigNumber,
+  Contract,
+  ContractFactory,
+  ContractTransaction,
+  Event,
+} from "ethers";
 import { ethers } from "hardhat";
 
 describe("Exchange contract", async function () {
@@ -397,6 +403,44 @@ describe("Exchange contract", async function () {
           tokenUser.address
         );
         expect(result).to.equal(tokenAmount);
+      });
+    });
+
+    describe("orders", () => {
+      let orderTx: ContractTransaction;
+
+      beforeEach(async () => {
+        orderTx = await contract
+          .connect(tokenUser)
+          .makeOrder(
+            tokenContract.address,
+            tokenAmount,
+            ETHER_ADDRESS,
+            etherAmount
+          );
+      });
+
+      it("creates and tracks the order", async () => {
+        const order = await contract.orders(1);
+        const [
+          id,
+          user,
+          tokenGet,
+          amountGet,
+          tokenGive,
+          amountGive,
+          timestamp,
+        ] = order;
+
+        expect(id).to.equal(1);
+        expect(user).to.equal(tokenUser.address);
+        expect(tokenGet).to.equal(tokenContract.address);
+        expect(amountGet).to.equal(tokenAmount);
+        expect(tokenGive).to.equal(ETHER_ADDRESS);
+        expect(amountGive).to.equal(etherAmount);
+
+        const block = await ethers.provider.getBlock(orderTx.blockNumber!);
+        expect(timestamp).to.equal(block.timestamp);
       });
     });
 

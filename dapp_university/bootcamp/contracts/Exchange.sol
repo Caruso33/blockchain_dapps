@@ -13,6 +13,19 @@ contract Exchange is Ownable {
 
     mapping(address => mapping(address => uint256)) public balances;
 
+    uint256 public orderCount;
+    mapping(uint256 => Order) public orders;
+
+    struct Order {
+        uint256 id;
+        address user;
+        address tokenGet;
+        uint256 amountGet;
+        address tokenGive;
+        uint256 amountGive;
+        uint256 timestmap;
+    }
+
     // Events
     event DepositEvent(
         address token,
@@ -26,7 +39,17 @@ contract Exchange is Ownable {
         uint256 amount,
         uint256 balance
     );
+    event MakeOrderEvent(
+        uint256 id,
+        address user,
+        address tokenGet,
+        uint256 amountGet,
+        address tokenGive,
+        uint256 amountGive,
+        uint256 timestmap
+    );
 
+    // methods
     constructor(address _feeAccount, uint256 _feePercent) {
         feeAccount = _feeAccount;
         feePercent = _feePercent;
@@ -110,7 +133,33 @@ contract Exchange is Ownable {
         return balances[_token][_user];
     }
 
-    function makeOrder() public {}
+    function makeOrder(
+        address _tokenGet,
+        uint256 _amountGet,
+        address _tokenGive,
+        uint256 _amountGive
+    ) public {
+        orderCount += 1;
+        Order memory order = Order(
+            orderCount,
+            msg.sender,
+            _tokenGet,
+            _amountGet,
+            _tokenGive,
+            _amountGive,
+            block.timestamp
+        );
+        orders[orderCount] = order;
+        emit MakeOrderEvent(
+            orderCount,
+            msg.sender,
+            _tokenGet,
+            _amountGet,
+            _tokenGive,
+            _amountGive,
+            block.timestamp
+        );
+    }
 
     function cancelOrder() public {}
 
