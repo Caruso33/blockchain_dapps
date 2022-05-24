@@ -379,6 +379,27 @@ describe("Exchange contract", async function () {
       });
     });
 
+    describe("balanceOf", () => {
+      it("returns user ether balance", async () => {
+        await contract.connect(tokenUser).depositEther({ value: etherAmount });
+        const result = await contract.balanceOf(
+          ETHER_ADDRESS,
+          tokenUser.address
+        );
+        expect(result).to.equal(etherAmount);
+      });
+
+      it("returns user token balance", async () => {
+        await approveAndDepositToken();
+
+        const result = await contract.balanceOf(
+          tokenContract.address,
+          tokenUser.address
+        );
+        expect(result).to.equal(tokenAmount);
+      });
+    });
+
     it("reverts if ether is sent to fallback", async () => {
       await expect(
         tokenUser.sendTransaction({

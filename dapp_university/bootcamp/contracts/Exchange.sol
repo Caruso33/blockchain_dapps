@@ -102,7 +102,13 @@ contract Exchange is Ownable {
         );
     }
 
-    function checkBalance() public {}
+    function balanceOf(address _token, address _user)
+        public
+        view
+        returns (uint256 balance)
+    {
+        return balances[_token][_user];
+    }
 
     function makeOrder() public {}
 
