@@ -357,6 +357,16 @@ describe("Exchange contract", async function () {
           ).to.be.revertedWith("Amount must be greater than 0");
         });
 
+        it("reverts if ether is withdrawn", async () => {
+          await approveAndDepositToken();
+
+          await expect(
+            contract.withdrawToken(ETHER_ADDRESS, tokenAmount)
+          ).to.be.revertedWith(
+            "No ether should withdrawn with this transaction"
+          );
+        });
+
         it("reverts if too many tokens are withdrawn", async () => {
           await approveAndDepositToken();
 
