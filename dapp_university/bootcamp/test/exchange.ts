@@ -248,6 +248,45 @@ describe("Exchange contract", async function () {
             expect(balance.toString()).to.equal(tokenAmount.toString());
           });
         });
+
+        it("can withdraw a token", async () => {
+          const tokenBalanceBefore = await tokenContract.balanceOf(
+            tokenUser.address
+          );
+          const contractBalanceBefore = await contract
+            .connect(tokenUser)
+            .balances(tokenContract.address, tokenUser.address);
+
+          await approveAndDepositToken();
+
+          await contract
+            .connect(tokenUser)
+            .withdrawToken(tokenContract.address, tokenAmount);
+
+          const tokenBalanceAfter = await tokenContract.balanceOf(
+            tokenUser.address
+          );
+          const contractBalanceAfter = await contract
+            .connect(tokenUser)
+            .balances(tokenContract.address, tokenUser.address);
+
+          expect(tokenBalanceAfter).to.equal(tokenBalanceBefore);
+          expect(tokenBalanceAfter).to.equal(tokenAmount);
+          expect(contractBalanceAfter).to.equal(contractBalanceBefore);
+          expect(contractBalanceAfter).to.equal(0);
+        });
+
+        it("emits a withdrawal event", async () => {
+          await approveAndDepositToken();
+
+          const tx = await contract
+            .connect(tokenUser)
+            .withdrawToken(tokenContract.address, tokenAmount);
+
+          await expect(tx)
+            .to.emit(contract, "WithdrawalEvent")
+            .withArgs(tokenContract.address, tokenUser.address, tokenAmount, 0);
+        });
       });
 
       describe("failure", () => {

@@ -85,6 +85,11 @@ contract Exchange is Ownable {
             "Amount must be less than or equal to ether balance"
         );
         balances[_token][msg.sender] -= _amount;
+        require(
+            Token(_token).transfer(msg.sender, _amount),
+            "Withdrawing of token failed"
+        );
+
         emit WithdrawalEvent(
             _token,
             msg.sender,
