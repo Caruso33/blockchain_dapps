@@ -50,6 +50,7 @@ contract Exchange is Ownable {
             "Amount must be less than or equal to ether balance"
         );
         balances[ETHER][msg.sender] -= _amount;
+        payable(msg.sender).transfer(_amount);
         emit WithdrawalEvent(
             ETHER,
             msg.sender,
@@ -77,7 +78,20 @@ contract Exchange is Ownable {
         );
     }
 
-    function withdrawToken() public {}
+    function withdrawToken(address _token, uint256 _amount) public {
+        require(_amount > 0, "Amount must be greater than 0");
+        require(
+            _amount <= balances[_token][msg.sender],
+            "Amount must be less than or equal to ether balance"
+        );
+        balances[_token][msg.sender] -= _amount;
+        emit WithdrawalEvent(
+            _token,
+            msg.sender,
+            _amount,
+            balances[_token][msg.sender]
+        );
+    }
 
     function checkBalance() public {}
 

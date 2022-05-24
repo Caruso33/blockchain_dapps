@@ -1,5 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { expect } from "chai";
+import { expect, assert } from "chai";
 import { ContractFactory, Contract, BigNumber, Event } from "ethers";
 import { ethers } from "hardhat";
 
@@ -108,7 +108,25 @@ describe("Exchange contract", async function () {
           );
           expect(result).to.equal(etherAmount);
 
-          await contract.connect(tokenUser).withdrawEther(etherAmount);
+          const etherBalanceBefore = await tokenUser.getBalance();
+          let tx = await contract.connect(tokenUser).withdrawEther(etherAmount);
+          tx = await tx.wait();
+          const etherBalanceAfter = await tokenUser.getBalance();
+
+          const balanceDifference = etherBalanceAfter.sub(etherBalanceBefore);
+          const gasConsumed = ethers.utils.parseUnits(
+            (
+              Number(tx.cumulativeGasUsed.toString()) *
+              Number(tx.effectiveGasPrice.toString())
+            ).toString(),
+            "wei"
+          );
+
+          assert.isAtLeast(
+            Number(balanceDifference.toString()),
+            Number(etherAmount.sub(gasConsumed).toString())
+          );
+
           const result2 = await contract.balances(
             ETHER_ADDRESS,
             tokenUser.address
@@ -127,6 +145,34 @@ describe("Exchange contract", async function () {
           await expect(tx)
             .to.emit(contract, "WithdrawalEvent")
             .withArgs(ETHER_ADDRESS, tokenUser.address, etherAmount, 0);
+        });
+      });
+
+      describe("failure", () => {
+        it("reverts if not enough ether is deposited", async () => {
+          await expect(
+            contract.connect(tokenUser).depositEther({ value: 0 })
+          ).to.be.revertedWith("Amount must be greater than 0");
+        });
+
+        it("reverts if not enough ether is withdrawn", async () => {
+          await contract
+            .connect(tokenUser)
+            .depositEther({ value: etherAmount });
+          await expect(
+            contract.connect(tokenUser).withdrawEther(0)
+          ).to.be.revertedWith("Amount must be greater than 0");
+        });
+
+        it("reverts if too much ether is withdrawn", async () => {
+          await contract
+            .connect(tokenUser)
+            .depositEther({ value: etherAmount });
+          await expect(
+            contract.connect(tokenUser).withdrawEther(etherAmount.add(1))
+          ).to.be.revertedWith(
+            "Amount must be less than or equal to ether balance"
+          );
         });
       });
     });
