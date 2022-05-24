@@ -23,7 +23,7 @@ contract Exchange is Ownable {
         uint256 amountGet;
         address tokenGive;
         uint256 amountGive;
-        uint256 timestmap;
+        uint256 timestamp;
     }
 
     // Events
@@ -46,8 +46,9 @@ contract Exchange is Ownable {
         uint256 amountGet,
         address tokenGive,
         uint256 amountGive,
-        uint256 timestmap
+        uint256 timestamp
     );
+    event CancelOrderEvent(uint256 id, address user);
 
     // methods
     constructor(address _feeAccount, uint256 _feePercent) {
@@ -161,7 +162,15 @@ contract Exchange is Ownable {
         );
     }
 
-    function cancelOrder() public {}
+    function cancelOrder(uint256 _orderId) public {
+        require(
+            msg.sender == orders[_orderId].user,
+            "Only user can cancel order"
+        );
+        delete orders[_orderId];
+
+        emit CancelOrderEvent(_orderId, msg.sender);
+    }
 
     function fillOrder() public {}
 

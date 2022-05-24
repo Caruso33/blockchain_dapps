@@ -408,6 +408,7 @@ describe("Exchange contract", async function () {
 
     describe("orders", () => {
       let orderTx: ContractTransaction;
+      const orderId = 1;
 
       beforeEach(async () => {
         orderTx = await contract
@@ -420,27 +421,80 @@ describe("Exchange contract", async function () {
           );
       });
 
-      it("creates and tracks the order", async () => {
-        const order = await contract.orders(1);
-        const [
-          id,
-          user,
-          tokenGet,
-          amountGet,
-          tokenGive,
-          amountGive,
-          timestamp,
-        ] = order;
+      describe("success", () => {
+        it("creates and tracks the order", async () => {
+          const order = await contract.orders(1);
+          const [
+            id,
+            user,
+            tokenGet,
+            amountGet,
+            tokenGive,
+            amountGive,
+            timestamp,
+          ] = order;
 
-        expect(id).to.equal(1);
-        expect(user).to.equal(tokenUser.address);
-        expect(tokenGet).to.equal(tokenContract.address);
-        expect(amountGet).to.equal(tokenAmount);
-        expect(tokenGive).to.equal(ETHER_ADDRESS);
-        expect(amountGive).to.equal(etherAmount);
+          expect(id).to.equal(1);
+          expect(user).to.equal(tokenUser.address);
+          expect(tokenGet).to.equal(tokenContract.address);
+          expect(amountGet).to.equal(tokenAmount);
+          expect(tokenGive).to.equal(ETHER_ADDRESS);
+          expect(amountGive).to.equal(etherAmount);
 
-        const block = await ethers.provider.getBlock(orderTx.blockNumber!);
-        expect(timestamp).to.equal(block.timestamp);
+          const block = await ethers.provider.getBlock(orderTx.blockNumber!);
+          expect(timestamp).to.equal(block.timestamp);
+        });
+
+        it("emit a make order event", async () => {
+          await expect(orderTx)
+            .to.emit(contract, "MakeOrderEvent")
+            .withArgs(
+              1,
+              tokenUser.address,
+              tokenContract.address,
+              tokenAmount,
+              ETHER_ADDRESS,
+              etherAmount,
+              (
+                await ethers.provider.getBlock(orderTx.blockNumber!)
+              ).timestamp
+            );
+        });
+
+        it("cancels order event", async () => {
+          await contract.connect(tokenUser).cancelOrder(orderId);
+
+          const order = await contract.orders(orderId);
+          const [
+            id,
+            user,
+            tokenGet,
+            amountGet,
+            tokenGive,
+            amountGive,
+            timestamp,
+          ] = order;
+          expect(id).to.equal(0);
+          expect(user).to.equal(ethers.constants.AddressZero);
+          expect(tokenGet).to.equal(ethers.constants.AddressZero);
+          expect(amountGet).to.equal(0);
+          expect(tokenGive).to.equal(ethers.constants.AddressZero);
+          expect(amountGive).to.equal(0);
+          expect(timestamp).to.equal(0);
+        });
+
+        it("emits a cancel order event", async () => {
+          const cancelTx = await contract.connect(tokenUser).cancelOrder(1);
+
+          await expect(cancelTx)
+            .to.emit(contract, "CancelOrderEvent")
+            .withArgs(1, tokenUser.address);
+        });
+      });
+
+      describe("failure", () => {
+        // it("reverts when the order is already filled", async () => {
+        // });
       });
     });
 
