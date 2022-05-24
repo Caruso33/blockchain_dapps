@@ -290,7 +290,7 @@ describe("Exchange contract", async function () {
       });
 
       describe("failure", () => {
-        it("fails when is not approved first", async () => {
+        it("reverts when is not approved first", async () => {
           await expect(
             contract.depositToken(tokenContract.address, tokenAmount)
           ).to.be.reverted;
@@ -300,7 +300,7 @@ describe("Exchange contract", async function () {
           ).to.be.revertedWith("ERC20: insufficient allowance");
         });
 
-        it("fails when the amount is zero", async () => {
+        it("reverts when the amount is zero", async () => {
           await tokenContract
             .connect(tokenUser)
             .approve(contract.address, tokenAmount);
@@ -310,7 +310,7 @@ describe("Exchange contract", async function () {
           ).to.be.revertedWith("Amount must be greater than 0");
         });
 
-        it("fails when the amount is negative", async () => {
+        it("reverts when the amount is negative", async () => {
           await tokenContract
             .connect(tokenUser)
             .approve(contract.address, tokenAmount);
@@ -323,7 +323,7 @@ describe("Exchange contract", async function () {
           ).to.be.reverted;
         });
 
-        it("rejects ether deposits", async () => {
+        it("reverts ether deposits", async () => {
           await tokenContract
             .connect(tokenUser)
             .approve(contract.address, tokenAmount);
@@ -337,7 +337,7 @@ describe("Exchange contract", async function () {
           await expect(contract.depositToken(0, tokenAmount)).to.be.reverted;
         });
 
-        it("fails when the token does not exist", async () => {
+        it("reverts when the token does not exist", async () => {
           await tokenContract
             .connect(tokenUser)
             .approve(contract.address, tokenAmount);
@@ -347,6 +347,24 @@ describe("Exchange contract", async function () {
           await expect(
             contract.depositToken(addressOne, tokenAmount)
           ).to.be.revertedWith("function call to a non-contract account");
+        });
+
+        it("reverts if not enough tokens are withdrawn", async () => {
+          await approveAndDepositToken();
+
+          await expect(
+            contract.withdrawToken(tokenContract.address, 0)
+          ).to.be.revertedWith("Amount must be greater than 0");
+        });
+
+        it("reverts if too many tokens are withdrawn", async () => {
+          await approveAndDepositToken();
+
+          await expect(
+            contract.withdrawToken(tokenContract.address, tokenAmount.add(1))
+          ).to.be.revertedWith(
+            "Amount must be less than or equal to token balance"
+          );
         });
       });
     });

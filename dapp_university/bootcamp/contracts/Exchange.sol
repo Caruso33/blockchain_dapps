@@ -82,7 +82,7 @@ contract Exchange is Ownable {
         require(_amount > 0, "Amount must be greater than 0");
         require(
             _amount <= balances[_token][msg.sender],
-            "Amount must be less than or equal to ether balance"
+            "Amount must be less than or equal to token balance"
         );
         balances[_token][msg.sender] -= _amount;
         require(
