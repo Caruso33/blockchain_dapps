@@ -20,6 +20,12 @@ contract Exchange is Ownable {
         uint256 amount,
         uint256 balance
     );
+    event WithdrawalEvent(
+        address token,
+        address user,
+        uint256 amount,
+        uint256 balance
+    );
 
     constructor(address _feeAccount, uint256 _feePercent) {
         feeAccount = _feeAccount;
@@ -37,7 +43,20 @@ contract Exchange is Ownable {
         );
     }
 
-    function withdrawEther() public {}
+    function withdrawEther(uint256 _amount) public {
+        require(_amount > 0, "Amount must be greater than 0");
+        require(
+            _amount <= balances[ETHER][msg.sender],
+            "Amount must be less than or equal to ether balance"
+        );
+        balances[ETHER][msg.sender] -= _amount;
+        emit WithdrawalEvent(
+            ETHER,
+            msg.sender,
+            _amount,
+            balances[ETHER][msg.sender]
+        );
+    }
 
     function depositToken(address _token, uint256 _amount) public {
         require(
