@@ -1,7 +1,14 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Balance, Card2, Card3, Card4, Card5, Card6 } from "../components/index";
+import {
+  Balance,
+  OrderBook,
+  Card3,
+  Card4,
+  Card5,
+  Card6,
+} from "../components/index";
 import { Navbar } from "../components/layout";
 
 const Home: NextPage = () => {
@@ -23,7 +30,7 @@ const Home: NextPage = () => {
         </GridItem>
 
         <GridItem colSpan={1} rowSpan={2} h="50vh" bg="blue.500">
-          <Card2 />
+          <OrderBook />
         </GridItem>
 
         <GridItem colSpan={2} rowSpan={1} h="50vh" bg="blue.500">
