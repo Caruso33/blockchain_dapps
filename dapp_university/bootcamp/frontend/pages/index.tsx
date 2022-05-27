@@ -1,7 +1,7 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
+import { Card1, Card2, Card3, Card4, Card5, Card6 } from "../components/index";
 
 const Home: NextPage = () => {
   return (
@@ -13,11 +13,37 @@ const Home: NextPage = () => {
       </Head>
 
       <Grid templateColumns="repeat(5, 1fr)" gap={3}>
-        <GridItem colSpan={5} h="10" bg="blue.500" />
-        <GridItem colSpan={1} h="10" bg="blue.500" />
-        <GridItem colSpan={1} h="10" bg="blue.500" />
-        <GridItem colSpan={2} h="10" bg="blue.500" />
-        <GridItem colSpan={1} h="10" bg="blue.500" />
+        <GridItem
+          colSpan={5}
+          rowSpan={1}
+          h="5vh"
+          minHeight="10"
+          bg="blue.500"
+        ></GridItem>
+
+        <GridItem colSpan={1} rowSpan={1} bg="blue.500">
+          <Card1 />
+        </GridItem>
+
+        <GridItem colSpan={1} rowSpan={2} h="50vh" bg="blue.500">
+          <Card2 />
+        </GridItem>
+
+        <GridItem colSpan={2} rowSpan={1} h="50vh" bg="blue.500">
+          <Card3 />
+        </GridItem>
+
+        <GridItem colSpan={1} rowSpan={2} h="50vh" bg="blue.500">
+          <Card4 />
+        </GridItem>
+
+        <GridItem colSpan={1} rowSpan={1} h="40vh" bg="blue.500">
+          <Card5 />
+        </GridItem>
+
+        <GridItem colSpan={2} rowSpan={1} h="40vh" bg="blue.500">
+          <Card6 />
+        </GridItem>
       </Grid>
     </>
   );
