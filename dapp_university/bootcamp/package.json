@@ -2,6 +2,7 @@
   "name": "hardhat-project",
   "license": "UNLICENSED",
   "scripts": {
+    "accounts": "hardhat accounts",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "deploy": "hardhat run scripts/deploy.ts",

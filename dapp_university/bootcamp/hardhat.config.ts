@@ -19,16 +19,34 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
+const mnemonic = process.env.mnemonic!;
+// const HDNode = hre.ethers.utils.HDNode.fromMnemonic(mnemonic);
+// const privateKey = HDNode.derivePath("m/44'/60'/0'/0/0").privateKey;
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.4",
+  solidity: {
+    version: "0.8.4",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   networks: {
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    rinkeby: {
+      url: process.env.infura_rinkeby_url,
+      accounts: {
+        mnemonic: mnemonic,
+      },
     },
     ganache: {
       url: process.env.GANACHE_URL || "http://localhost:8545",
