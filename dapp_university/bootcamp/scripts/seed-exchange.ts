@@ -38,11 +38,11 @@ async function seedExchange(taskArgs: any, hre: HardhatRuntimeEnvironment) {
     const ETHER_ADDRESS = ethers.constants.AddressZero;
 
     // initial deposits
-    const initEtherAmount = 100;
+    const initEtherAmount = 1000;
     const initTokenAmount = 1_000;
 
-    const etherAmount = initEtherAmount / 10;
-    const tokenAmount = initTokenAmount / 10;
+    const etherAmount = initEtherAmount / 100;
+    const tokenAmount = initTokenAmount / 100;
 
     await token.connect(user1).approve(exchangeAddress, initTokenAmount);
     console.log(`Approved ${initTokenAmount} Tokens from ${user1.address}`);
@@ -100,6 +100,34 @@ async function seedExchange(taskArgs: any, hre: HardhatRuntimeEnvironment) {
     console.log(`Filled order ${orderId} from ${user2.address}`);
 
     await advanceOneMinute(ethers);
+
+    // open orders
+
+    // 10 orders from user1
+    for (let i = 0; i < 10; i++) {
+      const ethAmount = etherAmount * Math.ceil(Math.random() * i);
+      const tokAmount = tokenAmount * Math.ceil(Math.random() * i);
+
+      await exchange
+        .connect(user1)
+        .makeOrder(tokenAddress, tokAmount, ETHER_ADDRESS, ethAmount);
+      console.log(`Made order from ${user1.address}`);
+
+      await advanceOneMinute(ethers);
+    }
+
+    // 10 orders from user2
+    for (let i = 0; i < 10; i++) {
+      const ethAmount = etherAmount * Math.ceil(Math.random() * i);
+      const tokAmount = tokenAmount * Math.ceil(Math.random() * i);
+
+      await exchange
+        .connect(user2)
+        .makeOrder(ETHER_ADDRESS, ethAmount, tokenAddress, tokAmount);
+      console.log(`Made order from ${user2.address}`);
+
+      await advanceOneMinute(ethers);
+    }
   } catch (error) {
     console.error("Seed failed: ", error);
   }
