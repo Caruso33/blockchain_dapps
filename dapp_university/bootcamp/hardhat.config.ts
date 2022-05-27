@@ -6,6 +6,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import seedExchange from "./scripts/seed-exchange";
 
 dotenv.config();
 
@@ -18,6 +19,13 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
     console.log(account.address);
   }
 });
+
+task("seed-exchange", "Prefills the Exchange contract with orders")
+  .addParam("token", "The address of token contract")
+  .addParam("exchange", "The address of exchange contract")
+  .setAction(async (taskArgs, hre) => {
+    return seedExchange(taskArgs, hre);
+  });
 
 const mnemonic = process.env.mnemonic!;
 // const HDNode = hre.ethers.utils.HDNode.fromMnemonic(mnemonic);

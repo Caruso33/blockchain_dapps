@@ -182,6 +182,11 @@ contract Exchange is Ownable {
             msg.sender == orders[_orderId].user,
             "Only user can cancel order"
         );
+        require(
+            !orders[_orderId].isCancelled,
+            "Order has already been cancelled"
+        );
+        require(!orders[_orderId].isFilled, "Order has already been filled");
         orders[_orderId].isCancelled = true;
 
         emit CancelOrderEvent(_orderId, msg.sender);

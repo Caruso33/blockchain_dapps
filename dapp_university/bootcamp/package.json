@@ -3,6 +3,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "accounts": "hardhat accounts",
+    "seed:exchange": "hardhat seed-exchange",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "deploy": "hardhat run scripts/deploy.ts",
