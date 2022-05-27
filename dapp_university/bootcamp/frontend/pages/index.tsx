@@ -1,7 +1,8 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Card1, Card2, Card3, Card4, Card5, Card6 } from "../components/index";
+import { Balance, Card2, Card3, Card4, Card5, Card6 } from "../components/index";
+import { Navbar } from "../components/layout";
 
 const Home: NextPage = () => {
   return (
@@ -13,16 +14,12 @@ const Home: NextPage = () => {
       </Head>
 
       <Grid templateColumns="repeat(5, 1fr)" gap={3}>
-        <GridItem
-          colSpan={5}
-          rowSpan={1}
-          h="5vh"
-          minHeight="10"
-          bg="blue.500"
-        ></GridItem>
+        <GridItem colSpan={5} rowSpan={1} h="5vh" minHeight="10" bg="blue.500">
+          <Navbar />
+        </GridItem>
 
         <GridItem colSpan={1} rowSpan={1} bg="blue.500">
-          <Card1 />
+          <Balance />
         </GridItem>
 
         <GridItem colSpan={1} rowSpan={2} h="50vh" bg="blue.500">
