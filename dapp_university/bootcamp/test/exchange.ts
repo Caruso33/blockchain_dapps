@@ -393,6 +393,13 @@ describe("Exchange contract", async function () {
           tokenUser.address
         );
         expect(result).to.equal(etherAmount);
+
+        await approveAndDepositToken();
+        const result2 = await contract.balanceOf(
+          ETHER_ADDRESS,
+          tokenUser.address
+        );
+        expect(result2).to.equal(etherAmount);
       });
 
       it("returns user token balance", async () => {
@@ -409,8 +416,11 @@ describe("Exchange contract", async function () {
     describe("orders", () => {
       let orderTx: ContractTransaction;
       const orderId = 1;
+      const trader = accounts[2];
 
       beforeEach(async () => {
+        await approveAndDepositToken();
+
         orderTx = await contract
           .connect(tokenUser)
           .makeOrder(
@@ -465,22 +475,11 @@ describe("Exchange contract", async function () {
           await contract.connect(tokenUser).cancelOrder(orderId);
 
           const order = await contract.orders(orderId);
-          const [
-            id,
-            user,
-            tokenGet,
-            amountGet,
-            tokenGive,
-            amountGive,
-            timestamp,
-          ] = order;
-          expect(id).to.equal(0);
-          expect(user).to.equal(ethers.constants.AddressZero);
-          expect(tokenGet).to.equal(ethers.constants.AddressZero);
-          expect(amountGet).to.equal(0);
-          expect(tokenGive).to.equal(ethers.constants.AddressZero);
-          expect(amountGive).to.equal(0);
-          expect(timestamp).to.equal(0);
+          const [id, user, , , , , , isCancelled] = order;
+
+          expect(id).to.equal(orderId);
+          expect(user).to.equal(tokenUser.address);
+          expect(isCancelled).to.equal(true);
         });
 
         it("emits a cancel order event", async () => {
@@ -490,10 +489,99 @@ describe("Exchange contract", async function () {
             .to.emit(contract, "CancelOrderEvent")
             .withArgs(1, tokenUser.address);
         });
+
+        it("fills order and tracks balances", async () => {
+          await contract.connect(trader).depositEther({ value: etherAmount });
+
+          const tokenUserBefore = await contract.balanceOf(
+            tokenContract.address,
+            tokenUser.address
+          );
+          const etherUserBefore = await contract.balanceOf(
+            ETHER_ADDRESS,
+            tokenUser.address
+          );
+
+          const tokenTraderBefore = await contract.balanceOf(
+            tokenContract.address,
+            trader.address
+          );
+          const etherTraderBefore = await contract.balanceOf(
+            ETHER_ADDRESS,
+            trader.address
+          );
+
+          await contract.connect(trader).fillOrder(orderId);
+
+          const tokenUserAfter = await contract.balanceOf(
+            tokenContract.address,
+            tokenUser.address
+          );
+          const etherUserAfter = await contract.balanceOf(
+            ETHER_ADDRESS,
+            tokenUser.address
+          );
+
+          const tokenTraderAfter = await contract.balanceOf(
+            tokenContract.address,
+            trader.address
+          );
+          const etherTraderAfter = await contract.balanceOf(
+            ETHER_ADDRESS,
+            trader.address
+          );
+
+          const tokenDiffUser = tokenUserAfter - tokenUserBefore;
+          const etherDiffUser = etherUserAfter - etherUserBefore;
+
+          const tokenDiffTrader = tokenTraderAfter - tokenTraderBefore;
+          const etherDiffTrader = etherTraderAfter - etherTraderBefore;
+
+          console.log({
+            tokenUserBefore,
+            etherUserBefore,
+            tokenTraderBefore,
+            etherTraderBefore,
+            tokenUserAfter,
+            etherUserAfter,
+            tokenTraderAfter,
+            etherTraderAfter,
+            tokenDiffUser,
+            etherDiffUser,
+            tokenDiffTrader,
+            etherDiffTrader,
+          });
+
+          expect(tokenDiffUser).to.equal(-tokenAmount);
+          expect(tokenDiffTrader).to.equal(tokenAmount);
+
+          expect(etherDiffUser).to.equal(etherAmount);
+          expect(etherDiffTrader).to.equal(-etherAmount);
+        });
+
+        it("emits a trade event", async () => {
+          await contract.connect(trader).depositEther({ value: etherAmount });
+
+          const tradeTx = await contract.connect(trader).fillOrder(orderId);
+          const block = await ethers.provider.getBlock(tradeTx.blockNumber!);
+
+          await expect(tradeTx)
+            .to.emit(contract, "TradeEvent")
+            .withArgs(
+              orderId,
+              trader.address,
+              tokenUser.address,
+              tokenContract.address,
+              tokenAmount,
+              ETHER_ADDRESS,
+              etherAmount,
+              block.timestamp
+            );
+        });
       });
 
       describe("failure", () => {
-        it("reverts when the order isn't owned by sender", async () => {
+        it("reverts order canceling when the order isn't owned by sender", async () => {
           await expect(
             contract.connect(accounts[3]).cancelOrder(orderId)
           ).to.be.revertedWith("Only user can cancel order");

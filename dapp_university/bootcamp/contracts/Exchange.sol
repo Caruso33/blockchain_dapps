@@ -13,6 +13,7 @@ contract Exchange is Ownable {
 
     mapping(address => mapping(address => uint256)) public balances;
 
+    uint256 public traderCount;
     uint256 public orderCount;
     mapping(uint256 => Order) public orders;
 
@@ -24,6 +25,8 @@ contract Exchange is Ownable {
         address tokenGive;
         uint256 amountGive;
         uint256 timestamp;
+        bool isCancelled;
+        bool isFilled;
     }
 
     // Events
@@ -49,6 +52,16 @@ contract Exchange is Ownable {
         uint256 timestamp
     );
     event CancelOrderEvent(uint256 id, address user);
+    event TradeEvent(
+        uint256 id,
+        address trader,
+        address orderUser,
+        address tokenGet,
+        uint256 amountGet,
+        address tokenGive,
+        uint256 amountGive,
+        uint256 timestamp
+    );
 
     // methods
     constructor(address _feeAccount, uint256 _feePercent) {
@@ -148,7 +161,9 @@ contract Exchange is Ownable {
             _amountGet,
             _tokenGive,
             _amountGive,
-            block.timestamp
+            block.timestamp,
+            false,
+            false
         );
         orders[orderCount] = order;
         emit MakeOrderEvent(
@@ -167,12 +182,70 @@ contract Exchange is Ownable {
             msg.sender == orders[_orderId].user,
             "Only user can cancel order"
         );
-        delete orders[_orderId];
+        orders[_orderId].isCancelled = true;
 
         emit CancelOrderEvent(_orderId, msg.sender);
     }
 
-    function fillOrder() public {}
+    function _trade(
+        uint256 _orderId,
+        address _tokenGet,
+        uint256 _amountGet,
+        address _tokenGive,
+        uint256 _amountGive
+    ) internal {
+        Order storage order = orders[_orderId];
+        require(order.isCancelled == false, "Order has been cancelled");
+        require(order.isFilled == false, "Order has been filled");
+
+        address orderUser = order.user;
+        address trader = msg.sender;
+
+        // order creator has enough balance
+        require(
+            balances[_tokenGet][orderUser] >= _amountGet,
+            "Insufficient funds from order user"
+        );
+
+        // trader has enough balance
+        require(
+            balances[_tokenGive][trader] >= _amountGive,
+            "Insufficient funds from trader"
+        );
+
+        // uint256 _feeAmount = (_amountGet * feePercent) / 100;
+        // balances[_tokenGet][feeAccount] += _feeAmount;
+
+        balances[_tokenGive][trader] -= _amountGive;
+        balances[_tokenGive][orderUser] += _amountGive;
+
+        balances[_tokenGet][trader] += _amountGet;
+        balances[_tokenGet][orderUser] -= _amountGet;
+
+        traderCount += 1;
+        emit TradeEvent(
+            traderCount,
+            trader,
+            orderUser,
+            _tokenGet,
+            _amountGet,
+            _tokenGive,
+            _amountGive,
+            block.timestamp
+        );
+    }
+
+    function fillOrder(uint256 _orderId) public {
+        Order storage order = orders[_orderId];
+
+        _trade(
+            order.id,
+            order.tokenGet,
+            order.amountGet,
+            order.tokenGive,
+            order.amountGive
+        );
+    }
 
     function chargeFee() public {}
 
