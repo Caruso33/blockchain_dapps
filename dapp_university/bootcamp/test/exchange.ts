@@ -8,6 +8,7 @@ import {
   Event,
 } from "ethers";
 import { ethers } from "hardhat";
+import TestHelper from "./utils";
 
 describe("Exchange contract", async function () {
   let contract: Contract;
@@ -50,11 +51,20 @@ describe("Exchange contract", async function () {
     const etherAmount: BigNumber = ethers.utils.parseEther("1");
     const tokenAmount: BigNumber = ethers.utils.parseUnits("10", 18);
 
+    let testHelper: TestHelper;
+
     beforeEach(async () => {
       TokenContract = await ethers.getContractFactory("Token");
       tokenContract = await TokenContract.deploy();
       tokenContract = await tokenContract.deployed();
       await tokenContract.transfer(tokenUser.address, tokenAmount);
+
+      testHelper = new TestHelper(
+        tokenUser,
+        tokenContract,
+        contract,
+        ETHER_ADDRESS
+      );
     });
 
     async function approveAndDepositToken() {
@@ -416,7 +426,7 @@ describe("Exchange contract", async function () {
     describe("orders", () => {
       let orderTx: ContractTransaction;
       const orderId = 1;
-      const trader = accounts[2];
+      const trader = accounts[3];
 
       beforeEach(async () => {
         await approveAndDepositToken();
@@ -493,70 +503,48 @@ describe("Exchange contract", async function () {
         it("fills order and tracks balances", async () => {
           await contract.connect(trader).depositEther({ value: etherAmount });
 
-          const tokenUserBefore = await contract.balanceOf(
-            tokenContract.address,
-            tokenUser.address
-          );
-          const etherUserBefore = await contract.balanceOf(
-            ETHER_ADDRESS,
-            tokenUser.address
-          );
+          const [tokenUserBefore, tokenTraderBefore] =
+            await testHelper.getExchangeTokenBalance([
+              tokenUser.address,
+              trader.address,
+            ]);
 
-          const tokenTraderBefore = await contract.balanceOf(
-            tokenContract.address,
-            trader.address
-          );
-          const etherTraderBefore = await contract.balanceOf(
-            ETHER_ADDRESS,
-            trader.address
-          );
+          const [etherUserBefore, etherTraderBefore] =
+            await testHelper.getExchangeEtherBalance([
+              tokenUser.address,
+              trader.address,
+            ]);
 
           await contract.connect(trader).fillOrder(orderId);
 
-          const tokenUserAfter = await contract.balanceOf(
-            tokenContract.address,
-            tokenUser.address
+          const [tokenUserAfter, tokenTraderAfter] =
+            await testHelper.getExchangeTokenBalance([
+              tokenUser.address,
+              trader.address,
+            ]);
+
+          const [etherUserAfter, etherTraderAfter] =
+            await testHelper.getExchangeEtherBalance([
+              tokenUser.address,
+              trader.address,
+            ]);
+
+          const feePercent = await contract.feePercent();
+          const feeAmount = tokenAmount.mul(feePercent).div(100);
+
+          const tokenDiffTraderWithFees = (
+            tokenTraderAfter -
+            tokenTraderBefore +
+            Number(feeAmount.toString())
+          ).toString();
+
+          expect(tokenUserAfter - tokenUserBefore).to.equal(-tokenAmount);
+          expect(tokenDiffTraderWithFees).to.equal(tokenAmount);
+
+          expect((etherUserAfter - etherUserBefore).toString()).to.equal(
+            etherAmount
           );
-          const etherUserAfter = await contract.balanceOf(
-            ETHER_ADDRESS,
-            tokenUser.address
-          );
-
-          const tokenTraderAfter = await contract.balanceOf(
-            tokenContract.address,
-            trader.address
-          );
-          const etherTraderAfter = await contract.balanceOf(
-            ETHER_ADDRESS,
-            trader.address
-          );
-
-          const tokenDiffUser = tokenUserAfter - tokenUserBefore;
-          const etherDiffUser = etherUserAfter - etherUserBefore;
-
-          const tokenDiffTrader = tokenTraderAfter - tokenTraderBefore;
-          const etherDiffTrader = etherTraderAfter - etherTraderBefore;
-
-          console.log({
-            tokenUserBefore,
-            etherUserBefore,
-            tokenTraderBefore,
-            etherTraderBefore,
-            tokenUserAfter,
-            etherUserAfter,
-            tokenTraderAfter,
-            etherTraderAfter,
-            tokenDiffUser,
-            etherDiffUser,
-            tokenDiffTrader,
-            etherDiffTrader,
-          });
-
-          expect(tokenDiffUser).to.equal(-tokenAmount);
-          expect(tokenDiffTrader).to.equal(tokenAmount);
-
-          expect(etherDiffUser).to.equal(etherAmount);
-          expect(etherDiffTrader).to.equal(-etherAmount);
+          expect(etherTraderAfter - etherTraderBefore).to.equal(-etherAmount);
         });
 
         it("emits a trade event", async () => {
@@ -583,7 +571,7 @@ describe("Exchange contract", async function () {
       describe("failure", () => {
         it("reverts order canceling when the order isn't owned by sender", async () => {
           await expect(
-            contract.connect(accounts[3]).cancelOrder(orderId)
+            contract.connect(accounts[9]).cancelOrder(orderId)
           ).to.be.revertedWith("Only user can cancel order");
         });
       });

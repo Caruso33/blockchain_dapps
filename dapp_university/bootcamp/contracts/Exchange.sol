@@ -213,14 +213,14 @@ contract Exchange is Ownable {
             "Insufficient funds from trader"
         );
 
-        // uint256 _feeAmount = (_amountGet * feePercent) / 100;
-        // balances[_tokenGet][feeAccount] += _feeAmount;
+        uint256 _feeAmount = (_amountGet * feePercent) / 100;
+        balances[_tokenGet][feeAccount] += _feeAmount;
 
         balances[_tokenGive][trader] -= _amountGive;
         balances[_tokenGive][orderUser] += _amountGive;
 
-        balances[_tokenGet][trader] += _amountGet;
         balances[_tokenGet][orderUser] -= _amountGet;
+        balances[_tokenGet][trader] += (_amountGet - _feeAmount);
 
         traderCount += 1;
         emit TradeEvent(
