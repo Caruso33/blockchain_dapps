@@ -1,6 +1,6 @@
 import { Flex, Box, Button, Text, Code } from "@chakra-ui/react";
 import React from "react";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useNetwork } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
 const Navbar: React.FC = () => {
@@ -28,6 +28,7 @@ function Wallet() {
     connector: new InjectedConnector(),
   });
   const { disconnect } = useDisconnect();
+  const { activeChain } = useNetwork();
 
   if (data)
     return (
@@ -35,6 +36,8 @@ function Wallet() {
         <Text>
           Connected to <Code>{data.address}</Code>
         </Text>
+
+        <Text ml="0.5rem">On {activeChain?.name}</Text>
 
         <Button ml="0.5rem" onClick={() => disconnect()}>
           Disconnect
