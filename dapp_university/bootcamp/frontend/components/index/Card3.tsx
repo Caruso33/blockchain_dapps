@@ -1,7 +1,7 @@
 import React from "react";
 
-const Card3: React.FC = () => {
-  return <div>Card3</div>;
+const PriceChart: React.FC = () => {
+  return <div>PriceChart</div>;
 };
 
-export default Card3;
+export default PriceChart;

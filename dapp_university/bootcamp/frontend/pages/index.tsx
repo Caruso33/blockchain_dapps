@@ -4,10 +4,10 @@ import Head from "next/head";
 import {
   Balance,
   OrderBook,
-  Card3,
-  Card4,
-  Card5,
-  Card6,
+  PriceChart,
+  Trades,
+  NewOrder,
+  MyTransactions,
 } from "../components/index";
 import { Navbar } from "../components/layout";
 
@@ -20,33 +20,48 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Grid templateColumns="repeat(5, 1fr)" gap={3}>
-        <GridItem colSpan={5} rowSpan={1} h="5vh" minHeight="10" bg="blue.500">
+      <Grid
+        templateColumns="repeat(5, 1fr)"
+        templateRows="5vh repeat(2, 45vh)"
+        gap={3}
+      >
+        <GridItem
+          gridRow="1 / span 1"
+          gridColumn="span 5"
+          h="5vh"
+          minHeight="10"
+          bg="blue.500"
+        >
           <Navbar />
         </GridItem>
 
-        <GridItem colSpan={1} rowSpan={1} bg="blue.500">
+        <GridItem gridRow="2 / 3" gridColumn="1 / span 1" bg="blue.500">
           <Balance />
         </GridItem>
 
-        <GridItem colSpan={1} rowSpan={2} h="50vh" bg="blue.500">
+        <GridItem
+          gridRow="2 / 4"
+          gridColumn="2 / 3"
+          bg="blue.500"
+          // overflow="auto"
+        >
           <OrderBook />
         </GridItem>
 
-        <GridItem colSpan={2} rowSpan={1} h="50vh" bg="blue.500">
-          <Card3 />
+        <GridItem gridRow="2 / span 1" gridColumn="3 / span 2" bg="blue.500">
+          <PriceChart />
         </GridItem>
 
-        <GridItem colSpan={1} rowSpan={2} h="50vh" bg="blue.500">
-          <Card4 />
+        <GridItem gridRow="2 / span 2" gridColumn="5" bg="blue.500">
+          <Trades />
         </GridItem>
 
-        <GridItem colSpan={1} rowSpan={1} h="40vh" bg="blue.500">
-          <Card5 />
+        <GridItem gridRow="3 / span 1" gridColumn="1" bg="blue.500">
+          <NewOrder />
         </GridItem>
 
-        <GridItem colSpan={2} rowSpan={1} h="40vh" bg="blue.500">
-          <Card6 />
+        <GridItem gridRow="3 / 4" gridColumn="3 / span 2" bg="blue.500">
+          <MyTransactions />
         </GridItem>
       </Grid>
     </>

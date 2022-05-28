@@ -11,12 +11,12 @@ import {
 
 const OrderBook: React.FC = () => {
   return (
-    <Flex flexDirection="column" m="1rem" h="100%" >
+    <Flex flexDirection="column" m="1rem">
       <Text fontSize="xl" style={{ fontWeight: "bold" }}>
         OrderBook
       </Text>
 
-      <TableContainer overflowY="auto">
+      <TableContainer>
         <Table variant="simple">
           <Tbody>
             {Array.from({ length: 10 }).map((_, index) => (
