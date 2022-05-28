@@ -1,11 +1,16 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
+import { WagmiConfig, createClient } from "wagmi";
+
+const wagmiClient = createClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider>
-      <Component {...pageProps} />
+      <WagmiConfig client={wagmiClient}>
+        <Component {...pageProps} />
+      </WagmiConfig>
     </ChakraProvider>
   );
 }
