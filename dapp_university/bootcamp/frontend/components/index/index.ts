@@ -1,6 +1,6 @@
 import Balance from "./Balance";
 import OrderBook from "./OrderBook";
-import PriceChart from "./Card3";
+import PriceChart from "./PriceChart";
 import Trades from "./Trades";
 import NewOrder from "./NewOrder";
 import MyTransactions from "./MyTransactions";

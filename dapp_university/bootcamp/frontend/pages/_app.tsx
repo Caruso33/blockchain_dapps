@@ -3,7 +3,7 @@ import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
 import { WagmiConfig, createClient } from "wagmi";
 
-const wagmiClient = createClient();
+const wagmiClient = createClient({ autoConnect: true });
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

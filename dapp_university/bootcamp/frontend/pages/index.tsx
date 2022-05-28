@@ -1,6 +1,7 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
+import { useEffect } from "react";
 import {
   Balance,
   OrderBook,
@@ -9,9 +10,20 @@ import {
   NewOrder,
   MyTransactions,
 } from "../components/index";
+import getContracts from "../components/index/getContracts";
 import { Navbar } from "../components/layout";
 
 const Home: NextPage = () => {
+  useEffect(() => {
+    async function init() {
+      const { token, exchange, contractData } = await getContracts();
+      const { chainId } = contractData;
+
+      console.log({ token });
+    }
+    init();
+  }, []);
+
   return (
     <>
       <Head>

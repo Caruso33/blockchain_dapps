@@ -2,11 +2,14 @@ import { Flex, Box, Button, Text, Code } from "@chakra-ui/react";
 import React from "react";
 import { useAccount, useConnect, useDisconnect, useNetwork } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
+import useMounted from "../../hooks/useMounted";
 
 const Navbar: React.FC = () => {
   return (
     <Flex justifyContent="space-between" alignItems="center" h="100%" mx="1rem">
-      <Box>Dapp Exchange</Box>
+      <Box>
+        <Text>Dapp Exchange</Text>
+      </Box>
 
       <Flex
         justifyContent="space-between"
@@ -20,8 +23,6 @@ const Navbar: React.FC = () => {
   );
 };
 
-export default Navbar;
-
 function Wallet() {
   const { data } = useAccount();
   const { connect } = useConnect({
@@ -29,20 +30,21 @@ function Wallet() {
   });
   const { disconnect } = useDisconnect();
   const { activeChain } = useNetwork();
+  const mounted = useMounted();
 
-  if (data)
+  if (mounted && data)
     return (
       <>
-        <Text>
-          Connected to <Code>{data.address}</Code>
-        </Text>
-
-        <Text ml="0.5rem">On {activeChain?.name}</Text>
-
+        <Text>Connected to</Text>
+        <Code>{data.address}</Code>
+        <Text ml="0.5rem">on {activeChain?.name}</Text>
         <Button ml="0.5rem" onClick={() => disconnect()}>
           Disconnect
         </Button>
       </>
     );
+
   return <Button onClick={() => connect()}>Connect Wallet</Button>;
 }
+
+export default Navbar;

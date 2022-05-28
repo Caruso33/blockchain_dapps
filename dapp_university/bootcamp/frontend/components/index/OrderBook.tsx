@@ -23,7 +23,7 @@ const OrderBook: React.FC = () => {
               <Tr key={index + "bid"}>
                 <Td>{100 - index * 10}</Td>
                 <Td isNumeric color="red">
-                  {Math.random()}
+                  {/* {Math.random()} */}
                 </Td>
                 <Td isNumeric>0.01</Td>
               </Tr>
@@ -39,7 +39,7 @@ const OrderBook: React.FC = () => {
               <Tr key={index + "ask"}>
                 <Td>{index * 10}</Td>
                 <Td isNumeric color="green">
-                  {Math.random()}
+                  {/* {Math.random()} */}
                 </Td>
                 <Td isNumeric>0.01</Td>
               </Tr>
