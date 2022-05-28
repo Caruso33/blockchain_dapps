@@ -5,6 +5,9 @@
 // Runtime Environment's members available in the global scope.
 import hre, { ethers } from "hardhat";
 
+// DEPRECATED
+// use yarn deploy to use hardhat deploy plugin
+
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.

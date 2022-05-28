@@ -7,6 +7,9 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import seedExchange from "./scripts/seed-exchange";
+import "@nomiclabs/hardhat-ethers";
+import "hardhat-deploy";
+import "hardhat-deploy-ethers";
 
 dotenv.config();
 
@@ -43,6 +46,13 @@ const config: HardhatUserConfig = {
         runs: 200,
       },
     },
+  },
+  namedAccounts: {
+    deployer: 0,
+    feeAccount: 1,
+  },
+  paths: {
+    sources: "src",
   },
   networks: {
     ropsten: {

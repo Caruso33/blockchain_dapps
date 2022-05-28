@@ -1,5 +1,7 @@
 import { Event } from "ethers";
-import { HardhatEthersHelpers, HardhatRuntimeEnvironment } from "hardhat/types";
+import { 
+  // HardhatEthersHelpers,
+   HardhatRuntimeEnvironment } from "hardhat/types";
 
 async function seedExchange(taskArgs: any, hre: HardhatRuntimeEnvironment) {
   const { ethers } = hre;
@@ -135,7 +137,7 @@ async function seedExchange(taskArgs: any, hre: HardhatRuntimeEnvironment) {
 
 export default seedExchange;
 
-async function advanceOneMinute(ethers: HardhatEthersHelpers) {
+async function advanceOneMinute(ethers: any) {
   await ethers.provider.send("evm_increaseTime", [60]);
   return await ethers.provider.send("evm_mine", []);
 }
