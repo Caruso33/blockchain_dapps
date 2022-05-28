@@ -52,7 +52,9 @@ const config: HardhatUserConfig = {
     feeAccount: 1,
   },
   paths: {
-    sources: "src",
+    sources: "contracts",
+    deploy: "deploy", // default
+    deployments: "deployments", // default
   },
   networks: {
     ropsten: {
