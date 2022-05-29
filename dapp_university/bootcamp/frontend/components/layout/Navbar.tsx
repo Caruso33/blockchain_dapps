@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useAccount, useConnect, useDisconnect, useNetwork } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import useMounted from "../../hooks/useMounted";
-import { useAppState } from "../../state/context";
+import useAppState from "../../state";
 
 const Navbar: React.FC = () => {
   return (

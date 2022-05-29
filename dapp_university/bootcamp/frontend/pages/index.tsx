@@ -4,25 +4,34 @@ import Head from "next/head";
 import { useEffect } from "react";
 import {
   Balance,
+  MyTransactions,
+  NewOrder,
   OrderBook,
   PriceChart,
   Trades,
-  NewOrder,
-  MyTransactions,
 } from "../components/index";
 import getContracts from "../components/index/getContracts";
 import { Navbar } from "../components/layout";
+import useAppState from "../state";
 
 const Home: NextPage = () => {
-  useEffect(() => {
-    async function init() {
-      const { token, exchange, contractData } = await getContracts();
-      const { chainId } = contractData;
+  const [state, dispatch] = useAppState();
 
-      console.log({ token });
+  useEffect(() => {
+    function handleContractsData(value: object) {
+      dispatch({ type: "CONTRACTS", data: value });
     }
-    init();
-  }, []);
+
+    async function init() {
+      const contracts = await getContracts();
+
+      handleContractsData(contracts);
+    }
+
+    if (state.contracts.contractData === undefined) {
+      init();
+    }
+  }, [dispatch, state]);
 
   return (
     <>

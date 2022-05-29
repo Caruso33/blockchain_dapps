@@ -1,7 +1,9 @@
 import userReducer from "./reducers/user";
+import contractsReducer from "./reducers/contracts";
 
 const initialState = {
   user: {},
+  contracts: {},
 };
 
 const combineReducers = (reducers: object) => {
@@ -17,6 +19,7 @@ const combineReducers = (reducers: object) => {
 
 const appReducers = combineReducers({
   user: userReducer,
+  contracts: contractsReducer,
 });
 
 export { initialState, combineReducers, appReducers };

@@ -2,7 +2,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import type { AppProps } from "next/app";
 import { createClient, WagmiConfig } from "wagmi";
 import { AppStateProvider } from "../state/context";
-import { appReducers, initialState } from "../state/reducer";
+import { appReducers, initialState } from "../state";
 
 import "../styles/globals.css";
 
