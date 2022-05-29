@@ -32,9 +32,9 @@ function Wallet() {
   });
   const { disconnect } = useDisconnect();
   const { activeChain } = useNetwork();
-  const mounted = useMounted();
 
-  if (mounted && state.user?.address) {
+  // mounted is needed for nextjs as the server crashes
+  if (state.user?.address) {
     const isMainnet = activeChain?.name === "Ethereum";
 
     const subNets = ["Ropsten", "Kovan", "Rinkeby", "Goerli"];
