@@ -1,7 +1,6 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useEffect } from "react";
 import {
   Balance,
   MyTransactions,
@@ -10,28 +9,11 @@ import {
   PriceChart,
   Trades,
 } from "../components/index";
-import getContracts from "../components/index/getContracts";
 import { Navbar } from "../components/layout";
-import useAppState from "../state";
+import useLoadContracts from "../hooks/useLoadContracts";
 
 const Home: NextPage = () => {
-  const [state, dispatch] = useAppState();
-
-  useEffect(() => {
-    function handleContractsData(value: object) {
-      dispatch({ type: "CONTRACTS", data: value });
-    }
-
-    async function init() {
-      const contracts = await getContracts();
-
-      handleContractsData(contracts);
-    }
-
-    if (state.contracts.contractData === undefined) {
-      init();
-    }
-  }, [dispatch, state]);
+  useLoadContracts();
 
   return (
     <>
