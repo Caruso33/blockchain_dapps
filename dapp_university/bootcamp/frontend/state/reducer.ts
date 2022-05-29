@@ -1,4 +1,4 @@
-import userReducer from "./reducers/user";
+import userReducer, { userTypes } from "./reducers/user";
 import contractsReducer from "./reducers/contracts";
 
 const initialState = {
@@ -22,4 +22,8 @@ const appReducers = combineReducers({
   contracts: contractsReducer,
 });
 
-export { initialState, combineReducers, appReducers };
+const actionTypes = {
+  ...userTypes,
+};
+
+export { initialState, combineReducers, appReducers, actionTypes };

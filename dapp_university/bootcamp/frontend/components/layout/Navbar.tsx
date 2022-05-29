@@ -1,8 +1,7 @@
 import { Box, Button, Code, Flex, Text, Link } from "@chakra-ui/react";
 import React from "react";
-import { useAccount, useConnect, useDisconnect, useNetwork } from "wagmi";
+import { useConnect, useDisconnect, useNetwork } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-import useMounted from "../../hooks/useMounted";
 import useAppState from "../../state";
 
 const Navbar: React.FC = () => {
@@ -25,7 +24,7 @@ const Navbar: React.FC = () => {
 };
 
 function Wallet() {
-  const [state] = useAppState();
+  const [state, dispatch] = useAppState();
 
   const { connect } = useConnect({
     connector: new InjectedConnector(),
@@ -33,7 +32,6 @@ function Wallet() {
   const { disconnect } = useDisconnect();
   const { activeChain } = useNetwork();
 
-  // mounted is needed for nextjs as the server crashes
   if (state.user?.address) {
     const isMainnet = activeChain?.name === "Ethereum";
 
