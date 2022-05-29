@@ -1,5 +1,5 @@
 import userReducer, { userTypes } from "./reducers/user";
-import contractsReducer from "./reducers/contracts";
+import contractsReducer, { contractTypes } from "./reducers/contracts";
 
 const initialState = {
   user: {},
@@ -24,6 +24,7 @@ const appReducers = combineReducers({
 
 const actionTypes = {
   ...userTypes,
+  ...contractTypes,
 };
 
 export { initialState, combineReducers, appReducers, actionTypes };

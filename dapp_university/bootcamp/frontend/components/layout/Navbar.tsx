@@ -30,18 +30,18 @@ function Wallet() {
     connector: new InjectedConnector(),
   });
   const { disconnect } = useDisconnect();
-  const { activeChain } = useNetwork();
 
-  if (state.user?.address) {
-    const isMainnet = activeChain?.name === "Ethereum";
+  if (state.user?.account?.address) {
+    const userNetwork = state?.user?.chain?.name;
+    const isMainnet = userNetwork === "Ethereum";
 
     const subNets = ["Ropsten", "Kovan", "Rinkeby", "Goerli"];
-    const isSubnet = subNets.includes(activeChain?.name);
+    const isSubnet = subNets.includes(userNetwork);
 
     const href =
       isMainnet || isSubnet
-        ? `https://${isSubnet && `${activeChain?.name}.`}etherscan.io/address/${
-            state.user.address
+        ? `https://${isSubnet && `${userNetwork}.`}etherscan.io/address/${
+            state.user?.account?.address
           }`
         : "";
 
@@ -49,10 +49,10 @@ function Wallet() {
       <>
         <Text>Connected to</Text>
         <Link href={href}>
-          <Code>{state.user?.address}</Code>
+          <Code>{state.user?.account?.address}</Code>
         </Link>
 
-        <Text ml="0.5rem">on {activeChain?.name}</Text>
+        <Text ml="0.5rem">on {state.user?.chain?.name}</Text>
 
         <Button ml="0.5rem" onClick={() => disconnect()}>
           Disconnect

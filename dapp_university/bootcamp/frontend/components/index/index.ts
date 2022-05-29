@@ -4,5 +4,14 @@ import PriceChart from "./PriceChart";
 import Trades from "./Trades";
 import NewOrder from "./NewOrder";
 import MyTransactions from "./MyTransactions";
+import MainContent from "./MainContent";
 
-export { Balance, OrderBook, PriceChart, Trades, NewOrder, MyTransactions };
+export {
+  MainContent,
+  Balance,
+  OrderBook,
+  PriceChart,
+  Trades,
+  NewOrder,
+  MyTransactions,
+};

@@ -14,9 +14,14 @@ function useWalletData() {
       dispatch({ type: actionTypes.ADD_WALLET, data: { account: value } });
     };
 
-    if (data?.address !== state.user?.address) {
-      if (!data) dispatch({ type: actionTypes.REMOVE_WALLET });
-      if (data?.address) handleWalletData(data);
+    if (data?.address !== state.user?.account?.address) {
+      if (!data?.address) {
+        dispatch({ type: actionTypes.REMOVE_WALLET });
+      }
+
+      if (data?.address) {
+        handleWalletData(data);
+      }
     }
   }, [data, state, dispatch]);
 
@@ -25,9 +30,16 @@ function useWalletData() {
       dispatch({ type: actionTypes.ADD_CHAIN, data: { chain: value } });
     };
 
-    if (activeChain !== state.user?.activeChain) {
-      if (!activeChain) dispatch({ type: actionTypes.REMOVE_CHAIN });
-      if (activeChain) handleChainData(activeChain);
+    if (activeChain?.id !== state.user?.chain?.id) {
+      console.log(activeChain?.id, state.user?.chain?.id);
+
+      if (!activeChain?.id) {
+        dispatch({ type: actionTypes.REMOVE_CHAIN });
+      }
+
+      if (activeChain?.id) {
+        handleChainData(activeChain);
+      }
     }
   }, [activeChain, state, dispatch]);
 }

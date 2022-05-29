@@ -1,19 +1,23 @@
 import { ethers } from "ethers";
-import contractData from "../../public/contracts.json";
+import deployments from "../../public/deployments.json";
 
-async function getContracts(chainId) {
-  if (!chainId) return {};
+async function getContracts(chainId: number) {
+  if (!chainId) return null;
 
-  const { contracts } = contractData;
+  const deploymentChainData = deployments[`${chainId}`];
+  if (!deploymentChainData) return null;
+
+  const contractData = deploymentChainData[0];
+  if (!contractData) return null;
 
   const tokenContract = await new ethers.Contract(
-    contracts.Token.address,
-    contracts.Token.abi
+    contractData.contracts.Token.address,
+    contractData.contracts.Token.abi
   );
 
   const exchangeContract = await new ethers.Contract(
-    contracts.Exchange.address,
-    contracts.Exchange.abi
+    contractData.contracts.Exchange.address,
+    contractData.contracts.Exchange.abi
   );
 
   return { contractData, tokenContract, exchangeContract };

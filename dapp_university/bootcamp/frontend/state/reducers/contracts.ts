@@ -1,8 +1,12 @@
+const contractTypes = {
+  CHANGE_CONTRACTS: "CHANGE_CONTRACTS",
+};
+
 const contractsReducer = (state, action = {}) => {
   const { data, type } = action;
 
   switch (type) {
-    case "CONTRACTS": {
+    case "CHANGE_CONTRACTS": {
       return {
         ...state,
         contracts: { ...state.contracts, ...data },
@@ -13,4 +17,4 @@ const contractsReducer = (state, action = {}) => {
   }
 };
 
-export default contractsReducer;
+export { contractsReducer as default, contractTypes };
