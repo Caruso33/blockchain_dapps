@@ -13,7 +13,7 @@ function useLoadContracts() {
     async function init() {
       const contracts = await getContracts();
 
-      handleContractsData(contracts);
+      if (contracts) handleContractsData(contracts);
     }
 
     if (state.contracts.contractData === undefined) {

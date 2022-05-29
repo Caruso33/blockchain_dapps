@@ -1,7 +1,9 @@
 import { ethers } from "ethers";
 import contractData from "../../public/contracts.json";
 
-async function getContracts() {
+async function getContracts(chainId) {
+  if (!chainId) return {};
+
   const { contracts } = contractData;
 
   const tokenContract = await new ethers.Contract(

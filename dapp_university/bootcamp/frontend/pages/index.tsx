@@ -14,8 +14,8 @@ import useLoadContracts from "../hooks/useLoadContracts";
 import useWalletData from "../hooks/useWalletData";
 
 const Home: NextPage = () => {
-  useLoadContracts();
   useWalletData();
+  useLoadContracts();
 
   return (
     <>

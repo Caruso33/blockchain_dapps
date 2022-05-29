@@ -1,6 +1,8 @@
 const userTypes = {
   ADD_WALLET: "ADD_WALLET",
   REMOVE_WALLET: "REMOVE_WALLET",
+  ADD_CHAIN: "ADD_CHAIN",
+  REMOVE_CHAIN: "REMOVE_CHAIN",
 };
 
 const userReducer = (state, action = {}) => {
@@ -17,7 +19,21 @@ const userReducer = (state, action = {}) => {
     case userTypes.REMOVE_WALLET: {
       return {
         ...state,
-        user: {},
+        user: { ...state.user, account: null },
+      };
+    }
+
+    case userTypes.ADD_CHAIN: {
+      return {
+        ...state,
+        user: { ...state.user, ...data },
+      };
+    }
+
+    case userTypes.REMOVE_CHAIN: {
+      return {
+        ...state,
+        user: { ...state.user, chain: null },
       };
     }
 
