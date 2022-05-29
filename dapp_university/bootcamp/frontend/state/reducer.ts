@@ -2,8 +2,6 @@ import userReducer from "./reducers/user";
 
 const initialState = {
   user: {},
-  random: { value: 0 },
-  counter: 0,
 };
 
 const combineReducers = (reducers: object) => {
