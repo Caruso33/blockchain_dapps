@@ -1,8 +1,9 @@
-import { Flex, Box, Button, Text, Code } from "@chakra-ui/react";
-import React from "react";
+import { Box, Button, Code, Flex, Text } from "@chakra-ui/react";
+import React, { useEffect } from "react";
 import { useAccount, useConnect, useDisconnect, useNetwork } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import useMounted from "../../hooks/useMounted";
+import { useAppState } from "../../state/context";
 
 const Navbar: React.FC = () => {
   return (
@@ -32,7 +33,19 @@ function Wallet() {
   const { activeChain } = useNetwork();
   const mounted = useMounted();
 
-  if (mounted && data)
+  const [state, dispatch] = useAppState();
+
+  useEffect(() => {
+    const handleWalletData = (value: object) => {
+      dispatch({ type: "WALLET_ADDRESS", data: value });
+    };
+
+    if (data && !state.user?.address) {
+      handleWalletData(data);
+    }
+  }, [data, state, dispatch]);
+
+  if (mounted && data) {
     return (
       <>
         <Text>Connected to</Text>
@@ -43,6 +56,7 @@ function Wallet() {
         </Button>
       </>
     );
+  }
 
   return <Button onClick={() => connect()}>Connect Wallet</Button>;
 }

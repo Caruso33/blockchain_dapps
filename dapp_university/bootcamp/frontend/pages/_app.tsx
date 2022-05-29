@@ -1,16 +1,21 @@
-import "../styles/globals.css";
-import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
-import { WagmiConfig, createClient } from "wagmi";
+import type { AppProps } from "next/app";
+import { createClient, WagmiConfig } from "wagmi";
+import { AppStateProvider } from "../state/context";
+import { appReducers, initialState } from "../state/reducer";
+
+import "../styles/globals.css";
 
 const wagmiClient = createClient({ autoConnect: true });
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider>
-      <WagmiConfig client={wagmiClient}>
-        <Component {...pageProps} />
-      </WagmiConfig>
+      <AppStateProvider reducer={appReducers} initialState={initialState}>
+        <WagmiConfig client={wagmiClient}>
+          <Component {...pageProps} />
+        </WagmiConfig>
+      </AppStateProvider>
     </ChakraProvider>
   );
 }
