@@ -1,4 +1,4 @@
-import { Box, Button, Code, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Code, Flex, Text, Link } from "@chakra-ui/react";
 import React, { useEffect } from "react";
 import { useAccount, useConnect, useDisconnect, useNetwork } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
@@ -46,11 +46,27 @@ function Wallet() {
   }, [data, state, dispatch]);
 
   if (mounted && data) {
+    const isMainnet = activeChain?.name === "Ethereum";
+
+    const subNets = ["Ropsten", "Kovan", "Rinkeby", "Goerli"];
+    const isSubnet = subNets.includes(activeChain?.name);
+
+    const href =
+      isMainnet || isSubnet
+        ? `https://${isSubnet && `${activeChain?.name}.`}etherscan.io/address/${
+            data.address
+          }`
+        : "";
+
     return (
       <>
         <Text>Connected to</Text>
-        <Code>{data.address}</Code>
+        <Link href={href}>
+          <Code>{data.address}</Code>
+        </Link>
+
         <Text ml="0.5rem">on {activeChain?.name}</Text>
+
         <Button ml="0.5rem" onClick={() => disconnect()}>
           Disconnect
         </Button>
