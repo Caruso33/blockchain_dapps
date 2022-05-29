@@ -1,5 +1,5 @@
 import { Box, Button, Code, Flex, Text, Link } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React from "react";
 import { useAccount, useConnect, useDisconnect, useNetwork } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import useMounted from "../../hooks/useMounted";
@@ -25,7 +25,8 @@ const Navbar: React.FC = () => {
 };
 
 function Wallet() {
-  const { data } = useAccount();
+  const [state] = useAppState();
+
   const { connect } = useConnect({
     connector: new InjectedConnector(),
   });
@@ -33,19 +34,7 @@ function Wallet() {
   const { activeChain } = useNetwork();
   const mounted = useMounted();
 
-  const [state, dispatch] = useAppState();
-
-  useEffect(() => {
-    const handleWalletData = (value: object) => {
-      dispatch({ type: "WALLET_ADDRESS", data: value });
-    };
-
-    if (data && !state.user?.address) {
-      handleWalletData(data);
-    }
-  }, [data, state, dispatch]);
-
-  if (mounted && data) {
+  if (mounted && state.user?.address) {
     const isMainnet = activeChain?.name === "Ethereum";
 
     const subNets = ["Ropsten", "Kovan", "Rinkeby", "Goerli"];
@@ -54,7 +43,7 @@ function Wallet() {
     const href =
       isMainnet || isSubnet
         ? `https://${isSubnet && `${activeChain?.name}.`}etherscan.io/address/${
-            data.address
+            state.user.address
           }`
         : "";
 
@@ -62,7 +51,7 @@ function Wallet() {
       <>
         <Text>Connected to</Text>
         <Link href={href}>
-          <Code>{data.address}</Code>
+          <Code>{state.user?.address}</Code>
         </Link>
 
         <Text ml="0.5rem">on {activeChain?.name}</Text>

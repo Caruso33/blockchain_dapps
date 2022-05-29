@@ -7,13 +7,15 @@ import {
   NewOrder,
   OrderBook,
   PriceChart,
-  Trades,
+  Trades
 } from "../components/index";
 import { Navbar } from "../components/layout";
 import useLoadContracts from "../hooks/useLoadContracts";
+import useWalletData from "../hooks/useWalletData";
 
 const Home: NextPage = () => {
   useLoadContracts();
+  useWalletData();
 
   return (
     <>
