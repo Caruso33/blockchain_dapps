@@ -9,9 +9,12 @@ import {
   PriceChart,
   Trades,
 } from "./index";
+import useLoadOrders from "../../hooks/useLoadOrders";
 
 export default function MainContent() {
   const [state] = useAppState();
+
+  useLoadOrders();
 
   let content = null;
   if (!state.user?.account?.address) {

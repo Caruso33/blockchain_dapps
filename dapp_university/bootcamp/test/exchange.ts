@@ -238,12 +238,10 @@ describe("Exchange contract", async function () {
           // listen events on transaction
           // eslint-disable-next-line
           expect(event).to.not.be.undefined;
-          expect(event.args).to.deep.equal([
-            tokenContract.address,
-            tokenUser.address,
-            tokenAmount,
-            tokenAmount,
-          ]);
+          expect(event.args?.token).to.equal(tokenContract.address);
+          expect(event.args?.user).to.equal(tokenUser.address);
+          expect(event.args?.amount).to.equal(tokenAmount);
+          expect(event.args?.balance).to.equal(tokenAmount);
 
           // listen events on contract
           // 1st method

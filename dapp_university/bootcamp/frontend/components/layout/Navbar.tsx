@@ -1,6 +1,6 @@
 import { Box, Button, Code, Flex, Text, Link } from "@chakra-ui/react";
 import React from "react";
-import { useConnect, useDisconnect, useNetwork } from "wagmi";
+import { useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import useAppState from "../../state";
 
@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
 };
 
 function Wallet() {
-  const [state, dispatch] = useAppState();
+  const [state] = useAppState();
 
   const { connect } = useConnect({
     connector: new InjectedConnector(),
