@@ -148,34 +148,108 @@ contract NFTMarket is ReentrancyGuard {
     }
 
     function fetchMyNFTs() public view returns (MarketItem[] memory) {
+        uint256 totalItemCount = _itemIds.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
 
-        MarketItem[] memory items = new MarketItem[](0);
-
-        for (uint256 i = 0; i < itemCount; i++) {
+        for (uint256 i = 0; i < totalItemCount; i++) {
             if (idToMarketItem[i + 1].owner == msg.sender) {
-                items[currentIndex] = idToMarketItem[i + 1];
-                currentIndex++;
+                itemCount += 1;
             }
         }
 
+        MarketItem[] memory items = new MarketItem[](itemCount);
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (idToMarketItem[i + 1].owner == msg.sender) {
+                items[currentIndex] = idToMarketItem[i + 1];
+                currentIndex += 1;
+            }
+        }
         return items;
     }
 
     function fetchNFTsCreated() public view returns (MarketItem[] memory) {
+        uint256 totalItemCount = _itemIds.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
 
-        MarketItem[] memory items = new MarketItem[](0);
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (idToMarketItem[i + 1].seller == msg.sender) {
+                itemCount += 1;
+            }
+        }
 
-        for (uint256 i = 0; i < itemCount; i++) {
+        MarketItem[] memory items = new MarketItem[](itemCount);
+
+        for (uint256 i = 0; i < totalItemCount; i++) {
             if (idToMarketItem[i + 1].seller == msg.sender) {
                 items[currentIndex] = idToMarketItem[i + 1];
-                currentIndex++;
+                currentIndex += 1;
             }
         }
 
         return items;
     }
+
+    // function fetchMyNFTs() public view returns (MarketItem[] memory) {
+    //     uint256 itemCount = _itemIds.current();
+    //     uint256 currentIndex = 0;
+
+    //     MarketItem[] memory items = new MarketItem[](0);
+
+    //     for (uint256 i = 0; i < itemCount; i++) {
+    //         if (idToMarketItem[i + 1].owner == msg.sender) {
+    //             items[currentIndex] = idToMarketItem[i + 1];
+    //             currentIndex++;
+    //         }
+    //     }
+
+    //     return items;
+    // }
+
+    // function fetchNFTsCreated() public view returns (MarketItem[] memory) {
+    //     uint256 itemCount = _itemIds.current();
+    //     uint256 currentIndex = 0;
+    //     uint256[] memory createdIds;
+
+    //     MarketItem[] memory items; // = new MarketItem[](0);
+
+    //     for (uint256 i = 0; i < itemCount; i++) {
+    //         if (idToMarketItem[i + 1].seller == msg.sender) {
+    //             items[currentIndex] = idToMarketItem[i + 1];
+    //             currentIndex++;
+    //         }
+    //     }
+
+    //     return items;
+    // }
+
+    // function fetchNFTsCreated() public view returns (uint256[] memory) {
+    // function fetchNFTsCreated() public view returns (uint256) {
+    // function fetchNFTsCreated() public view returns (MarketItem[] memory) {
+    // uint256 itemCount = _itemIds.current();
+    // uint256 currentIndex = 0;
+    // uint256[] memory createdIds;
+
+    // MarketItem[] memory items; // = new MarketItem[](2);
+
+    // for (uint256 i = 0; i < itemCount; i++) {
+    //     if (idToMarketItem[i + 1].seller == msg.sender) {
+    //         items.push();
+    //         createdIds[currentIndex] = i + 1;
+    //         currentIndex += 1;
+    //     }
+    // }
+    // return createdIds;
+    // return items;
+
+    // console.log(createdIds.length);
+
+    // MarketItem[] memory items = new MarketItem[](createdIds.length);
+    // for (uint256 i = 0; i < createdIds.length; i++) {
+    //     uint256 index = createdIds[i];
+    //     items[i] = idToMarketItem[index];
+    // }
+
+    // return items;
 }
