@@ -22,7 +22,7 @@ describe("NFTMarket", async function () {
     seller = accounts[0]
     buyer = accounts[1]
 
-    console.log({ seller: seller.address, buyer: buyer.address })
+    // console.log({ seller: seller.address, buyer: buyer.address })
   })
 
   it("should create and execute market sales", async () => {
@@ -42,20 +42,21 @@ describe("NFTMarket", async function () {
 
     let items = await market.fetchMarketItems()
     assert.equal(items.length, 2)
-    console.log({ beginning: items })
+    // console.log({ beginning: items })
 
     await market
       .connect(buyer)
       .createMarketSale(nft.address, 1, { value: auctionPrice })
 
     items = await market.fetchMarketItems()
-    console.log({ sold: items })
+    // console.log({ sold: items })
 
     assert.equal(items.length, 1)
     expect(items[0].seller).to.equal(seller.address)
     expect(items[0].owner).to.equal(ethers.constants.AddressZero)
     expect(items[0].tokenId).to.equal(2)
     expect(items[0].sold).to.be.false
+    expect(items[0].price).to.equal(auctionPrice.toString())
 
     items = await market.fetchSoldMarketItems()
     assert.equal(items.length, 1)
@@ -65,11 +66,11 @@ describe("NFTMarket", async function () {
     expect(items[0].sold).to.be.true
 
     items = await market.connect(seller).fetchNFTsCreated()
-    console.log({ created: items })
+    // console.log({ created: items })
     assert.equal(items.length, 2)
 
     items = await market.connect(buyer).fetchMyNFTs()
-    console.log({ owned: items })
+    // console.log({ owned: items })
     assert.equal(items.length, 1)
   })
 })
