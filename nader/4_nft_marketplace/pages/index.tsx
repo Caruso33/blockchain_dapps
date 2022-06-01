@@ -1,8 +1,78 @@
 import type { NextPage } from "next"
 import Head from "next/head"
-import styles from "../styles/Home.module.css"
+import { ethers } from "ethers"
+import { useEffect, useState } from "react"
+import { nftAddress, nftMarketAddress } from "../config"
+import axios from "axios"
+import Web3Modal from "web3modal"
+
+import NFT from "../artifacts/contracts/NFT.sol/NFT.json"
+import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
 
 const Home: NextPage = () => {
+  const [nfts, setNfts] = useState([])
+  const [loadingState, setLoadingState] = useState("not-loaded")
+
+  useEffect(() => {
+    loadNFTs()
+  }, [])
+
+  async function loadNFTs() {
+    const provider = new ethers.providers.JsonRpcProvider()
+    const tokenContract = new ethers.Contract(nftAddress, NFT.abi, provider)
+    const marketContract = new ethers.Contract(
+      nftMarketAddress,
+      NFTMarket.abi,
+      provider
+    )
+
+    const nfts = await marketContract.fetchMarketItems()
+    const items = await Promise.all(
+      nfts.map(async (nft) => {
+        const tokenURI = await tokenContract.tokenURI(nft.tokenId)
+        const { data } = await axios.get(tokenURI)
+        const price = ethers.utils.formatUnits(nft.price.toString(), "ether")
+
+        return {
+          price,
+          seller: nft.seller,
+          owner: nft.owner,
+          image: data?.image,
+          name: data?.name,
+          description: data?.description,
+        }
+      })
+    )
+
+    setNfts(items)
+    setIsLoading("loaded")
+  }
+
+  async function buyNFT(nft) {
+    const web3Modal = new Web3Modal()
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+
+    const signer = provider.getSigner()
+    const contract = new ethers.Contract(
+      nftMarketAddress,
+      NFTMarket.abi,
+      signer
+    )
+
+    const price = ethers.utils.parseUnits(nft.price.toString(), "ether")
+
+    const tx = await contract.createMarketSale(nftAddress, nft.tokenId, {
+      value: price,
+    })
+    await tx.wait()
+
+    loadNFTs()
+  }
+
+  if (loadingState === "loaded" && !nfts.length)
+    return <h1 className="px-20 py-10 text-3xl">No items in marketplace</h1>
+
   return (
     <>
       <Head>
@@ -11,9 +81,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <div className={styles.container}>Index</div>
-      </main>
+      <div>Index</div>
     </>
   )
 }
