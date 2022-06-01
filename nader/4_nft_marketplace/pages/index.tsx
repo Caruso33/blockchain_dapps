@@ -1,13 +1,13 @@
+import axios from "axios"
+import { ethers } from "ethers"
 import type { NextPage } from "next"
 import Head from "next/head"
-import { ethers } from "ethers"
+import Image from "next/image"
 import { useEffect, useState } from "react"
-import { nftAddress, nftMarketAddress } from "../config"
-import axios from "axios"
 import Web3Modal from "web3modal"
-
 import NFT from "../artifacts/contracts/NFT.sol/NFT.json"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
+import { nftAddress, nftMarketAddress } from "../config"
 
 const Home: NextPage = () => {
   const [nfts, setNfts] = useState([])
@@ -19,20 +19,20 @@ const Home: NextPage = () => {
 
   async function loadNFTs() {
     const provider = new ethers.providers.JsonRpcProvider()
-    const tokenContract = new ethers.Contract(nftAddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(
       nftMarketAddress,
       NFTMarket.abi,
       provider
     )
+    const nftContract = new ethers.Contract(nftAddress, NFT.abi, provider)
+    console.log({ marketContract })
 
     const nfts = await marketContract.fetchMarketItems()
     const items = await Promise.all(
       nfts.map(async (nft) => {
-        const tokenURI = await tokenContract.tokenURI(nft.tokenId)
-        const { data } = await axios.get(tokenURI)
+        const tokenURI = await nftContract.tokenURI(nft.tokenId)
+        // const { data } = await axios.get(tokenURI)
         const price = ethers.utils.formatUnits(nft.price.toString(), "ether")
-
         return {
           price,
           seller: nft.seller,
@@ -44,8 +44,8 @@ const Home: NextPage = () => {
       })
     )
 
-    setNfts(items)
-    setIsLoading("loaded")
+    // setNfts(items)
+    setLoadingState("loaded")
   }
 
   async function buyNFT(nft: object) {
@@ -89,7 +89,7 @@ const Home: NextPage = () => {
                 key={`nft-list-${i}`}
                 className="border shadow rounded-xl overflow-hidden"
               >
-                <img src={nft?.image} />
+                <Image src={nft?.image} alt="Nft image" />
                 <div className="p-4">
                   <p
                     style={{ height: "64px" }}
