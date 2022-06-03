@@ -5,9 +5,8 @@ import Head from "next/head"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import Web3Modal from "web3modal"
-import NFT from "../artifacts/contracts/NFT.sol/NFT.json"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
-import { nftAddress, nftMarketAddress } from "../config"
+import { nftMarketAddress } from "../config"
 
 const Home: NextPage = () => {
   const [nfts, setNfts] = useState([])
@@ -25,7 +24,6 @@ const Home: NextPage = () => {
       provider
     )
     const nftContract = new ethers.Contract(nftAddress, NFT.abi, provider)
-    console.log({ marketContract })
 
     const nfts = await marketContract.fetchMarketItems()
     const items = await Promise.all(
@@ -44,7 +42,9 @@ const Home: NextPage = () => {
       })
     )
 
-    // setNfts(items)
+    console.log({ items })
+
+    setNfts(items)
     setLoadingState("loaded")
   }
 

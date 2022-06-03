@@ -5,6 +5,7 @@
   "scripts": {
     "deploy": "hardhat run scripts/deploy.js",
     "test": "hardhat test",
+    "compile": "hardhat compile",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
