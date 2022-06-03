@@ -78,16 +78,14 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
           {nfts.map((nft, i) => (
             <div key={i} className="border shadow rounded-xl overflow-hidden">
-              <div>
-                <Image
-                  src={nft?.image}
-                  alt="Nft image"
-                  width="100%"
-                  height="100%"
-                  layout="responsive"
-                  objectFit="contain"
-                />
-              </div>
+              <Image
+                src={nft?.image}
+                alt="Nft image"
+                width="100%"
+                height="100%"
+                layout="responsive"
+                objectFit="contain"
+              />
 
               <div className="p-4">
                 <p
