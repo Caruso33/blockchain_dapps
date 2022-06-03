@@ -33,9 +33,16 @@ describe("NFTMarket", async function () {
     await market.createToken(`${tokenURI}/2`, auctionPrice, {
       value: listingPrice,
     })
-    // console.log({ tx })
-    // await expect(tx).to.emit("MarketItemCreated")
-    // .withArgs(1, buyer.address, market.address, auctionPrice, false)
+    tx = await tx.wait()
+
+    const events = tx.events.filter((e) => e.event === "MarketItemCreated")
+
+    expect(events.length).to.equal(1)
+    expect(events[0].args.tokenId).to.equal(1)
+    expect(events[0].args.seller).to.equal(seller.address)
+    expect(events[0].args.owner).to.equal(market.address)
+    expect(events[0].args.price).to.equal(auctionPrice)
+    expect(events[0].args.sold).to.equal(false)
 
     let items = await market.fetchMarketItems()
     assert.equal(items.length, 2)
@@ -52,6 +59,7 @@ describe("NFTMarket", async function () {
     expect(items[0].owner).to.equal(market.address)
     expect(items[0].price).to.equal(auctionPrice.toString())
     expect(items[0].sold).to.be.false
+    expect(items[0].prevOwners).to.deep.equal([seller.address])
     expect(await market.tokenURI(items[0].tokenId)).to.equal(`${tokenURI}/2`)
 
     items = await market.fetchSoldMarketItems()
@@ -63,12 +71,20 @@ describe("NFTMarket", async function () {
 
     items = await market.connect(seller).fetchNFTsCreated()
     // console.log({ created: items })
-    assert.equal(items.length, 1)
+    assert.equal(items.length, 2)
 
     items = await market.connect(buyer).fetchMyNFTs()
     // console.log({ owned: items })
     assert.equal(items.length, 1)
 
-    // await market.connect(buyer).resellToken(1, { value: listingPrice })
+    await market
+      .connect(buyer)
+      .resellToken(1, auctionPrice, { value: listingPrice })
+    items = await market.connect(buyer).fetchNFTsSelling()
+    expect(items[0].tokenId).to.equal(1)
+    expect(items[0].seller).to.equal(buyer.address)
+    expect(items[0].owner).to.equal(market.address)
+    expect(items[0].price).to.equal(auctionPrice)
+    expect(items[0].prevOwners).to.deep.equal([seller.address, buyer.address])
   })
 })

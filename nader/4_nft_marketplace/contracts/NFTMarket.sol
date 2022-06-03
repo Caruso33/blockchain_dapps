@@ -24,6 +24,7 @@ contract NFTMarket is ERC721URIStorage {
         address payable owner;
         uint256 price;
         bool sold;
+        address[] prevOwners;
     }
 
     event MarketItemCreated(
@@ -79,12 +80,15 @@ contract NFTMarket is ERC721URIStorage {
             "Price must be equal to listing price"
         );
 
+        address[] memory prevOwners = new address[](1);
+        prevOwners[0] = msg.sender;
         idToMarketItem[tokenId] = MarketItem(
             tokenId,
             payable(msg.sender),
             payable(address(this)),
             price,
-            false
+            false,
+            prevOwners
         );
 
         _transfer(msg.sender, address(this), tokenId);
@@ -128,6 +132,7 @@ contract NFTMarket is ERC721URIStorage {
         idToMarketItem[tokenId].owner = payable(msg.sender);
         idToMarketItem[tokenId].sold = true;
         idToMarketItem[tokenId].seller = payable(address(0));
+        idToMarketItem[tokenId].prevOwners.push(msg.sender);
         _itemsSold.increment();
         _transfer(address(this), msg.sender, tokenId);
         payable(owner).transfer(listingPrice);
@@ -196,6 +201,30 @@ contract NFTMarket is ERC721URIStorage {
 
     /* Returns only items a user has listed */
     function fetchNFTsCreated() public view returns (MarketItem[] memory) {
+        uint256 totalItemCount = _tokenIds.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (idToMarketItem[i + 1].prevOwners[0] == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (idToMarketItem[i + 1].seller == msg.sender) {
+                uint256 currentId = i + 1;
+                MarketItem storage currentItem = idToMarketItem[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
+
+    /* Returns only items a user is selling */
+    function fetchNFTsSelling() public view returns (MarketItem[] memory) {
         uint256 totalItemCount = _tokenIds.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
