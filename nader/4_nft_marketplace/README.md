@@ -1,5 +1,17 @@
 # Basic Sample Hardhat Project
 
+## Deployments
+
+### Matic Mumbai Testnet
+
+nftMarket deployed to: 0xEf6d29dDFf75C3aC09C7AA37B3ea58aA2Bb24EB5
+
+---
+
+<div style="margin-top: 50px" />
+
+## Hardhat README
+
 This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
 
 Try running some of the following tasks:
@@ -13,6 +25,8 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
+
+## Nextjs README
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
