@@ -10,6 +10,7 @@ interface NftInterface {
 
 interface NftData {
   tokenId: number
+  tokenUri: string
   price: string
   seller: string
   owner: string

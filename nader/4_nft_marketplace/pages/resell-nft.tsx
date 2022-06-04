@@ -3,8 +3,8 @@ import { ethers } from "ethers"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import Web3Modal from "web3modal"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
+import { getWeb3Connection } from "../components/web3/utils"
 import { nftMarketAddress } from "../config"
 
 export default function ResellNFT() {
@@ -19,16 +19,20 @@ export default function ResellNFT() {
 
   async function fetchNFT() {
     if (!tokenURI) return
-    const meta = await axios.get(tokenURI)
-    updateFormInput((state) => ({ ...state, image: meta.data.image }))
+
+    try {
+      const meta = await axios.get(tokenURI)
+
+      updateFormInput((state) => ({ ...state, image: meta.data.image }))
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async function listNFTForSale() {
     if (!price) return
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+
+    const { signer } = await getWeb3Connection()
 
     const priceFormatted = ethers.utils.parseUnits(formInput.price, "ether")
     let contract = new ethers.Contract(nftMarketAddress, NFTMarket.abi, signer)

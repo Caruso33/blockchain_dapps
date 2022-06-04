@@ -7,6 +7,7 @@ async function getNftData(nft: NftInterface, contract: Contract) {
 
   const item: NftData = {
     tokenId: nft.tokenId.toNumber(),
+    tokenUri: nft.tokenUri,
     price,
     seller: nft.seller,
     owner: nft.owner,

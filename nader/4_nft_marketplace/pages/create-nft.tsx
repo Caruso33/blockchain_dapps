@@ -3,14 +3,14 @@ import { create as ipfsHttpClient } from "ipfs-http-client"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import { ChangeEvent, useState } from "react"
-import Web3Modal from "web3modal"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
+import { getWeb3Connection } from "../components/web3/utils"
 import { nftMarketAddress } from "../config"
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0")
 
 export default function CreateItem() {
-  const [fileUrl, setFileUrl] = useState(null)
+  const [fileUrl, setFileUrl] = useState<string>(null)
   const [formInput, updateFormInput] = useState({
     price: "",
     name: "",
@@ -57,18 +57,21 @@ export default function CreateItem() {
 
   async function listNFTForSale() {
     const url = await uploadToIPFS()
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+
+    const { signer } = await getWeb3Connection()
 
     /* next, create the item */
     const price = ethers.utils.parseUnits(formInput.price, "ether")
-    let contract = new ethers.Contract(nftMarketAddress, NFTMarket.abi, signer)
+    const contract = new ethers.Contract(
+      nftMarketAddress,
+      NFTMarket.abi,
+      signer
+    )
     let listingPrice = await contract.getListingPrice()
     listingPrice = listingPrice.toString()
+
     try {
-      let transaction = await contract.createToken(url, price, {
+      const transaction = await contract.createToken(url, price, {
         value: listingPrice,
       })
       await transaction.wait()
