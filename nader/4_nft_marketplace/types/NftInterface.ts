@@ -2,7 +2,7 @@ import { BigNumber } from "ethers"
 
 interface NftInterface {
   tokenId: BigNumber
-  tokenUri: string
+  tokenURI: string
   price: BigNumber
   seller: string
   owner: string
@@ -10,11 +10,13 @@ interface NftInterface {
 
 interface NftData {
   tokenId: number
-  tokenUri: string
+  tokenURI: string
   price: string
   seller: string
   owner: string
   image?: string
+  name?: string
+  description?: string
 }
 
 export type { NftInterface as default, NftData }

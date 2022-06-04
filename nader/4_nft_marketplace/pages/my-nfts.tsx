@@ -40,7 +40,7 @@ export default function MyAssets() {
       items = await Promise.all(
         data.map(async (nft: NftInterface) => getNftData(nft, contract))
       )
-    } catch (e) {
+    } catch (e: any) {
       console.error(e.message)
     }
 
@@ -50,7 +50,7 @@ export default function MyAssets() {
 
   function resellNFT(nft: NftData) {
     console.log("nft:", nft)
-    if (!nft.tokenUri) return
+    if (!nft.tokenURI) return
 
     router.push(`/resell-nft?id=${nft.tokenId}&tokenURI=${nft.tokenURI}`)
   }
@@ -81,7 +81,7 @@ export default function MyAssets() {
                   Price - {nft?.price} Eth
                 </p>
 
-                {nft.tokenUri && (
+                {nft.tokenURI && (
                   <button
                     className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
                     onClick={() => resellNFT(nft)}

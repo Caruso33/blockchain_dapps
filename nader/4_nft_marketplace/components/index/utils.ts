@@ -7,16 +7,19 @@ async function getNftData(nft: NftInterface, contract: Contract) {
 
   const item: NftData = {
     tokenId: nft.tokenId.toNumber(),
-    tokenUri: nft.tokenUri,
+    tokenURI: nft.tokenURI,
     price,
     seller: nft.seller,
     owner: nft.owner,
   }
 
   try {
-    const tokenUri = await contract.tokenURI(nft.tokenId)
-    const meta = await axios.get(tokenUri)
-    item.image = meta.data.image
+    const tokenURI = await contract.tokenURI(nft.tokenId)
+    const meta = await axios.get(tokenURI)
+
+    item.image = meta.data?.image
+    item.name = meta.data?.name
+    item.description = meta.data?.description
   } catch (e: any) {
     console.error(e.message)
   }

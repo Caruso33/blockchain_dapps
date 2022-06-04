@@ -7,10 +7,10 @@ import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
 import { getWeb3Connection } from "../components/web3/utils"
 import { nftMarketAddress } from "../config"
 
-const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0")
+const client = ipfsHttpClient({ url: "https://ipfs.infura.io:5001/api/v0" })
 
 export default function CreateItem() {
-  const [fileUrl, setFileUrl] = useState<string>(null)
+  const [fileUrl, setFileUrl] = useState<string | null>(null)
   const [formInput, updateFormInput] = useState({
     price: "",
     name: "",

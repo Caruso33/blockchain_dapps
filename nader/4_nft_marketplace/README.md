@@ -1,5 +1,7 @@
 # Basic Sample Hardhat Project
 
+Based on [How to build a fullstack nft marketplace on Polygon](https://www.youtube.com/watch?v=GKJBEEXUha0)
+
 ## Deployments
 
 ### Matic Mumbai Testnet

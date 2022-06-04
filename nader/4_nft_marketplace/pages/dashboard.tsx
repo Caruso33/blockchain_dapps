@@ -34,7 +34,7 @@ export default function CreatorDashboard() {
       items = await Promise.all(
         data.map(async (nft: NftInterface) => getNftData(nft, contract))
       )
-    } catch (e) {
+    } catch (e: any) {
       console.error(e.message)
     }
 
@@ -58,7 +58,7 @@ export default function CreatorDashboard() {
       items = await Promise.all(
         data.map(async (nft: NftInterface) => getNftData(nft, contract))
       )
-    } catch (e) {
+    } catch (e: any) {
       console.error(e.message)
     }
 

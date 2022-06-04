@@ -14,20 +14,20 @@ export default function ResellNFT() {
   const { image, price } = formInput
 
   useEffect(() => {
-    fetchNFT()
-  }, [id])
+    async function fetchNFT() {
+      if (!tokenURI) return
 
-  async function fetchNFT() {
-    if (!tokenURI) return
+      try {
+        const meta = await axios.get(tokenURI as string)
 
-    try {
-      const meta = await axios.get(tokenURI)
-
-      updateFormInput((state) => ({ ...state, image: meta.data.image }))
-    } catch (e) {
-      console.error(e)
+        updateFormInput((state) => ({ ...state, image: meta.data.image }))
+      } catch (e) {
+        console.error(e)
+      }
     }
-  }
+
+    fetchNFT()
+  }, [id, tokenURI])
 
   async function listNFTForSale() {
     if (!price) return

@@ -1,13 +1,14 @@
-import axios from "axios"
 import { ethers } from "ethers"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import Web3Modal from "web3modal"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
+import { getNftData } from "../components/index/utils"
+import { getWeb3Connection } from "../components/web3/utils"
 import { nftMarketAddress } from "../config"
+import NftInterface, { NftData } from "../types/NftInterface"
 
 export default function Home() {
-  const [nfts, setNfts] = useState([])
+  const [nfts, setNfts] = useState<NftData[]>([])
   const [loadingState, setLoadingState] = useState("not-loaded")
 
   useEffect(() => {
@@ -22,39 +23,29 @@ export default function Home() {
       NFTMarket.abi,
       provider
     )
-    const data = await contract.fetchMarketItems()
 
-    /*
-     *  map over items returned from smart contract and format
-     *  them as well as fetch their token metadata
-     */
-    const items = await Promise.all(
-      data.map(async (item) => {
-        const tokenUri = await contract.tokenURI(item.tokenId)
-        const meta = await axios.get(tokenUri)
-        const price = ethers.utils.formatUnits(item.price.toString(), "ether")
+    let items: NftData[] = []
+    try {
+      const data = await contract.fetchMarketItems()
 
-        return {
-          price,
-          tokenId: item.tokenId.toNumber(),
-          seller: item.seller,
-          owner: item.owner,
-          image: meta.data.image,
-          name: meta.data.name,
-          description: meta.data.description,
-        }
-      })
-    )
+      /*
+       *  map over items returned from smart contract and format
+       *  them as well as fetch their token metadata
+       */
+      items = await Promise.all(
+        data.map(async (nft: NftInterface) => getNftData(nft, contract))
+      )
+    } catch (e: any) {
+      console.error(e.message)
+    }
+
     setNfts(items)
     setLoadingState("loaded")
   }
 
-  async function buyNft(nft) {
+  async function buyNft(nft: NftData) {
     /* needs the user to sign the transaction, so will use Web3Provider and sign it */
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    const { signer } = await getWeb3Connection()
     const contract = new ethers.Contract(
       nftMarketAddress,
       NFTMarket.abi,
@@ -79,15 +70,20 @@ export default function Home() {
       <div className="px-4" style={{ maxWidth: "1600px" }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
           {nfts.map((nft, i) => (
-            <div key={i} className="border shadow rounded-xl overflow-hidden">
-              <Image
-                src={nft?.image}
-                alt="Nft image"
-                width="100%"
-                height="100%"
-                layout="responsive"
-                objectFit="contain"
-              />
+            <div
+              key={`nft-listing-${i}`}
+              className="border shadow rounded-xl overflow-hidden"
+            >
+              {nft.image && (
+                <Image
+                  src={nft.image}
+                  alt="Nft image"
+                  width="100%"
+                  height="100%"
+                  layout="responsive"
+                  objectFit="contain"
+                />
+              )}
 
               <div className="p-4">
                 <p
