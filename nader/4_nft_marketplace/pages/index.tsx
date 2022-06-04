@@ -17,7 +17,18 @@ export default function Home() {
 
   async function loadNFTs() {
     /* create a generic provider and query for unsold market items */
-    const provider = new ethers.providers.JsonRpcProvider()
+
+    if (!process.env.NEXT_PUBLIC_DEPLOYED_NETWORK) {
+      throw Error("No deployed network env set!")
+    }
+
+    let rpcProviderUrl = ""
+    if (process.env.NEXT_PUBLIC_DEPLOYED_NETWORK === "mumbai")
+      rpcProviderUrl = process.env.NEXT_PUBLIC_POLYGON_MUMBAI!
+    if (process.env.NEXT_PUBLIC_DEPLOYED_NETWORK === "polygon")
+      rpcProviderUrl = process.env.NEXT_PUBLIC_POLYGON_MAIN!
+
+    const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl)
     const contract = new ethers.Contract(
       nftMarketAddress,
       NFTMarket.abi,
