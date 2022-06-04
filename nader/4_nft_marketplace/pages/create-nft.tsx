@@ -2,7 +2,7 @@ import { ethers } from "ethers"
 import { create as ipfsHttpClient } from "ipfs-http-client"
 import Image from "next/image"
 import { useRouter } from "next/router"
-import { useState } from "react"
+import { ChangeEvent, useState } from "react"
 import Web3Modal from "web3modal"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
 import { nftMarketAddress } from "../config"
@@ -18,7 +18,7 @@ export default function CreateItem() {
   })
   const router = useRouter()
 
-  async function onChange(e: Event) {
+  async function onChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e?.target?.files?.[0]
     if (!file) return
 
@@ -105,7 +105,12 @@ export default function CreateItem() {
             updateFormInput({ ...formInput, price: e.target.value })
           }
         />
-        <input type="file" name="Asset" className="my-4" onChange={onChange} />
+        <input
+          type="file"
+          name="Asset"
+          className="my-4"
+          onChange={(e) => onChange(e)}
+        />
 
         {fileUrl && (
           <Image
