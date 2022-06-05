@@ -11,11 +11,11 @@ module.exports = {
       gasPrice: 8000000000,
     },
     mumbai: {
-      url: process.env.POLYGON_MUMBAI,
+      url: process.env.NEXT_PUBLIC_POLYGON_MUMBAI,
       accounts: [process.env.PRIVATE_KEY],
     },
     mainnet: {
-      url: process.env.POLYGON_MAIN,
+      url: process.env.NEXT_PUBLIC_POLYGON_MAIN,
       accounts: [process.env.PRIVATE_KEY],
     },
   },

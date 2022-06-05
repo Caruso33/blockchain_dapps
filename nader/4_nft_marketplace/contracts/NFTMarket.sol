@@ -14,7 +14,7 @@ contract NFTMarket is ERC721URIStorage {
 
     address payable owner;
 
-    uint256 listingPrice = 1 ether; // matic!
+    uint256 listingPrice = 0.001 ether; // matic!
 
     mapping(uint256 => MarketItem) private idToMarketItem;
 

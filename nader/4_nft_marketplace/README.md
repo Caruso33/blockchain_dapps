@@ -6,7 +6,9 @@ Based on [How to build a fullstack nft marketplace on Polygon](https://www.youtu
 
 ### Matic Mumbai Testnet
 
-nftMarket deployed to: 0xEf6d29dDFf75C3aC09C7AA37B3ea58aA2Bb24EB5
+<!-- nftMarket deployed to: 0xEf6d29dDFf75C3aC09C7AA37B3ea58aA2Bb24EB5 -->
+
+nftMarket deployed to: 0x148B94D622c2Ac3abfb550AEaF48F25F105EA18b
 
 ---
 
