@@ -1,14 +1,14 @@
-const StorageFactory = artifacts.require("StorageFactory")
+const FundMe = artifacts.require("FundMe")
 
 const fs = require("fs")
 
 module.exports = async function (deployer, _network, _accounts) {
-  await deployer.deploy(StorageFactory)
+  await deployer.deploy(FundMe)
 
-  console.log("StorageFactory deployed to: ", StorageFactory.address)
+  console.log("FundMe deployed to: ", FundMe.address)
 
   const config = {
-    address: StorageFactory.address,
+    address: FundMe.address,
   }
 
   fs.writeFileSync(

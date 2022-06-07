@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "compile": "truffle compile",
+    "test": "truffle test",
+    "migrate": "truffle migrate"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^0.4.1"
+  },
+  "devDependencies": {
+    "@truffle/hdwallet-provider": "^2.0.8",
+    "dotenv": "^16.0.1"
+  }
+}
