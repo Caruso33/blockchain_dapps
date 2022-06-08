@@ -1,26 +1,25 @@
 import { useCallback, useEffect, useRef } from "react";
+import { useProvider } from "wagmi";
 import getContracts from "../components/index/getContracts";
 import useAppState from "../state";
 import { contractTypes } from "../state/reducers/contracts";
 
 function useLoadContracts() {
   const [state, dispatch] = useAppState();
+  const provider = useProvider();
 
   const chainId = state.user?.chain?.id;
 
   const loadContracts = useCallback(async () => {
-    const contracts = await getContracts(state.user?.chain?.id);
+    const contracts = await getContracts(chainId, provider);
 
     if (contracts)
       dispatch({ type: contractTypes.CHANGE_CONTRACTS, data: contracts });
-  }, [state.user?.chain?.id, dispatch]);
+  }, [chainId, dispatch, provider]);
 
   const prevChain = useRef(chainId);
   useEffect(() => {
-    if (
-      chainId !== prevChain.current
-      // || (chainId && !state.contracts.contractData)
-    ) {
+    if (chainId !== prevChain.current) {
       prevChain.current = chainId;
 
       if (!chainId) {
@@ -32,10 +31,6 @@ function useLoadContracts() {
         loadContracts();
       }
     }
-
-    // if (state.user?.chain?.id === undefined) {
-    //   dispatch({ type: contractTypes.CHANGE_CONTRACTS, data: value });
-    // }
   }, [chainId, dispatch, loadContracts]);
 }
 

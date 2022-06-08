@@ -1,19 +1,20 @@
 import { ChakraProvider } from "@chakra-ui/react";
+import { getDefaultProvider, providers } from "ethers";
 import type { AppProps } from "next/app";
 import {
-  defaultChains,
   chain,
   configureChains,
   createClient,
+  defaultChains,
   WagmiConfig,
 } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { publicProvider } from "wagmi/providers/public";
 import { appReducers, initialState } from "../state";
 import { AppStateProvider } from "../state/context";
-import { publicProvider } from "wagmi/providers/public";
-import { InjectedConnector } from "wagmi/connectors/injected";
 import "../styles/globals.css";
 
-const { chains, provider } = configureChains(
+const { chains } = configureChains(
   [...defaultChains, chain.hardhat, chain.polygon, chain.polygonMumbai],
   [publicProvider()]
 );
@@ -21,7 +22,12 @@ const { chains, provider } = configureChains(
 const wagmiClient = createClient({
   autoConnect: true,
   connectors: [new InjectedConnector({ chains })],
-  provider,
+  provider: (config) => {
+    if (config.chainId === chain.localhost.id)
+      return new providers.JsonRpcProvider();
+
+    return getDefaultProvider(config.chainId);
+  },
 });
 
 function MyApp({ Component, pageProps }: AppProps) {

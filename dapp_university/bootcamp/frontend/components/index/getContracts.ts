@@ -1,7 +1,10 @@
 import { ethers } from "ethers";
 import deployments from "../../public/deployments.json";
 
-async function getContracts(chainId: number) {
+async function getContracts(
+  chainId: number,
+  provider: ethers.providers.Provider
+) {
   if (!chainId) return null;
 
   const deploymentChainData = deployments[`${chainId}`];
@@ -12,12 +15,14 @@ async function getContracts(chainId: number) {
 
   const tokenContract = await new ethers.Contract(
     contractData.contracts.Token.address,
-    contractData.contracts.Token.abi
+    contractData.contracts.Token.abi,
+    provider
   );
 
   const exchangeContract = await new ethers.Contract(
     contractData.contracts.Exchange.address,
-    contractData.contracts.Exchange.abi
+    contractData.contracts.Exchange.abi,
+    provider
   );
 
   return { contractData, tokenContract, exchangeContract };

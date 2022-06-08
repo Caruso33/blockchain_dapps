@@ -36,10 +36,7 @@ function useWalletData() {
   useEffect(() => {
     const activeChainId = activeChain?.id;
 
-    if (
-      activeChainId !== prevChain.current
-      //  || (activeChain?.id && state.user?.chain?.id)
-    ) {
+    if (activeChainId !== prevChain.current) {
       prevChain.current = activeChainId;
 
       if (!activeChainId) {
