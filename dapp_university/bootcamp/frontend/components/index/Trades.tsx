@@ -1,18 +1,17 @@
 import {
   Flex,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Td,
   Text,
-  Tfoot,
   Th,
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import formatISO9075 from "date-fns/formatISO9075";
 import React from "react";
-import useTradeEvents from "./trades/useTradeEvents";
+import useTradeEvents, { TradeEventWithAmount } from "./trades/useTradeEvents";
 
 const Trades: React.FC = () => {
   const tradeEvents = useTradeEvents();
@@ -25,31 +24,25 @@ const Trades: React.FC = () => {
         Trades
       </Text>
 
-      <TableContainer>
+      <TableContainer mt="1rem">
         <Table variant="simple">
-          <TableCaption>Imperial to metric conversion factors</TableCaption>
           <Thead>
             <Tr>
-              <Th>To convert</Th>
-              <Th>into</Th>
-              <Th isNumeric>multiply by</Th>
+              <Th>Time</Th>
+              <Th>TOKEN</Th>
+              <Th>TOKEN/ETH</Th>
             </Tr>
           </Thead>
-          <Tbody>
-            <Tr>
-              <Td>inches</Td>
-              <Td>millimetres (mm)</Td>
-              <Td isNumeric>25.4</Td>
-            </Tr>
-          </Tbody>
 
-          <Tfoot>
-            <Tr>
-              <Th>To convert</Th>
-              <Th>into</Th>
-              <Th isNumeric>multiply by</Th>
-            </Tr>
-          </Tfoot>
+          <Tbody>
+            {tradeEvents.map((tradeEvent: TradeEventWithAmount) => (
+              <Tr key={tradeEvent.id}>
+                <Td>{formatISO9075(tradeEvent.dateTime)}</Td>
+                <Td isNumeric>{tradeEvent.tokenAmount.toNumber()}</Td>
+                <Td isNumeric>{tradeEvent.tokenPrice}</Td>
+              </Tr>
+            ))}
+          </Tbody>
         </Table>
       </TableContainer>
     </Flex>

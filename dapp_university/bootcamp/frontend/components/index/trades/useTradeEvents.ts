@@ -23,15 +23,12 @@ type TradeEventWithAmount = TradeEvent & {
 function useTradeEvents() {
   const [state] = useAppState();
 
-  const precision = 10 ** 5;
-
   const tradeEvents = useMemo(() => {
     if (!state?.events?.trades) return [];
 
-    let events: Array<TradeEventWithAmount | {}> = state.events.trades.map(
+    const precision = 10 ** 5;
+    let events: Array<TradeEventWithAmount> = state.events.trades.map(
       (trade: Event) => {
-        if (!trade.args) return {};
-
         const tradeEventArgs = trade.args as unknown as TradeEvent;
 
         const { tokenGive, amountGet, amountGive, id } = tradeEventArgs;
@@ -51,10 +48,10 @@ function useTradeEvents() {
         let tokenPrice = etherAmount.toNumber() / tokenAmount.toNumber();
         tokenPrice = Math.round(tokenPrice * precision) / precision;
 
-        const formattedTime = fromUnixTime(timestamp.toNumber());
+        const dateTime = fromUnixTime(timestamp.toNumber());
 
         return {
-          formattedTime,
+          dateTime,
           etherAmount,
           tokenAmount,
           tokenPrice,
@@ -79,3 +76,4 @@ function useTradeEvents() {
 }
 
 export default useTradeEvents;
+export type { TradeEventWithAmount };
