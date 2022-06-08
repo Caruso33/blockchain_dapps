@@ -7,7 +7,7 @@ import {
   Text,
   Th,
   Thead,
-  Tr
+  Tr,
 } from "@chakra-ui/react";
 import formatISO9075 from "date-fns/formatISO9075";
 import React from "react";
@@ -38,7 +38,11 @@ const Trades: React.FC = () => {
                 <Td>{formatISO9075(tradeEvent.dateTime)}</Td>
                 <Td isNumeric>{tradeEvent.tokenAmount.toNumber()}</Td>
                 <Td isNumeric>
-                  <Text color={tradeEvent.didPriceIncrease ? "green" : "red"}>
+                  <Text
+                    color={
+                      tradeEvent.didPriceIncrease ? "green.200" : "red.200"
+                    }
+                  >
                     {tradeEvent.tokenPrice}
                   </Text>
                 </Td>

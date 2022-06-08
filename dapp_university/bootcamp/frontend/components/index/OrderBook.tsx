@@ -27,7 +27,7 @@ const OrderBook: React.FC = () => {
             {buyOrders.map((order: MakeOrderEventEnhanced, index) => (
               <Tr key={"bid" + index}>
                 <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
-                <Td isNumeric color="green">
+                <Td isNumeric color="green.200">
                   {order.tokenPrice}
                 </Td>
                 <Td isNumeric>{order.etherAmount.toNumber()}</Td>
@@ -45,7 +45,7 @@ const OrderBook: React.FC = () => {
               .map((order: MakeOrderEventEnhanced, index) => (
                 <Tr key={"ask" + index}>
                   <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
-                  <Td isNumeric color="red">
+                  <Td isNumeric color="red.200">
                     {order.tokenPrice}
                   </Td>
                   <Td isNumeric>{order.etherAmount.toNumber()}</Td>
