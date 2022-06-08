@@ -1,3 +1,4 @@
+import { ethers } from "ethers"
 import { useAccount, useConnect, useNetwork, useBalance } from "wagmi"
 import { InjectedConnector } from "wagmi/connectors/injected"
 
@@ -6,19 +7,24 @@ function App() {
     connector: new InjectedConnector(),
   })
   const network = useNetwork()
-  console.dir("network", network)
 
   const { data: account } = useAccount()
-  console.dir("account", account)
 
   const { data: balance } = useBalance({
     addressOrName: account?.address,
   })
-  console.dir("balance", balance)
+  const balanceString = ethers.utils
+    .formatEther(balance?.value?.toString(), "ether")
+    .toString()
 
-  console.log("value", balance?.value?.toString())
-
-  if (account) return <div>Connected to {account?.address}</div>
+  if (account)
+    return (
+      <div>
+        Connected to {account?.address} on {network?.activeChain?.name}
+        <br />
+        Balance: {balanceString}
+      </div>
+    )
 
   return <button onClick={() => connect()}>Connect Wallet</button>
 }
