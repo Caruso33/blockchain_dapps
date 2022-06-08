@@ -7,16 +7,14 @@ import {
   Text,
   Th,
   Thead,
-  Tr,
+  Tr
 } from "@chakra-ui/react";
 import formatISO9075 from "date-fns/formatISO9075";
 import React from "react";
-import useTradeEvents, { TradeEventWithAmount } from "./trades/useTradeEvents";
+import useTradeEvents, { TradeEventEnhanced } from "./trades/useTradeEvents";
 
 const Trades: React.FC = () => {
   const tradeEvents = useTradeEvents();
-
-  console.log(tradeEvents);
 
   return (
     <Flex m="1rem" direction="column">
@@ -35,7 +33,7 @@ const Trades: React.FC = () => {
           </Thead>
 
           <Tbody>
-            {tradeEvents.map((tradeEvent: TradeEventWithAmount) => (
+            {tradeEvents.map((tradeEvent: TradeEventEnhanced) => (
               <Tr key={`tradeevent-${tradeEvent.id.toNumber()}`}>
                 <Td>{formatISO9075(tradeEvent.dateTime)}</Td>
                 <Td isNumeric>{tradeEvent.tokenAmount.toNumber()}</Td>

@@ -3,49 +3,41 @@ import { BigNumber, ethers, Event } from "ethers";
 import { useMemo } from "react";
 import useAppState from "../../../state";
 
-type TradeEvent = {
-  amountGet: BigNumber;
-  amountGive: BigNumber;
+type MakeOrderEvent = {
   id: BigNumber;
-  orderUser: string;
+  user: string;
+  tokenGet: BigNumber;
+  amountGet: BigNumber;
+  tokenGive: BigNumber;
+  amountGive: BigNumber;
   timestamp: BigNumber;
-  tokenGet: string;
-  tokenGive: string;
-  trader: string;
 };
 
-type TradeEventEnhanced = TradeEvent & {
+type MakeOrderEventEnhanced = MakeOrderEvent & {
   orderType: "buy" | "sell";
   etherAmount: BigNumber;
   tokenAmount: BigNumber;
   tokenPrice: number;
   dateTime: Date;
-  didPriceIncrease: boolean;
 };
 
-function useTradeEvents() {
+function useMakeOrderEvents() {
   const [state] = useAppState();
 
-  const tradeEvents = useMemo(() => {
+  const makeOrderEvents = useMemo(() => {
     if (!state?.events?.trades) return [];
 
     const precision = 10 ** 5;
-    let events: Array<TradeEventEnhanced> = state.events.trades.map(
+    let events: Array<MakeOrderEventEnhanced> = state.events.trades.map(
       (trade: Event) => {
-        const tradeEventArgs = trade.args as unknown as TradeEvent;
-        return tradeEventArgs;
+        const makeOrderEventArgs = trade.args as unknown as MakeOrderEvent;
+        return makeOrderEventArgs;
       }
     );
 
-    events = events.sort(
-      (a, b) => b.timestamp.toNumber() - a.timestamp.toNumber()
-    );
-
-    let previousEvent: TradeEventEnhanced | undefined;
-
-    events = events.map((tradeEvent: TradeEventEnhanced) => {
-      const { tokenGive, amountGet, amountGive, id } = tradeEvent;
-      const { orderUser, timestamp, tokenGet, trader } = tradeEvent;
+    events = events.map((makeOrderEvent: MakeOrderEvent) => {
+      const { tokenGive, amountGet, amountGive, id } = makeOrderEvent;
+      const { timestamp, tokenGet } = makeOrderEvent;
 
       const orderType =
         tokenGive.toString() === ethers.constants.AddressZero ? "buy" : "sell";
@@ -53,7 +45,7 @@ function useTradeEvents() {
       let etherAmount;
       let tokenAmount;
 
-      if (tokenGive === ethers.constants.AddressZero) {
+      if (tokenGive.toString() === ethers.constants.AddressZero) {
         etherAmount = amountGive;
         tokenAmount = amountGet;
       } else {
@@ -66,32 +58,35 @@ function useTradeEvents() {
 
       const dateTime = fromUnixTime(timestamp.toNumber());
 
-      const didPriceIncrease =
-        !previousEvent || tokenPrice > previousEvent.tokenPrice;
-
       return {
         tokenGive,
         amountGet,
         amountGive,
         id,
-        orderUser,
         timestamp,
         tokenGet,
-        trader,
         orderType,
         etherAmount,
         tokenAmount,
         tokenPrice,
         dateTime,
-        didPriceIncrease,
-      } as TradeEventEnhanced;
+      } as MakeOrderEventEnhanced;
     });
 
-    return events;
+    events = events.sort((a, b) => b.tokenPrice - a.tokenPrice);
+
+    const buyOrders = events.filter(
+      (event: MakeOrderEventEnhanced) => event.orderType === "buy"
+    );
+    const sellOrders = events.filter(
+      (event: MakeOrderEventEnhanced) => event.orderType === "sell"
+    );
+
+    return [events, buyOrders, sellOrders];
   }, [state.events.trades]);
 
-  return tradeEvents;
+  return makeOrderEvents;
 }
 
-export default useTradeEvents;
-export type { TradeEventEnhanced };
+export default useMakeOrderEvents;
+export type { MakeOrderEventEnhanced };
