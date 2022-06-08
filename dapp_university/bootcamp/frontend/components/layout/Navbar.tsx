@@ -1,6 +1,12 @@
 import { Box, Button, Code, Flex, Text, Link } from "@chakra-ui/react";
 import React from "react";
-import { useConnect, useDisconnect } from "wagmi";
+import {
+  useAccount,
+  useBalance,
+  useConnect,
+  useDisconnect,
+  useNetwork,
+} from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import useAppState from "../../state";
 
@@ -29,26 +35,37 @@ function Wallet() {
   const { connect } = useConnect({
     connector: new InjectedConnector(),
   });
+
   const { disconnect } = useDisconnect();
 
-  if (state.user?.account?.address) {
+  const userAddress = state.user?.account?.address;
+
+  if (userAddress) {
     const userNetwork = state?.user?.chain?.name;
-    const isMainnet = userNetwork === "Ethereum";
+    const isEthMainnet = userNetwork === "Ethereum";
+    const isPolyMainnet = userNetwork === "Polygon";
 
-    const subNets = ["Ropsten", "Kovan", "Rinkeby", "Goerli"];
-    const isSubnet = subNets.includes(userNetwork);
+    const ethSubNets = ["Ropsten", "Kovan", "Rinkeby", "Goerli"];
+    const isEthSubnet = ethSubNets.includes(userNetwork);
 
-    const href =
-      isMainnet || isSubnet
-        ? `https://${isSubnet && `${userNetwork}.`}etherscan.io/address/${
-            state.user?.account?.address
-          }`
-        : "";
+    const polySubNets = ["Polygon", "Polygon Mumbai"];
+    const isPolySubnet = polySubNets.includes(userNetwork);
+
+    let hrefLink = "";
+    if (isEthMainnet) {
+      hrefLink = `https://etherscan.io/address/${userAddress}`;
+    } else if (isEthSubnet) {
+      hrefLink = `https://${userNetwork}.etherscan.io/address/${userAddress}`;
+    } else if (isPolyMainnet) {
+      hrefLink = `https://polygonscan.com/search?q=${userAddress}`;
+    } else if (isPolySubnet) {
+      hrefLink = `https://mumbai.polygonscan.com/search?q=${userAddress}`;
+    }
 
     return (
       <>
         <Text>Connected to</Text>
-        <Link href={href}>
+        <Link href={hrefLink}>
           <Code>{state.user?.account?.address}</Code>
         </Link>
 

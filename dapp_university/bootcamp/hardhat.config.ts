@@ -9,7 +9,7 @@ import "solidity-coverage";
 import seedExchange from "./scripts/seed-exchange";
 import "@nomiclabs/hardhat-ethers";
 import "hardhat-deploy";
-import "hardhat-deploy-ethers";
+
 
 dotenv.config();
 
@@ -38,6 +38,7 @@ const mnemonic = process.env.mnemonic!;
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
+  defaultNetwork: "ganache",
   solidity: {
     version: "0.8.4",
     settings: {

@@ -32,7 +32,7 @@ export default function MainContent() {
   let content = null;
   if (!state.user?.account?.address) {
     content = (
-      <GridItem colSpan={5} rowSpan={1} m="5rem" bg="blue.500">
+      <GridItem colSpan={5} rowSpan={1} m="5rem" bg="blue.800">
         <Center height="100%">
           <Text>Please connect to your wallet</Text>
         </Center>
@@ -40,7 +40,7 @@ export default function MainContent() {
     );
   } else if (!state.contracts?.contractData) {
     content = (
-      <GridItem colSpan={5} rowSpan={1} m="5rem" bg="blue.500">
+      <GridItem colSpan={5} rowSpan={1} m="5rem" bg="blue.800">
         <Center height="100%">
           <Text>The current chain has no deployment. </Text>
           <Text>Please change the network</Text>
@@ -50,32 +50,27 @@ export default function MainContent() {
   } else {
     content = (
       <>
-        <GridItem gridRow="2 / 3" gridColumn="1 / span 1" bg="blue.500">
+        <GridItem gridRow="2 / 3" gridColumn="1 / span 1" bg="blue.800">
           <Balance />
         </GridItem>
 
-        <GridItem
-          gridRow="2 / 4"
-          gridColumn="2 / 3"
-          bg="blue.500"
-          // overflow="auto"
-        >
+        <GridItem gridRow="2 / 4" gridColumn="2 / 3" bg="blue.800">
           <OrderBook />
         </GridItem>
 
-        <GridItem gridRow="2 / span 1" gridColumn="3 / span 2" bg="blue.500">
+        <GridItem gridRow="2 / span 1" gridColumn="3 / span 2" bg="blue.800">
           <PriceChart />
         </GridItem>
 
-        <GridItem gridRow="2 / span 2" gridColumn="5" bg="blue.500">
+        <GridItem gridRow="2 / span 2" gridColumn="5" bg="blue.800">
           <Trades />
         </GridItem>
 
-        <GridItem gridRow="3 / span 1" gridColumn="1" bg="blue.500">
+        <GridItem gridRow="3 / span 1" gridColumn="1" bg="blue.800">
           <NewOrder />
         </GridItem>
 
-        <GridItem gridRow="3 / 4" gridColumn="3 / span 2" bg="blue.500">
+        <GridItem gridRow="3 / 4" gridColumn="3 / span 2" bg="blue.800">
           <MyTransactions />
         </GridItem>
       </>

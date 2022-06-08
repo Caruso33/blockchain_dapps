@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useAccount, useNetwork } from "wagmi";
 import useAppState from "../state";
 import { actionTypes } from "../state/reducer";
@@ -6,42 +6,52 @@ import { actionTypes } from "../state/reducer";
 function useWalletData() {
   const [state, dispatch] = useAppState();
 
-  const { data } = useAccount();
+  const { data: account } = useAccount();
   const { activeChain } = useNetwork();
+
+  const handleChainData = useCallback(
+    (value: object) => {
+      dispatch({ type: actionTypes.ADD_CHAIN, data: { chain: value } });
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     const handleWalletData = (value: object) => {
       dispatch({ type: actionTypes.ADD_WALLET, data: { account: value } });
     };
 
-    if (data?.address !== state.user?.account?.address) {
-      if (!data?.address) {
+    if (account?.address !== state.user?.account?.address) {
+      if (!account?.address) {
         dispatch({ type: actionTypes.REMOVE_WALLET });
       }
 
-      if (data?.address) {
-        handleWalletData(data);
+      if (account?.address) {
+        handleWalletData(account);
       }
     }
-  }, [data, state, dispatch]);
+  }, [account, state, dispatch]);
 
+  const prevChain = useRef<undefined | number>();
   useEffect(() => {
-    const handleChainData = (value: object) => {
-      dispatch({ type: actionTypes.ADD_CHAIN, data: { chain: value } });
-    };
+    const activeChainId = activeChain?.id;
 
-    if (activeChain?.id !== state.user?.chain?.id) {
-      console.log(activeChain?.id, state.user?.chain?.id);
+    if (
+      activeChainId !== prevChain.current
+      //  || (activeChain?.id && state.user?.chain?.id)
+    ) {
+      prevChain.current = activeChainId;
 
-      if (!activeChain?.id) {
+      if (!activeChainId) {
         dispatch({ type: actionTypes.REMOVE_CHAIN });
       }
 
-      if (activeChain?.id) {
+      if (activeChainId) {
+        dispatch({ type: actionTypes.REMOVE_CHAIN });
         handleChainData(activeChain);
       }
     }
-  }, [activeChain, state, dispatch]);
+  }, [activeChain, dispatch, handleChainData]);
 }
 
 export default useWalletData;

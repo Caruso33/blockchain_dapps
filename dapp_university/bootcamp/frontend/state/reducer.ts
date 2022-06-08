@@ -1,10 +1,6 @@
-import userReducer, { userTypes } from "./reducers/user";
+import initialState from "./initialState";
 import contractsReducer, { contractTypes } from "./reducers/contracts";
-
-const initialState = {
-  user: {},
-  contracts: {},
-};
+import userReducer, { userTypes } from "./reducers/user";
 
 const combineReducers = (reducers: object) => {
   return (state: object, action: () => {}) => {

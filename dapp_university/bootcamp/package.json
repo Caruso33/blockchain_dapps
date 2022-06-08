@@ -12,7 +12,8 @@
     "cp:deployments": "cp artifacts/deployments.json frontend/public/deployments.json",
     "console": "hardhat console",
     "start": "hardhat start",
-    "node": "hardhat node"
+    "node": "hardhat node",
+    "clean": "hardhat clean"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
