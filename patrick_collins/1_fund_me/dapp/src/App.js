@@ -1,7 +1,10 @@
-import { chain, useAccount, useConnect, useNetwork, useBalance } from "wagmi"
+import { useAccount, useConnect, useNetwork, useBalance } from "wagmi"
+import { InjectedConnector } from "wagmi/connectors/injected"
 
 function App() {
-  const { connect } = useConnect()
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  })
   const network = useNetwork()
   console.dir("network", network)
 

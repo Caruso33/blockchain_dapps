@@ -1,23 +1,28 @@
-import { providers } from "ethers"
 import React from "react"
 import ReactDOM from "react-dom/client"
 import {
   chain,
   configureChains,
   createClient,
-  WagmiConfig,
   defaultChains,
+  WagmiConfig,
 } from "wagmi"
+import { InjectedConnector } from "wagmi/connectors/injected"
+// import { alchemyProvider } from "wagmi/providers/alchemy"
+import { publicProvider } from "wagmi/providers/public"
 import App from "./App"
 import reportWebVitals from "./reportWebVitals"
-import { alchemyProvider } from "wagmi/providers/alchemy"
-import { publicProvider } from "wagmi/providers/public"
-import { InjectedConnector } from "wagmi/connectors/injected"
+
+
+
+// const alchemyPolygon = process.env.REACT_APP_POLYGON_MAIN
+// const alchemyPolygonMumbai = process.env.REACT_APP_POLYGON_MUMBAI
 
 const { chains, provider } = configureChains(
-  [...defaultChains, chain.hardhat],
+  [...defaultChains, chain.hardhat, chain.polygon, chain.polygonMumbai],
   [
-    alchemyProvider({ alchemyId: process.env.POLYGON_MUMBAI }),
+    // alchemyProvider({ alchemyId: alchemyPolygonMumbai }),
+    // alchemyProvider({ alchemyId: alchemyPolygon }),
     publicProvider(),
   ]
 )
