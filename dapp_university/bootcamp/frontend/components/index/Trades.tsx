@@ -14,7 +14,7 @@ import React from "react";
 import useTradeEvents, { TradeEventEnhanced } from "./trades/useTradeEvents";
 
 const Trades: React.FC = () => {
-  const tradeEvents = useTradeEvents();
+  const [tradeEvents] = useTradeEvents();
 
   return (
     <Flex m="1rem" direction="column">

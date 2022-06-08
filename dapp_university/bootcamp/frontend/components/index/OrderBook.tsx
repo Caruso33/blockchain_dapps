@@ -21,7 +21,7 @@ const OrderBook: React.FC = () => {
         OrderBook
       </Text>
 
-      <TableContainer overflowY="auto">
+      <TableContainer overflowY="auto" mt="1rem">
         <Table variant="simple" fontSize="sm">
           <Tbody>
             {buyOrders.map((order: MakeOrderEventEnhanced, index) => (

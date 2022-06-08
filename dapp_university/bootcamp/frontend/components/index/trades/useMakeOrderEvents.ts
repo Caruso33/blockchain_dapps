@@ -84,7 +84,7 @@ function useMakeOrderEvents() {
     );
 
     return [events, buyOrders, sellOrders];
-  }, [state.events.trades]);
+  }, [state.events.trades, state.events.makeOrders]);
 
   return makeOrderEvents;
 }

@@ -87,8 +87,14 @@ function useTradeEvents() {
       } as TradeEventEnhanced;
     });
 
-    return events;
-  }, [state.events.trades]);
+    const myTradeEvents = events.filter(
+      (event: TradeEventEnhanced) =>
+        event.orderUser === state.user.account.address ||
+        event.trader === state.user.account.address
+    );
+
+    return [events, myTradeEvents];
+  }, [state.events.trades, state.user.account.address]);
 
   return tradeEvents;
 }

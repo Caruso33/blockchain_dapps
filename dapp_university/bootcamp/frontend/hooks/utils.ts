@@ -21,7 +21,6 @@ async function loadEvents(exchangeContract: Contract, eventName: string) {
 
 async function loadMakeOrderEvents(exchangeContract: Contract, dispatch: any) {
   const events = await loadEvents(exchangeContract, "MakeOrderEvent");
-  console.log({events})
   dispatch({ type: eventTypes.ADD_MAKE_ORDERS, data: events });
 }
 
