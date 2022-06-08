@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useProvider } from "wagmi";
 import useAppState from "../state";
 import { loadDepositEvents, loadWithdrawalEvents } from "./utils";
 

@@ -39,7 +39,7 @@ async function loadTradeEvents(exchangeContract: Contract, dispatch: any) {
 
 async function loadDepositEvents(exchangeContract: Contract, dispatch: any) {
   const events = await loadEvents(exchangeContract, "DepositEvent");
-  dispatch({ type: eventTypes.ADD_TRADES, data: events });
+  dispatch({ type: eventTypes.ADD_DEPOSITS, data: events });
 }
 
 async function loadWithdrawalEvents(exchangeContract: Contract, dispatch: any) {
