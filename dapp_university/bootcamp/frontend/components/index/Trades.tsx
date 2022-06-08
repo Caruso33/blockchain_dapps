@@ -23,7 +23,7 @@ const Trades: React.FC = () => {
       </Text>
 
       <TableContainer mt="1rem">
-        <Table variant="simple">
+        <Table variant="simple" fontSize="sm">
           <Thead>
             <Tr>
               <Th>Time</Th>

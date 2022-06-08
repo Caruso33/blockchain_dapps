@@ -22,7 +22,7 @@ const OrderBook: React.FC = () => {
       </Text>
 
       <TableContainer overflowY="auto">
-        <Table variant="simple">
+        <Table variant="simple" fontSize="sm">
           <Tbody>
             {buyOrders.map((order: MakeOrderEventEnhanced, index) => (
               <Tr key={"bid" + index}>
