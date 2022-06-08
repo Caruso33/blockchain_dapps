@@ -2,6 +2,8 @@ const eventTypes = {
   ADD_MAKE_ORDERS: "ADD_MAKE_ORDERS",
   ADD_CANCEL_ORDERS: "ADD_CANCEL_ORDERS",
   ADD_TRADES: "ADD_TRADES",
+  ADD_DEPOSITS: "ADD_DEPOSITS",
+  ADD_WITHDRAWALS: "ADD_WITHDRAWALS",
 };
 
 const eventsReducer = (state, action = {}) => {
@@ -34,6 +36,26 @@ const eventsReducer = (state, action = {}) => {
         events: {
           ...state.events,
           trades: [...state.events.trades, ...data],
+        },
+      };
+    }
+
+    case eventTypes.ADD_DEPOSITS: {
+      return {
+        ...state,
+        events: {
+          ...state.events,
+          deposits: [...state.events.deposits, ...data],
+        },
+      };
+    }
+
+    case eventTypes.ADD_WITHDRAWALS: {
+      return {
+        ...state,
+        events: {
+          ...state.events,
+          withdrawals: [...state.events.withdrawals, ...data],
         },
       };
     }

@@ -1,56 +1,38 @@
 import { useEffect } from "react";
-import useAppState from "../state";
 import { useProvider } from "wagmi";
+import useAppState from "../state";
+import { loadDepositEvents, loadWithdrawalEvents } from "./utils";
 
 function useLoadDepositEvents() {
-  const [state] = useAppState();
-  const provider = useProvider();
-
-  const exchangeContract = state.contracts?.exchangeContract;
+  const [state, dispatch] = useAppState();
 
   useEffect(() => {
-    async function loadEvents() {
-      if (!exchangeContract) return;
+    const exchangeContract = state.contracts?.exchangeContract;
 
-      const eventFilter = exchangeContract.filters.DepositEvent();
-      const events = await exchangeContract
-        .connect(provider)
-        .queryFilter(eventFilter);
-
-      console.log("DepositEvent", events);
+    if (exchangeContract && state?.events?.deposits?.length === 0) {
+      loadDepositEvents(exchangeContract, dispatch);
     }
-
-    if (exchangeContract) {
-      loadEvents();
-    }
-  }, [exchangeContract, provider]);
+  }, [
+    state.contracts?.exchangeContract,
+    state?.events?.deposits?.length,
+    dispatch,
+  ]);
 }
 
 function useLoadWithdrawalEvents() {
-  const [state] = useAppState();
-  const provider = useProvider();
-
-  const exchangeContract = state.contracts?.exchangeContract;
+  const [state, dispatch] = useAppState();
 
   useEffect(() => {
-    async function loadEvents() {
-      if (!exchangeContract) return;
+    const exchangeContract = state.contracts?.exchangeContract;
 
-      const eventFilter = exchangeContract.filters.WithdrawalEvent();
-      const fromBlock = 0;
-      const toBlock = "latest";
-
-      const events = await exchangeContract
-        .connect(provider)
-        .queryFilter(eventFilter, fromBlock, toBlock);
-
-      console.log("WithdrawalEvent", events);
+    if (exchangeContract && state?.events?.withdrawals?.length === 0) {
+      loadWithdrawalEvents(exchangeContract, dispatch);
     }
-
-    if (exchangeContract) {
-      loadEvents();
-    }
-  }, [exchangeContract, provider]);
+  }, [
+    state.contracts?.exchangeContract,
+    state?.events?.withdrawals?.length,
+    dispatch,
+  ]);
 }
 
 export { useLoadDepositEvents, useLoadWithdrawalEvents };

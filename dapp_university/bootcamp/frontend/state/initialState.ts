@@ -5,6 +5,8 @@ const initialState = {
     makeOrders: [],
     cancelOrders: [],
     trades: [],
+    deposits: [],
+    withdrawals: [],
   },
 };
 

@@ -14,7 +14,7 @@ async function loadEvents(exchangeContract: Contract, eventName: string) {
     toBlock
   );
 
-  console.log(`Got ${events?.length} ${eventName}`);
+  console.log(`Got ${events?.length} ${eventName}s`);
 
   return events;
 }
@@ -37,9 +37,21 @@ async function loadTradeEvents(exchangeContract: Contract, dispatch: any) {
   dispatch({ type: eventTypes.ADD_TRADES, data: events });
 }
 
+async function loadDepositEvents(exchangeContract: Contract, dispatch: any) {
+  const events = await loadEvents(exchangeContract, "DepositEvent");
+  dispatch({ type: eventTypes.ADD_TRADES, data: events });
+}
+
+async function loadWithdrawalEvents(exchangeContract: Contract, dispatch: any) {
+  const events = await loadEvents(exchangeContract, "WithdrawalEvent");
+  dispatch({ type: eventTypes.ADD_WITHDRAWALS, data: events });
+}
+
 export {
   loadEvents,
   loadMakeOrderEvents,
   loadCancelOrderEvents,
   loadTradeEvents,
+  loadDepositEvents,
+  loadWithdrawalEvents,
 };
