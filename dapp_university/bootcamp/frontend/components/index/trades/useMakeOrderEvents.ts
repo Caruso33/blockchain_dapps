@@ -37,7 +37,7 @@ function useMakeOrderEvents() {
 
     events = events.map((makeOrderEvent: MakeOrderEvent) => {
       const { tokenGive, amountGet, amountGive, id } = makeOrderEvent;
-      const { timestamp, tokenGet } = makeOrderEvent;
+      const { timestamp, tokenGet, user } = makeOrderEvent;
 
       const orderType =
         tokenGive.toString() === ethers.constants.AddressZero ? "buy" : "sell";
@@ -63,6 +63,7 @@ function useMakeOrderEvents() {
         amountGet,
         amountGive,
         id,
+        user,
         timestamp,
         tokenGet,
         orderType,
@@ -83,8 +84,17 @@ function useMakeOrderEvents() {
       (event: MakeOrderEventEnhanced) => event.orderType === "sell"
     );
 
-    return [events, buyOrders, sellOrders];
-  }, [state.events.trades, state.events.makeOrders]);
+    const myOrders = events.filter(
+      (event: MakeOrderEventEnhanced) =>
+        event.user === state.user.account.address
+    );
+
+    return [events, buyOrders, sellOrders, myOrders];
+  }, [
+    state.events.trades,
+    state.events.makeOrders,
+    state.user.account.address,
+  ]);
 
   return makeOrderEvents;
 }

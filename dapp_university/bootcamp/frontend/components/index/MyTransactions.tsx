@@ -16,12 +16,14 @@ import {
 } from "@chakra-ui/react";
 import formatISO9075 from "date-fns/formatISO9075";
 import React from "react";
+import useMakeOrderEvents, {
+  MakeOrderEventEnhanced,
+} from "./trades/useMakeOrderEvents";
 import useTradeEvents, { TradeEventEnhanced } from "./trades/useTradeEvents";
 
 const MyTransactions: React.FC = () => {
-  const [myTradeEvents] = useTradeEvents();
-
-  console.dir(myTradeEvents);
+  const [, myTradeEvents] = useTradeEvents();
+  const [, , , myOrders] = useMakeOrderEvents();
 
   return (
     <Flex direction="column" m="1rem" height="100%">
@@ -81,15 +83,13 @@ const MyTransactions: React.FC = () => {
                 </Thead>
 
                 <Tbody>
-                  {[...Array(5)]
-                    .map((_, i) => i)
-                    .map((i) => (
-                      <Tr key={`my-trades-${i}`}>
-                        <Td>{i}</Td>
-                        <Td isNumeric>{i}</Td>
-                        <Td isNumeric>{i}</Td>
-                      </Tr>
-                    ))}
+                  {myOrders.map((event: MakeOrderEventEnhanced, i) => (
+                    <Tr key={`my-orders-${i}`}>
+                      <Td>{i}</Td>
+                      <Td isNumeric>{event.tokenAmount.toNumber()}</Td>
+                      <Td isNumeric>{event.tokenPrice}</Td>
+                    </Tr>
+                  ))}
                 </Tbody>
               </Table>
             </TableContainer>
