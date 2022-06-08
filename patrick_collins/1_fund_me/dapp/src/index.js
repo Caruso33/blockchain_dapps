@@ -1,22 +1,31 @@
 import { providers } from "ethers"
 import React from "react"
 import ReactDOM from "react-dom/client"
-import { chain, createClient, WagmiConfig } from "wagmi"
+import {
+  chain,
+  configureChains,
+  createClient,
+  WagmiConfig,
+  defaultChains,
+} from "wagmi"
 import App from "./App"
 import reportWebVitals from "./reportWebVitals"
+import { alchemyProvider } from "wagmi/providers/alchemy"
+import { publicProvider } from "wagmi/providers/public"
+import { InjectedConnector } from "wagmi/connectors/injected"
+
+const { chains, provider } = configureChains(
+  [...defaultChains, chain.hardhat],
+  [
+    alchemyProvider({ alchemyId: process.env.POLYGON_MUMBAI }),
+    publicProvider(),
+  ]
+)
 
 const client = createClient({
   autoConnect: true,
-  provider({ chainId }) {
-    // Use JsonRpcProvider for localhost
-    console.log("chainId", chainId)
-    console.log("localhost.id", chain.localhost.id)
-
-    if (chainId === 1337 || chainId === 31337 || chainId === chain.localhost.id)
-      return new providers.JsonRpcProvider()
-
-    return new providers.AlchemyProvider(chainId)
-  },
+  connectors: [new InjectedConnector({ chains })],
+  provider,
 })
 
 const root = ReactDOM.createRoot(document.getElementById("root"))

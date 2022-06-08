@@ -1,29 +1,12 @@
-import {
-  chain,
-  useAccount,
-  useConnect,
-  useNetwork,
-  useBalance,
-  useEnsName,
-} from "wagmi"
-import { InjectedConnector } from "wagmi/connectors/injected"
+import { chain, useAccount, useConnect, useNetwork, useBalance } from "wagmi"
+
 function App() {
-  const { connect } = useConnect({
-    connector: new InjectedConnector({
-      // connector: new MetaMaskConnector({
-      chains: [chain.localhost],
-    }),
-  })
-  const network = useNetwork({
-    chainId: 1337,
-  })
+  const { connect } = useConnect()
+  const network = useNetwork()
   console.dir("network", network)
 
   const { data: account } = useAccount()
   console.dir("account", account)
-
-  const { data: ensName } = useEnsName({ address: account?.address })
-  console.log("ensName", ensName)
 
   const { data: balance } = useBalance({
     addressOrName: account?.address,
@@ -32,7 +15,7 @@ function App() {
 
   console.log("value", balance?.value?.toString())
 
-  if (account) return <div>Connected to {ensName ?? account?.address}</div>
+  if (account) return <div>Connected to {account?.address}</div>
 
   return <button onClick={() => connect()}>Connect Wallet</button>
 }
