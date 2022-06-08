@@ -30,16 +30,15 @@ const Balance: React.FC = () => {
       }
 
       try {
-        // console.log(account?.address);
-        console.log({provider})
         const etherBalance = await provider.getBalance(account?.address);
-        // console.log({ etherBalance: etherBalance.toString() });
+        console.log({ etherBalance: etherBalance.toString() });
 
-        const exchangeEtherBalance = await exchangeContract
-          // .connect(provider)
-          .balanceOf(ethers.constants.AddressZero, account?.address);
+        const exchangeEtherBalance = await exchangeContract.balanceOf(
+          ethers.constants.AddressZero,
+          account?.address
+        );
 
-        console.log({ exchangeEtherBalance });
+        console.log(exchangeEtherBalance.toString());
 
         // const tokenBalance = await tokenContract
         //   .connect(provider)

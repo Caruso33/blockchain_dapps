@@ -1,83 +1,55 @@
 import { useEffect } from "react";
 import useAppState from "../state";
-import { useProvider } from "wagmi";
+import {
+  loadCancelOrderEvents,
+  loadMakeOrderEvents,
+  loadTradeEvents,
+} from "./utils";
 
 function useLoadMakeOrderEvents() {
-  const [state] = useAppState();
-  const provider = useProvider();
-
-  const exchangeContract = state.contracts?.exchangeContract;
+  const [state, dispatch] = useAppState();
 
   useEffect(() => {
-    async function loadEvents() {
-      if (!exchangeContract) return;
-
-      const eventFilter = exchangeContract.filters.MakeOrderEvent();
-      const events = await exchangeContract
-        .connect(provider)
-        .queryFilter(eventFilter);
-
-      console.log("MakeOrderEvent", events);
+    const exchangeContract = state.contracts?.exchangeContract;
+    if (exchangeContract && state?.events?.makeOrders?.length === 0) {
+      loadMakeOrderEvents(exchangeContract, dispatch);
     }
-
-    if (exchangeContract) {
-      loadEvents();
-    }
-  }, [exchangeContract, provider]);
+  }, [
+    state.contracts?.exchangeContract,
+    state?.events?.makeOrders?.length,
+    dispatch,
+  ]);
 }
 
 function useLoadCancelOrderEvents() {
-  const [state] = useAppState();
-  const provider = useProvider();
-
-  const exchangeContract = state.contracts?.exchangeContract;
+  const [state, dispatch] = useAppState();
 
   useEffect(() => {
-    async function loadEvents() {
-      if (!exchangeContract) return;
-
-      const eventFilter = exchangeContract.filters.CancelOrderEvent();
-      const fromBlock = 0;
-      const toBlock = "latest";
-
-      const events = await exchangeContract
-        .connect(provider)
-        .queryFilter(eventFilter, fromBlock, toBlock);
-
-      console.log("CancelOrderEvent", events);
+    const exchangeContract = state.contracts?.exchangeContract;
+    if (exchangeContract && state?.events?.cancelOrders?.length === 0) {
+      loadCancelOrderEvents(exchangeContract, dispatch);
     }
-
-    if (exchangeContract) {
-      loadEvents();
-    }
-  }, [exchangeContract, provider]);
+  }, [
+    state.contracts?.exchangeContract,
+    state?.events?.cancelOrders?.length,
+    dispatch,
+  ]);
 }
 
 function useLoadTradeOrderEvents() {
-  const [state] = useAppState();
-  const provider = useProvider();
-
-  const exchangeContract = state.contracts?.exchangeContract;
+  const [state, dispatch] = useAppState();
 
   useEffect(() => {
-    async function loadEvents() {
-      if (!exchangeContract) return;
+    const exchangeContract = state.contracts?.exchangeContract;
 
-      const eventFilter = exchangeContract.filters.TradeEvent();
-      const fromBlock = 0;
-      const toBlock = "latest";
-
-      const events = await exchangeContract
-        .connect(provider)
-        .queryFilter(eventFilter, fromBlock, toBlock);
-
-      console.log("TradeEvent", events);
+    if (exchangeContract && state?.events?.trades?.length === 0) {
+      loadTradeEvents(exchangeContract, dispatch);
     }
-
-    if (exchangeContract) {
-      loadEvents();
-    }
-  }, [exchangeContract, provider]);
+  }, [
+    state.contracts?.exchangeContract,
+    state?.events?.trades?.length,
+    dispatch,
+  ]);
 }
 
 export {

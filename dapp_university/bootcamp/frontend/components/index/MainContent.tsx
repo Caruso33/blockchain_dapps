@@ -26,8 +26,8 @@ export default function MainContent() {
   useLoadCancelOrderEvents();
   useLoadTradeOrderEvents();
 
-  useLoadDepositEvents();
-  useLoadWithdrawalEvents();
+  // useLoadDepositEvents();
+  // useLoadWithdrawalEvents();
 
   let content = null;
   if (!state.user?.account?.address) {
