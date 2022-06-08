@@ -28,7 +28,7 @@ function useMakeOrderEvents() {
     if (!state?.events?.trades) return [];
 
     const precision = 10 ** 5;
-    let events: Array<MakeOrderEventEnhanced> = state.events.trades.map(
+    let events: Array<MakeOrderEventEnhanced> = state.events.makeOrders.map(
       (trade: Event) => {
         const makeOrderEventArgs = trade.args as unknown as MakeOrderEvent;
         return makeOrderEventArgs;
@@ -73,6 +73,7 @@ function useMakeOrderEvents() {
       } as MakeOrderEventEnhanced;
     });
 
+    events = events.filter((event: MakeOrderEventEnhanced) => event.tokenPrice);
     events = events.sort((a, b) => b.tokenPrice - a.tokenPrice);
 
     const buyOrders = events.filter(
