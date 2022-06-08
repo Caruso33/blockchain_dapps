@@ -42,8 +42,11 @@ export default function MainContent() {
     content = (
       <GridItem colSpan={5} rowSpan={1} m="5rem" bg="blue.800">
         <Center height="100%">
-          <Text>The current chain has no deployment. </Text>
+          <Text>The current chain has no deployment.</Text>
+          <br />
           <Text>Please change the network</Text>
+          <br />
+          <Text>Current supported chains {["Polygon Mumbai"].join(", ")}</Text>
         </Center>
       </GridItem>
     );
