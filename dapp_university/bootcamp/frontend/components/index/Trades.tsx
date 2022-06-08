@@ -36,10 +36,14 @@ const Trades: React.FC = () => {
 
           <Tbody>
             {tradeEvents.map((tradeEvent: TradeEventWithAmount) => (
-              <Tr key={tradeEvent.id}>
+              <Tr key={`tradeevent-${tradeEvent.id.toNumber()}`}>
                 <Td>{formatISO9075(tradeEvent.dateTime)}</Td>
                 <Td isNumeric>{tradeEvent.tokenAmount.toNumber()}</Td>
-                <Td isNumeric>{tradeEvent.tokenPrice}</Td>
+                <Td isNumeric>
+                  <Text color={tradeEvent.didPriceIncrease ? "green" : "red"}>
+                    {tradeEvent.tokenPrice}
+                  </Text>
+                </Td>
               </Tr>
             ))}
           </Tbody>

@@ -18,6 +18,8 @@ type TradeEventWithAmount = TradeEvent & {
   etherAmount: BigNumber;
   tokenAmount: BigNumber;
   tokenPrice: number;
+  dateTime: Date;
+  didPriceIncrease: boolean;
 };
 
 function useTradeEvents() {
@@ -30,44 +32,54 @@ function useTradeEvents() {
     let events: Array<TradeEventWithAmount> = state.events.trades.map(
       (trade: Event) => {
         const tradeEventArgs = trade.args as unknown as TradeEvent;
-
-        const { tokenGive, amountGet, amountGive, id } = tradeEventArgs;
-        const { orderUser, timestamp, tokenGet, trader } = tradeEventArgs;
-
-        let etherAmount;
-        let tokenAmount;
-
-        if (tokenGive === ethers.constants.AddressZero) {
-          etherAmount = amountGive;
-          tokenAmount = amountGet;
-        } else {
-          etherAmount = amountGet;
-          tokenAmount = amountGive;
-        }
-
-        let tokenPrice = etherAmount.toNumber() / tokenAmount.toNumber();
-        tokenPrice = Math.round(tokenPrice * precision) / precision;
-
-        const dateTime = fromUnixTime(timestamp.toNumber());
-
-        return {
-          dateTime,
-          etherAmount,
-          tokenAmount,
-          tokenPrice,
-          tokenGive,
-          amountGet,
-          amountGive,
-          id,
-          orderUser,
-          timestamp,
-          tokenGet,
-          trader,
-        } as TradeEventWithAmount;
+        return tradeEventArgs;
       }
     );
 
-    events = events.sort((a, b) => b.timestamp - a.timestamp);
+    events = events.sort(
+      (a, b) => b.timestamp.toNumber() - a.timestamp.toNumber()
+    );
+
+    let previousEvent: TradeEventWithAmount | undefined;
+    events = events.map((tradeEvent: TradeEventWithAmount) => {
+      const { tokenGive, amountGet, amountGive, id } = tradeEvent;
+      const { orderUser, timestamp, tokenGet, trader } = tradeEvent;
+
+      let etherAmount;
+      let tokenAmount;
+
+      if (tokenGive === ethers.constants.AddressZero) {
+        etherAmount = amountGive;
+        tokenAmount = amountGet;
+      } else {
+        etherAmount = amountGet;
+        tokenAmount = amountGive;
+      }
+
+      let tokenPrice = etherAmount.toNumber() / tokenAmount.toNumber();
+      tokenPrice = Math.round(tokenPrice * precision) / precision;
+
+      const dateTime = fromUnixTime(timestamp.toNumber());
+
+      const didPriceIncrease =
+        !previousEvent || tokenPrice > previousEvent.tokenPrice;
+
+      return {
+        tokenGive,
+        amountGet,
+        amountGive,
+        id,
+        orderUser,
+        timestamp,
+        tokenGet,
+        trader,
+        etherAmount,
+        tokenAmount,
+        tokenPrice,
+        dateTime,
+        didPriceIncrease,
+      } as TradeEventWithAmount;
+    });
 
     return events;
   }, [state.events.trades]);
