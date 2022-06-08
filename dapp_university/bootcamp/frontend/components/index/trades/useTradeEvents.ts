@@ -1,4 +1,5 @@
-import { BigNumber, Event } from "ethers";
+import fromUnixTime from "date-fns/fromUnixTime";
+import { BigNumber, ethers, Event } from "ethers";
 import { useMemo } from "react";
 import useAppState from "../../../state";
 
@@ -6,7 +7,6 @@ type TradeEvent = {
   amountGet: BigNumber;
   amountGive: BigNumber;
   id: BigNumber;
-  length: number;
   orderUser: string;
   timestamp: BigNumber;
   tokenGet: string;
@@ -14,29 +14,61 @@ type TradeEvent = {
   trader: string;
 };
 
+type TradeEventWithAmount = TradeEvent & {
+  etherAmount: BigNumber;
+  tokenAmount: BigNumber;
+  tokenPrice: number;
+};
+
 function useTradeEvents() {
   const [state] = useAppState();
+
+  const precision = 10 ** 5;
 
   const tradeEvents = useMemo(() => {
     if (!state?.events?.trades) return [];
 
-    let events = state.events.trades.map((trade: Event) => {
-      if (!trade.args) return {};
+    let events: Array<TradeEventWithAmount | {}> = state.events.trades.map(
+      (trade: Event) => {
+        if (!trade.args) return {};
 
-      const tradeEventArgs = trade.args as unknown as TradeEvent;
+        const tradeEventArgs = trade.args as unknown as TradeEvent;
 
-      return {
-        amountGet: tradeEventArgs.amountGet,
-        amountGive: tradeEventArgs.amountGive,
-        id: tradeEventArgs.id,
-        length: tradeEventArgs.length,
-        orderUser: tradeEventArgs.orderUser,
-        timestamp: tradeEventArgs.timestamp,
-        tokenGet: tradeEventArgs.tokenGet,
-        tokenGive: tradeEventArgs.tokenGive,
-        trader: tradeEventArgs.trader,
-      };
-    });
+        const { tokenGive, amountGet, amountGive, id } = tradeEventArgs;
+        const { orderUser, timestamp, tokenGet, trader } = tradeEventArgs;
+
+        let etherAmount;
+        let tokenAmount;
+
+        if (tokenGive === ethers.constants.AddressZero) {
+          etherAmount = amountGive;
+          tokenAmount = amountGet;
+        } else {
+          etherAmount = amountGet;
+          tokenAmount = amountGive;
+        }
+
+        let tokenPrice = etherAmount.toNumber() / tokenAmount.toNumber();
+        tokenPrice = Math.round(tokenPrice * precision) / precision;
+
+        const formattedTime = fromUnixTime(timestamp.toNumber());
+
+        return {
+          formattedTime,
+          etherAmount,
+          tokenAmount,
+          tokenPrice,
+          tokenGive,
+          amountGet,
+          amountGive,
+          id,
+          orderUser,
+          timestamp,
+          tokenGet,
+          trader,
+        } as TradeEventWithAmount;
+      }
+    );
 
     events = events.sort((a, b) => b.timestamp - a.timestamp);
 
