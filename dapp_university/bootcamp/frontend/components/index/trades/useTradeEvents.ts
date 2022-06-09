@@ -21,6 +21,7 @@ type TradeEventEnhanced = TradeEvent & {
   tokenPrice: number;
   dateTime: Date;
   didPriceIncrease: boolean;
+  hasUserBought: boolean;
 };
 
 function useTradeEvents() {
@@ -69,6 +70,10 @@ function useTradeEvents() {
       const didPriceIncrease =
         !previousEvent || tokenPrice > previousEvent.tokenPrice;
 
+      const hasUserBought =
+        (orderType === "buy" && trader === state.user.account.address) ||
+        (orderType === "sell" && orderUser === state.user.account.address);
+
       return {
         tokenGive,
         amountGet,
@@ -84,6 +89,7 @@ function useTradeEvents() {
         tokenPrice,
         dateTime,
         didPriceIncrease,
+        hasUserBought,
       } as TradeEventEnhanced;
     });
 

@@ -1,4 +1,5 @@
 import {
+  Button,
   Flex,
   Tab,
   Table,
@@ -24,6 +25,10 @@ import useTradeEvents, { TradeEventEnhanced } from "./trades/useTradeEvents";
 const MyTransactions: React.FC = () => {
   const [, myTradeEvents] = useTradeEvents();
   const [, , , myOrders] = useMakeOrderEvents();
+
+  function cancelOrder(eventId: number) {
+    console.log("cancelOrder", eventId);
+  }
 
   return (
     <Flex direction="column" m="1rem" height="100%">
@@ -55,15 +60,19 @@ const MyTransactions: React.FC = () => {
                       <Td>{formatISO9075(event.dateTime)}</Td>
                       <Td isNumeric>
                         <Text
-                          color={
-                            event.orderType === "buy" ? "green.200" : "red.200"
-                          }
+                          color={event.hasUserBought ? "green.200" : "red.200"}
                         >
-                          {event.orderType === "buy" ? "+" : "-"}
+                          {event.hasUserBought ? "+" : "-"}
                           {event.tokenAmount.toNumber()}
                         </Text>
                       </Td>
-                      <Td isNumeric>{event.tokenPrice}</Td>
+                      <Td isNumeric>
+                        <Text
+                          color={event.hasUserBought ? "green.200" : "red.200"}
+                        >
+                          {event.tokenPrice}
+                        </Text>
+                      </Td>
                     </Tr>
                   ))}
                 </Tbody>
@@ -76,18 +85,41 @@ const MyTransactions: React.FC = () => {
               <Table variant="simple" fontSize="sm">
                 <Thead>
                   <Tr>
-                    <Th>Time</Th>
-                    <Th>TOKEN</Th>
+                    <Th>Amount</Th>
                     <Th>TOKEN/ETH</Th>
+                    <Th>Cancel</Th>
                   </Tr>
                 </Thead>
 
                 <Tbody>
                   {myOrders.map((event: MakeOrderEventEnhanced, i) => (
                     <Tr key={`my-orders-${i}`}>
-                      <Td>{i}</Td>
-                      <Td isNumeric>{event.tokenAmount.toNumber()}</Td>
-                      <Td isNumeric>{event.tokenPrice}</Td>
+                      <Td isNumeric>
+                        <Text
+                          color={
+                            event.orderType === "buy" ? "green.200" : "red.200"
+                          }
+                        >
+                          {event.tokenAmount.toNumber()}
+                        </Text>
+                      </Td>
+                      <Td isNumeric>
+                        <Text
+                          color={
+                            event.orderType === "buy" ? "green.200" : "red.200"
+                          }
+                        >
+                          {event.tokenPrice}
+                        </Text>
+                      </Td>
+                      <Td>
+                        <Button
+                          variant="ghost"
+                          onClick={() => cancelOrder(event.id.toNumber())}
+                        >
+                          X
+                        </Button>
+                      </Td>
                     </Tr>
                   ))}
                 </Tbody>
