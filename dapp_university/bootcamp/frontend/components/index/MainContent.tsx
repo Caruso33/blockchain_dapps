@@ -1,9 +1,14 @@
 import { Center, Grid, GridItem, Text } from "@chakra-ui/react";
 import {
+  useLoadDepositEvents,
+  useLoadWithdrawalEvents
+} from "../../hooks/useLoadDepositEvents.ts";
+import {
   useLoadCancelOrderEvents,
   useLoadMakeOrderEvents,
-  useLoadTradeOrderEvents,
+  useLoadTradeOrderEvents
 } from "../../hooks/useLoadOrderEvents";
+import useSubscribeEvents from "../../hooks/useSubscribeEvents";
 import useAppState from "../../state";
 import { Navbar } from "../layout";
 import {
@@ -12,12 +17,8 @@ import {
   NewOrder,
   OrderBook,
   PriceChart,
-  Trades,
+  Trades
 } from "./index";
-import {
-  useLoadDepositEvents,
-  useLoadWithdrawalEvents,
-} from "../../hooks/useLoadDepositEvents.ts";
 
 export default function MainContent() {
   const [state] = useAppState();
@@ -28,6 +29,8 @@ export default function MainContent() {
 
   useLoadDepositEvents();
   useLoadWithdrawalEvents();
+
+  useSubscribeEvents();
 
   let content = null;
   if (!state.user?.account?.address) {

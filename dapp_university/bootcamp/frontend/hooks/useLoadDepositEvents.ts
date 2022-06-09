@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import useAppState from "../state";
-import { loadDepositEvents, loadWithdrawalEvents } from "./utils";
+import { loadDepositEvents, loadWithdrawalEvents } from "./loadEvents";
 
 function useLoadDepositEvents() {
   const [state, dispatch] = useAppState();

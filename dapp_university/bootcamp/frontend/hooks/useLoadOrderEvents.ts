@@ -4,7 +4,7 @@ import {
   loadCancelOrderEvents,
   loadMakeOrderEvents,
   loadTradeEvents,
-} from "./utils";
+} from "./loadEvents";
 
 function useLoadMakeOrderEvents() {
   const [state, dispatch] = useAppState();
