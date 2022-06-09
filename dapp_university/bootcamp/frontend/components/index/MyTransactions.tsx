@@ -132,10 +132,11 @@ const MyTransactions: React.FC = () => {
                         <Button
                           variant="ghost"
                           onClick={() => cancelOrder(event.id.toNumber())}
-                          disabled={isCanceling === event.id.toNumber()}
+                          disabled={isCanceling !== 0}
+                          w="3rem"
                         >
                           {isCanceling === event.id.toNumber() ? (
-                            <Spinner />
+                            <Spinner size="sm" />
                           ) : (
                             "X"
                           )}
