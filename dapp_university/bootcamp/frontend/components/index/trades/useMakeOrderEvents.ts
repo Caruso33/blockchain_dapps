@@ -2,6 +2,8 @@ import fromUnixTime from "date-fns/fromUnixTime";
 import { BigNumber, ethers, Event } from "ethers";
 import { useMemo } from "react";
 import useAppState from "../../../state";
+import useCancelOrderEvents, { CancelOrderEvent } from "./useCancelOrderEvents";
+import useTradeEvents, { TradeEventEnhanced } from "./useTradeEvents";
 
 type MakeOrderEvent = {
   id: BigNumber;
@@ -23,6 +25,9 @@ type MakeOrderEventEnhanced = MakeOrderEvent & {
 
 function useMakeOrderEvents() {
   const [state] = useAppState();
+
+  const cancelOrderEvents = useCancelOrderEvents();
+  const [tradeEvents] = useTradeEvents();
 
   const makeOrderEvents = useMemo(() => {
     if (!state?.events?.trades) return [];
@@ -75,6 +80,16 @@ function useMakeOrderEvents() {
     });
 
     events = events.filter((event: MakeOrderEventEnhanced) => event.tokenPrice);
+
+    const cancelledAndFilledIds = [...cancelOrderEvents, ...tradeEvents].map(
+      (event: CancelOrderEvent | TradeEventEnhanced) => event.id.toNumber()
+    );
+
+    events = events.filter(
+      (event: MakeOrderEventEnhanced) =>
+        !cancelledAndFilledIds.includes(event.id.toNumber())
+    );
+
     events = events.sort((a, b) => b.tokenPrice - a.tokenPrice);
 
     const buyOrders = events.filter(
@@ -94,6 +109,8 @@ function useMakeOrderEvents() {
     state.events.trades,
     state.events.makeOrders,
     state.user.account.address,
+    cancelOrderEvents,
+    tradeEvents,
   ]);
 
   return makeOrderEvents;
