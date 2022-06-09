@@ -31,7 +31,7 @@ const MyTransactions: React.FC = () => {
   }
 
   return (
-    <Flex direction="column" m="1rem" height="100%">
+    <Flex direction="column" p="1rem" height="100%">
       <Text fontSize="xl" style={{ fontWeight: "bold" }}>
         MyTransactions
       </Text>

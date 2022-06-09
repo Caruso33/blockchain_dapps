@@ -17,12 +17,12 @@ const Trades: React.FC = () => {
   const [tradeEvents] = useTradeEvents();
 
   return (
-    <Flex m="1rem" direction="column">
+    <Flex p="1rem" direction="column">
       <Text fontSize="xl" style={{ fontWeight: "bold" }}>
         Trades
       </Text>
 
-      <TableContainer mt="1rem">
+      <TableContainer mt="1rem" overflowY="auto">
         <Table variant="simple" fontSize="sm">
           <Thead>
             <Tr>

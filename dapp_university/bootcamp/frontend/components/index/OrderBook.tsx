@@ -16,12 +16,12 @@ const OrderBook: React.FC = () => {
   const [, buyOrders, sellOrders] = useMakeOrderEvents();
 
   return (
-    <Flex flexDirection="column" m="1rem" height="100%">
+    <Flex flexDirection="column" p="1rem" height="100%">
       <Text fontSize="xl" style={{ fontWeight: "bold" }}>
         OrderBook
       </Text>
 
-      <TableContainer overflowY="auto" mt="1rem">
+      <TableContainer overflowX="auto" overflowY="auto" mt="1rem">
         <Table variant="simple" fontSize="sm">
           <Tbody>
             {buyOrders.map((order: MakeOrderEventEnhanced, index) => (

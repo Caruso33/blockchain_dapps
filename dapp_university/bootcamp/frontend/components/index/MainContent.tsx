@@ -53,27 +53,63 @@ export default function MainContent() {
   } else {
     content = (
       <>
-        <GridItem gridRow="2 / 3" gridColumn="1 / span 1" bg="blue.800">
+        <GridItem
+          gridRow="2 / 3"
+          gridColumn="1 / span 1"
+          width="100%"
+          height="100%"
+          bg="blue.800"
+        >
           <Balance />
         </GridItem>
 
-        <GridItem gridRow="2 / 4" gridColumn="2 / 3" bg="blue.800">
+        <GridItem
+          gridRow="2 / 4"
+          gridColumn="2 / 3"
+          width="100%"
+          height="100%"
+          bg="blue.800"
+        >
           <OrderBook />
         </GridItem>
 
-        <GridItem gridRow="2 / span 1" gridColumn="3 / span 2" bg="blue.800">
+        <GridItem
+          gridRow="2 / span 1"
+          gridColumn="3 / span 2"
+          width="100%"
+          height="100%"
+          bg="blue.800"
+        >
           <PriceChart />
         </GridItem>
 
-        <GridItem gridRow="2 / span 2" gridColumn="5" bg="blue.800">
+        <GridItem
+          gridRow="2 / span 2"
+          gridColumn="5"
+          width="100%"
+          height="100%"
+          bg="blue.800"
+        >
           <Trades />
         </GridItem>
 
-        <GridItem gridRow="3 / span 1" gridColumn="1" bg="blue.800">
+        <GridItem
+          gridRow="3 / span 1"
+          gridColumn="1"
+          width="100%"
+          height="100%"
+          bg="blue.800"
+        >
           <NewOrder />
         </GridItem>
 
-        <GridItem gridRow="3 / 4" gridColumn="3 / span 2" bg="blue.800">
+        <GridItem
+          gridRow="3 / 4"
+          gridColumn="3 / span 2"
+          width="100%"
+          height="100%"
+          bg="blue.800"
+        >
           <MyTransactions />
         </GridItem>
       </>
@@ -91,6 +127,8 @@ export default function MainContent() {
         gridColumn="span 5"
         h="5vh"
         minHeight="10"
+        width="100%"
+        height="100%"
         bg="blue.500"
       >
         <Navbar />

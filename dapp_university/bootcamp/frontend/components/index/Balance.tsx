@@ -56,14 +56,14 @@ const Balance: React.FC = () => {
   }, [provider, state.contracts, state.user]);
 
   return (
-    <Flex flexDirection="column" m="1rem">
+    <Flex flexDirection="column" p="1rem" height="inherit" width="inherit">
       <Box>
         <Text fontSize="xl" style={{ fontWeight: "bold" }}>
           Balance
         </Text>
       </Box>
 
-      <Tabs>
+      <Tabs mt="1rem" overflowX="auto" overflowY="auto">
         <TabList>
           <Tab>Deposit</Tab>
           <Tab>Withdraw</Tab>
