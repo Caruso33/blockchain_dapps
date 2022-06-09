@@ -1,12 +1,6 @@
-import { Box, Button, Code, Flex, Text, Link } from "@chakra-ui/react";
+import { Box, Button, Code, Flex, Link, Text } from "@chakra-ui/react";
 import React from "react";
-import {
-  useAccount,
-  useBalance,
-  useConnect,
-  useDisconnect,
-  useNetwork,
-} from "wagmi";
+import { useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import useAppState from "../../state";
 
@@ -14,7 +8,7 @@ const Navbar: React.FC = () => {
   return (
     <Flex justifyContent="space-between" alignItems="center" h="100%" mx="1rem">
       <Box>
-        <Text>Dapp Exchange</Text>
+        <Text>TOKEN Exchange</Text>
       </Box>
 
       <Flex

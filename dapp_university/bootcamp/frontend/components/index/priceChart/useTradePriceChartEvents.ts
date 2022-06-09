@@ -120,10 +120,17 @@ function useTradePriceChartEvents() {
       });
     }
 
-    return priceChartTrades;
+    const [secondLast, last] = events.slice(-2);
+
+    const secondLastPrice = secondLast?.tokenPrice || 0;
+    const lastPrice = last?.tokenPrice || 0;
+
+    const lastPriceChange = lastPrice - secondLastPrice;
+
+    return [priceChartTrades, lastPrice, lastPriceChange];
   }, [state.events.trades, state.user.account.address]);
 
-  return [{ data: tradeEvents }];
+  return tradeEvents;
 }
 
 export default useTradePriceChartEvents;
