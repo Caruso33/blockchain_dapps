@@ -8,7 +8,7 @@ const Navbar: React.FC = () => {
   return (
     <Flex justifyContent="space-between" alignItems="center" h="100%" mx="1rem">
       <Box>
-        <Text>TOKEN Exchange</Text>
+        <Text fontSize="2xl" fontWeight="medium" letterSpacing="0.3rem" >TOKEN Exchange</Text>
       </Box>
 
       <Flex
