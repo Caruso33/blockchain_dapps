@@ -1,6 +1,9 @@
 {
   "name": "hardhat-project",
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
     "accounts": "hardhat accounts",
     "seed:exchange": "hardhat seed-exchange",

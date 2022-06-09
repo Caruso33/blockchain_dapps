@@ -1,59 +1,33 @@
-import React, { useEffect } from "react";
 import {
-  Flex,
   Box,
-  Text,
   Button,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
+  Flex,
   Input,
+  Tab,
+  Table,
+  TableContainer,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
 } from "@chakra-ui/react";
-import TabTables from "./balance/TabTables";
-import useAppState from "../../state";
-import { useProvider } from "wagmi";
 import { ethers } from "ethers";
+import React from "react";
+import useLoadBalances from "../../hooks/useLoadBalances";
+import useAppState from "../../state";
 
 const Balance: React.FC = () => {
-  const [state, dispatch] = useAppState();
-  const provider = useProvider();
+  const [state] = useAppState();
 
-  useEffect(() => {
-    async function loadBalances() {
-      const { tokenContract, exchangeContract } = state.contracts;
-      const { account } = state.user;
+  useLoadBalances();
 
-      if (!tokenContract || !exchangeContract || !account) {
-        return;
-      }
-
-      try {
-        const etherBalance = await provider.getBalance(account?.address);
-        console.log({ etherBalance: etherBalance.toString() });
-
-        const exchangeEtherBalance = await exchangeContract.balanceOf(
-          ethers.constants.AddressZero,
-          account?.address
-        );
-
-        console.log(exchangeEtherBalance.toString());
-
-        // const tokenBalance = await tokenContract
-        //   .connect(provider)
-        //   .balanceOf(account?.address);
-        // const exchangeEtherBalance = exchangeContract
-        //   .connect(provider)
-        //   .balanceOf(ethers.constants.AddressZero, account?.address);
-        // console.log(etherBalance, tokenBalance, exchangeEtherBalance);
-      } catch (e) {
-        console.error("Error: ", e);
-      }
-    }
-
-    loadBalances();
-  }, [provider, state.contracts, state.user]);
+  const { ether, token, exchangeEther, exchangeToken } = state?.user?.balances;
 
   return (
     <Flex flexDirection="column" p="1rem" height="inherit" width="inherit">
@@ -71,7 +45,62 @@ const Balance: React.FC = () => {
 
         <TabPanels>
           <TabPanel>
-            <TabTables />
+            <TableContainer>
+              <Table variant="simple">
+                <Thead>
+                  <Tr>
+                    <Th>Asset</Th>
+                    <Th>Amount</Th>
+                    <Th>Location</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Tr>
+                    <Td>ETH</Td>
+                    <Td isNumeric>
+                      {Number(
+                        ethers.utils.formatUnits(ether?.toString() || "0")
+                      ).toFixed(3)}
+                    </Td>
+                    <Td isNumeric>Mainnet</Td>
+                  </Tr>
+
+                  <Tr>
+                    <Td>ETH</Td>
+                    <Td isNumeric>
+                      {Number(
+                        ethers.utils.formatUnits(
+                          exchangeEther?.toString() || "0"
+                        )
+                      ).toFixed(3)}
+                    </Td>
+                    <Td isNumeric>Exchange</Td>
+                  </Tr>
+
+                  <Tr>
+                    <Td>TOKEN</Td>
+                    <Td isNumeric>
+                      {Number(
+                        ethers.utils.formatUnits(token?.toString() || "0")
+                      ).toFixed(3)}
+                    </Td>
+                    <Td isNumeric>TOKEN Contract</Td>
+                  </Tr>
+
+                  <Tr>
+                    <Td>TOKEN</Td>
+                    <Td isNumeric>
+                      {Number(
+                        ethers.utils.formatUnits(
+                          exchangeToken?.toString() || "0"
+                        )
+                      ).toFixed(3)}
+                    </Td>
+                    <Td isNumeric>Exchange</Td>
+                  </Tr>
+                </Tbody>
+              </Table>
+            </TableContainer>
           </TabPanel>
           <TabPanel>
             <p>two!</p>

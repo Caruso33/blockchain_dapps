@@ -11,23 +11,19 @@ function useWalletData() {
 
   const handleChainData = useCallback(
     (value: object) => {
-      dispatch({ type: actionTypes.ADD_CHAIN, data: { chain: value } });
+      dispatch({ type: actionTypes.ADD_CHAIN, data: value });
     },
     [dispatch]
   );
 
   useEffect(() => {
-    const handleWalletData = (value: object) => {
-      dispatch({ type: actionTypes.ADD_WALLET, data: { account: value } });
-    };
-
     if (account?.address !== state.user?.account?.address) {
       if (!account?.address) {
         dispatch({ type: actionTypes.REMOVE_WALLET });
       }
 
       if (account?.address) {
-        handleWalletData(account);
+        dispatch({ type: actionTypes.ADD_WALLET, data: account });
       }
     }
   }, [account, state, dispatch]);

@@ -1,5 +1,9 @@
 const initialState = {
-  user: {},
+  user: {
+    account: {},
+    chain: {},
+    balances: {},
+  },
   contracts: {},
   events: {
     makeOrders: [],
