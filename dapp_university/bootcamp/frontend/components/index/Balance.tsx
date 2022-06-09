@@ -62,7 +62,7 @@ const Balance: React.FC = () => {
                         ethers.utils.formatUnits(ether?.toString() || "0")
                       ).toFixed(3)}
                     </Td>
-                    <Td isNumeric>Mainnet</Td>
+                    <Td isNumeric>Origin</Td>
                   </Tr>
 
                   <Tr>
@@ -84,7 +84,7 @@ const Balance: React.FC = () => {
                         ethers.utils.formatUnits(token?.toString() || "0")
                       ).toFixed(3)}
                     </Td>
-                    <Td isNumeric>TOKEN Contract</Td>
+                    <Td isNumeric>Origin</Td>
                   </Tr>
 
                   <Tr>
