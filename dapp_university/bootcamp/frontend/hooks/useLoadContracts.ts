@@ -22,12 +22,9 @@ function useLoadContracts() {
     if (chainId !== prevChain.current) {
       prevChain.current = chainId;
 
-      if (!chainId) {
-        dispatch({ type: contractTypes.REMOVE_CONTRACTS });
-      }
+      dispatch({ type: contractTypes.REMOVE_CONTRACTS });
 
       if (chainId) {
-        dispatch({ type: contractTypes.REMOVE_CONTRACTS });
         loadContracts();
       }
     }

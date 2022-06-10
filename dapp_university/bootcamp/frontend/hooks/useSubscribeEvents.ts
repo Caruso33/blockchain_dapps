@@ -1,13 +1,14 @@
-import { useEffect } from "react";
-import { useProvider } from "wagmi";
-import { subscribeCancelOrderEvents } from "./subscribeEvents";
+import { useEffect } from "react"
+
+import useAppState from "../state"
+import { subscribeCancelOrderEvents } from "./subscribeEvents"
 
 function useSubscribeEvents() {
-  const provider = useProvider();
+  const [state, dispatch] = useAppState()
 
   useEffect(() => {
-    subscribeCancelOrderEvents(provider);
-  }, [provider]);
+    subscribeCancelOrderEvents(state?.contracts?.exchangeContract, dispatch)
+  }, [state?.contracts?.exchangeContract])
 }
 
-export default useSubscribeEvents;
+export default useSubscribeEvents

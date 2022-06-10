@@ -1,19 +1,35 @@
-import { Listener } from "@ethersproject/providers";
-import { ethers } from "hardhat";
+import { Listener } from "@ethersproject/providers"
+import { BigNumber, Contract, utils } from "ethers"
+import { Dispatch } from "react"
 
 function subscribeEvents(
-  provider: ethers.providers.Provider,
-  eventName: string,
+  contract: Contract,
+  eventName: string | object,
   listener: Listener
 ) {
-  console.log(`Subscribing to ${eventName} events`);
-  provider.on(eventName, listener);
+  console.log(
+    `Subscribing to ${
+      typeof eventName === "string" ? eventName : eventName?.topics?.join(", ")
+    } events`
+  )
+  contract.on(eventName, listener)
 }
 
-function subscribeCancelOrderEvents(provider: ethers.providers.Provider) {
-  const listener: Listener = (args: any) => console.dir("args", args);
+function subscribeCancelOrderEvents(contract: Contract, dispatch: Dispatch) {
+  if (!contract) return
 
-  subscribeEvents(provider, "CancelOrderEvent", listener);
+  const listener: Listener = (id: BigNumber, user: string) =>
+    console.dir("id", id.toString(), "user", user)
+
+  subscribeEvents(
+    contract,
+    // "CancelOrderEvent",
+    {
+      topics: [utils.id("CancelOrderEvent(uint256,address)")],
+      fromBlock: "latest",
+    },
+    listener
+  )
 }
 
-export { subscribeCancelOrderEvents };
+export { subscribeCancelOrderEvents }

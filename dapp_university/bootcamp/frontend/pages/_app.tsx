@@ -14,8 +14,17 @@ import { appReducers, initialState } from "../state";
 import { AppStateProvider } from "../state/context";
 import "../styles/globals.css";
 
+// Provider returns an ethers.js interface for reading/writing data.
+// Connectors are used for managing wallet connections, listening to account/chain changes, etc.
+
 const { chains } = configureChains(
-  [...defaultChains, chain.hardhat, chain.polygon, chain.polygonMumbai],
+  [
+    ...defaultChains,
+    chain.polygon,
+    chain.polygonMumbai,
+    chain.hardhat,
+    chain.localhost,
+  ],
   [publicProvider()]
 );
 

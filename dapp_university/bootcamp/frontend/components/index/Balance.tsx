@@ -37,7 +37,7 @@ const Balance: React.FC = () => {
         </Text>
       </Box>
 
-      <Tabs mt="1rem" overflowX="auto" overflowY="auto">
+      <Tabs fontSize="sm" mt="1rem" overflowX="auto" overflowY="auto">
         <TabList>
           <Tab>Deposit</Tab>
           <Tab>Withdraw</Tab>
@@ -108,15 +108,18 @@ const Balance: React.FC = () => {
         </TabPanels>
       </Tabs>
 
-      <Flex mt="0.5rem">
-        <Input placeholder="Eth Amount" /> <Button ml="0.5rem">Deposit</Button>
-      </Flex>
+      <Flex direction="column" fontSize="sm" mt="0.5rem">
+        <Flex>
+          <Input placeholder="Eth Amount" />{" "}
+          <Button ml="0.5rem">Deposit</Button>
+        </Flex>
 
-      <Box mt="0.5rem">Dapp Balance</Box>
+        <Box mt="0.5rem">Dapp Balance</Box>
 
-      <Flex mt="0.5rem">
-        <Input placeholder="Token Amount" />{" "}
-        <Button ml="0.5rem">Deposit</Button>
+        <Flex mt="0.5rem">
+          <Input placeholder="Token Amount" />{" "}
+          <Button ml="0.5rem">Deposit</Button>
+        </Flex>
       </Flex>
     </Flex>
   );
