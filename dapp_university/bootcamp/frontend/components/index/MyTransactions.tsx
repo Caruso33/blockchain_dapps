@@ -36,13 +36,6 @@ const MyTransactions: React.FC = () => {
 
   const [isCanceling, setIsCanceling] = useState<number>(0)
 
-  console.dir(
-    state?.events?.cancelOrders?.[
-      state?.events?.cancelOrders?.length - 1
-    ]?.id?.toString(),
-    myOrders?.map((order) => order.id.toString())
-  )
-
   async function cancelOrder(eventId: number) {
     const exchange = state.contracts?.exchangeContract
     setIsCanceling(eventId)

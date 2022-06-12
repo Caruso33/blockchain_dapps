@@ -1,6 +1,6 @@
 import fromUnixTime from "date-fns/fromUnixTime"
 import { BigNumber, ethers } from "ethers"
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import useAppState from "../../../state"
 import { CancelOrderEvent, MakeOrderEvent } from "../../../types"
 import useTradeEvents, { TradeEventEnhanced } from "./useTradeEvents"
@@ -18,22 +18,7 @@ function useMakeOrderEvents() {
 
   const [tradeEvents] = useTradeEvents()
 
-  const [makeOrderEvents, setMakeOrderEvents] = useState<Array<any>>([
-    [],
-    [],
-    [],
-    [],
-  ])
-  console.dir(
-    state?.events?.cancelOrders?.[
-      state?.events?.cancelOrders?.length - 1
-    ]?.id?.toString(),
-    makeOrderEvents[3]?.map((order) => order.id.toString())
-  )
-  // const makeOrderEvents =
-  useEffect(() => {
-    console.log("run makeOrderEvents")
-
+  const makeOrderEvents = useMemo(() => {
     const precision = 10 ** 5
 
     let events = state.events.makeOrders.map(
@@ -84,12 +69,6 @@ function useMakeOrderEvents() {
       ...tradeEvents,
     ].map((event: CancelOrderEvent | TradeEventEnhanced) => event.id.toString())
 
-    console.dir(
-      state?.events?.cancelOrders?.[
-        state?.events?.cancelOrders?.length - 1
-      ]?.id?.toString()
-    )
-
     events = events.filter(
       (event: MakeOrderEventEnhanced) =>
         !cancelledAndFilledIds.includes(event.id.toString())
@@ -109,12 +88,11 @@ function useMakeOrderEvents() {
         event.user === state.user.account.address
     )
 
-    setMakeOrderEvents([events, buyOrders, sellOrders, myOrders])
+    return [events, buyOrders, sellOrders, myOrders]
   }, [
-    state.events.trades,
+    state.user.account.address,
     state.events.makeOrders,
     state.events.cancelOrders,
-    state.user.account.address,
     tradeEvents,
   ])
 
