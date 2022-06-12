@@ -1,8 +1,17 @@
 {
-  "name": "supply-chain-E",
-  "version": "1.0.0",
+  "name": "supply-chain",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
+  "keywords": [
+    "supply-chain",
+    "supply-blockchain"
+  ],
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "author": "tobias leinss <caruso33@web.de>",
+  "license": "MIT",
   "scripts": {
     "dev": "lite-server",
     "ganache": "ganache-cli -m 'spirit supply whale amount human item harsh scare congress discover talent hamster'",
@@ -12,9 +21,6 @@
     "deploy:rinkeby": "truffle deploy --reset --network rinkeby",
     "test": "truffle test"
   },
-  "keywords": [],
-  "author": "pk <pkrasam@gmail.com> (https://ipfs.infura.io/ipfs/QmSXiR9Khm3yo1J67nUopvVBxFJ8YGN2fUGZ34Etr3m92x/)",
-  "license": "MIT",
   "devDependencies": {
     "lite-server": "2.4.0",
     "prettier": "^2.5.1",

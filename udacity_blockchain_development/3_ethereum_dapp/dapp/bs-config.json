@@ -1,5 +1,6 @@
 {
   "server": {
-    "baseDir": ["./","./src", "./project-6/build/contracts"]
+    "baseDir": ["./", "./src", "./dapp/build/contracts", "../"],
+    "files": ["./src/**/*.{html,htm,css,js}", "../README.pdf"]
   }
 }
