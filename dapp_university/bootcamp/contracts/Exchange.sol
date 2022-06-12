@@ -235,7 +235,7 @@ contract Exchange is Ownable {
 
         traderCount += 1;
         emit TradeEvent(
-            traderCount,
+            _orderId,
             trader,
             orderUser,
             _tokenGet,

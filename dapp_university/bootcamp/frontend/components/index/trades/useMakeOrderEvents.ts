@@ -1,9 +1,8 @@
 import fromUnixTime from "date-fns/fromUnixTime"
 import { BigNumber, ethers } from "ethers"
-import { useMemo } from "react"
+import { useEffect, useState } from "react"
 import useAppState from "../../../state"
-import { MakeOrderEvent } from "../../../types"
-import useCancelOrderEvents, { CancelOrderEvent } from "./useCancelOrderEvents"
+import { CancelOrderEvent, MakeOrderEvent } from "../../../types"
 import useTradeEvents, { TradeEventEnhanced } from "./useTradeEvents"
 
 type MakeOrderEventEnhanced = MakeOrderEvent & {
@@ -17,11 +16,23 @@ type MakeOrderEventEnhanced = MakeOrderEvent & {
 function useMakeOrderEvents() {
   const [state] = useAppState()
 
-  const cancelOrderEvents = useCancelOrderEvents()
   const [tradeEvents] = useTradeEvents()
 
-  const makeOrderEvents = useMemo(() => {
-    if (!state?.events?.trades) return []
+  const [makeOrderEvents, setMakeOrderEvents] = useState<Array<any>>([
+    [],
+    [],
+    [],
+    [],
+  ])
+  console.dir(
+    state?.events?.cancelOrders?.[
+      state?.events?.cancelOrders?.length - 1
+    ]?.id?.toString(),
+    makeOrderEvents[3]?.map((order) => order.id.toString())
+  )
+  // const makeOrderEvents =
+  useEffect(() => {
+    console.log("run makeOrderEvents")
 
     const precision = 10 ** 5
 
@@ -68,13 +79,20 @@ function useMakeOrderEvents() {
 
     events = events.filter((event: MakeOrderEventEnhanced) => event.tokenPrice)
 
-    const cancelledAndFilledIds = [...cancelOrderEvents, ...tradeEvents].map(
-      (event: CancelOrderEvent | TradeEventEnhanced) => event.id.toNumber()
+    const cancelledAndFilledIds = [
+      ...state?.events?.cancelOrders,
+      ...tradeEvents,
+    ].map((event: CancelOrderEvent | TradeEventEnhanced) => event.id.toString())
+
+    console.dir(
+      state?.events?.cancelOrders?.[
+        state?.events?.cancelOrders?.length - 1
+      ]?.id?.toString()
     )
 
     events = events.filter(
       (event: MakeOrderEventEnhanced) =>
-        !cancelledAndFilledIds.includes(event.id.toNumber())
+        !cancelledAndFilledIds.includes(event.id.toString())
     )
 
     events = events.sort((a, b) => b.tokenPrice - a.tokenPrice)
@@ -91,12 +109,12 @@ function useMakeOrderEvents() {
         event.user === state.user.account.address
     )
 
-    return [events, buyOrders, sellOrders, myOrders]
+    setMakeOrderEvents([events, buyOrders, sellOrders, myOrders])
   }, [
     state.events.trades,
     state.events.makeOrders,
+    state.events.cancelOrders,
     state.user.account.address,
-    cancelOrderEvents,
     tradeEvents,
   ])
 

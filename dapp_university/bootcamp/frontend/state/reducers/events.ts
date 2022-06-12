@@ -34,7 +34,7 @@ const eventsReducer = (state, action = {}) => {
     }
 
     case eventTypes.ADD_CANCEL_ORDER: {
-      const cancelOrders = state.events.cancelOrders
+      const cancelOrders = [...state.events.cancelOrders]
 
       if (
         !cancelOrders.find(

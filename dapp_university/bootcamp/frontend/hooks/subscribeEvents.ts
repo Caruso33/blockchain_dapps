@@ -2,6 +2,7 @@ import { Listener } from "@ethersproject/providers"
 import { BigNumber, Contract, utils } from "ethers"
 import { Dispatch } from "react"
 import { actionTypes } from "../state/reducer"
+import { CancelOrderEvent } from "../types"
 
 function subscribeEvents(
   contract: Contract,
@@ -27,11 +28,9 @@ function subscribeCancelOrderEvents(
     user: string,
     timestamp: BigNumber
   ) => {
-    console.log("id", id.toString(), user, timestamp.toString())
-
     dispatch({
       type: actionTypes.ADD_CANCEL_ORDER,
-      data: { id, user },
+      data: { id, user, timestamp } as CancelOrderEvent,
     })
   }
 

@@ -7,7 +7,7 @@ function useSubscribeEvents() {
 
   useEffect(() => {
     subscribeCancelOrderEvents(state?.contracts?.exchangeContract, dispatch)
-  }, [state?.contracts?.exchangeContract])
+  }, [state?.contracts?.exchangeContract, dispatch])
 }
 
 export default useSubscribeEvents
