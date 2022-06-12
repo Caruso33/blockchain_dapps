@@ -1,39 +1,26 @@
-import { BigNumber, Event } from "ethers";
-import { useMemo } from "react";
-import useAppState from "../../../state";
-
-type CancelOrderEvent = {
-  id: BigNumber;
-  user: string;
-};
+import { useMemo } from "react"
+import useAppState from "../../../state"
+import { CancelOrderEvent } from "../../../types"
 
 function useCancelOrderEvents() {
-  const [state] = useAppState();
+  const [state] = useAppState()
 
   const cancelOrderEvents = useMemo(() => {
-    if (!state?.events?.cancelOrders) return [];
+    if (!state?.events?.cancelOrders) return []
 
-    let events: Array<CancelOrderEvent> = state.events.cancelOrders.map(
-      (trade: Event) => {
-        const CancelOrderEventArgs = trade.args as unknown as CancelOrderEvent;
-        return CancelOrderEventArgs;
+    let events = state.events.cancelOrders.map(
+      (cancelOrderEvent: CancelOrderEvent) => {
+        const { id, user, timestamp } = cancelOrderEvent
+
+        return { id, user, timestamp } as CancelOrderEvent
       }
-    );
+    )
 
-    events = events.map((cancelOrderEvent: CancelOrderEvent) => {
-      const { id, user } = cancelOrderEvent;
+    return events
+  }, [state.events.cancelOrders])
 
-      return {
-        id,
-        user,
-      } as CancelOrderEvent;
-    });
-
-    return events;
-  }, [state.events.cancelOrders]);
-
-  return cancelOrderEvents;
+  return cancelOrderEvents
 }
 
-export default useCancelOrderEvents;
-export type { CancelOrderEvent };
+export default useCancelOrderEvents
+export type { CancelOrderEvent }

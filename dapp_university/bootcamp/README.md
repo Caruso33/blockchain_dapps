@@ -2,8 +2,10 @@
 
 ## Deployments
 
-Token Contract deployed to: 0x21DF2261a02aA4028A063cA69352876C592a6eCb
-Exchange Contract deployed to: 0x952165EA2a1Cb90bB92326Aea93067F229eb6061
+### Localhost // 'ganache'
+
+"Token" 0xCC26c785434920A07A4E455411a78c9dA2500005
+"Exchange" 0xD2aA65ae5e22F7D59546a41804c1e2bb784ff5CE
 
 ---
 

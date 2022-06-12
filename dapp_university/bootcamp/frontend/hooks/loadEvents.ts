@@ -1,5 +1,13 @@
-import { Contract } from "ethers"
+import { Contract, Event } from "ethers"
+import { Result } from "ethers/lib/utils"
 import { eventTypes } from "../state/reducers/events"
+import {
+  CancelOrderEvent,
+  DepositEvent,
+  MakeOrderEvent,
+  TradeEvent,
+  WithdrawalEvent,
+} from "../types"
 
 async function loadEvents(exchangeContract: Contract, eventName: string) {
   if (!exchangeContract) return
@@ -16,12 +24,27 @@ async function loadEvents(exchangeContract: Contract, eventName: string) {
 
   console.log(`Got ${events?.length} ${eventName}s`)
 
-  return events
+  return events.map((event: Event) => event.args) as Array<Result>
 }
 
 async function loadMakeOrderEvents(exchangeContract: Contract, dispatch: any) {
   const events = await loadEvents(exchangeContract, "MakeOrderEvent")
-  dispatch({ type: eventTypes.ADD_MAKE_ORDERS, data: events })
+
+  const makeOrderEvents = events
+    ?.filter((event: Result) => !!event)
+    .map((event: Result) => {
+      return {
+        id: event.id,
+        user: event.user,
+        tokenGet: event.tokenGet,
+        amountGet: event.amountGet,
+        tokenGive: event.tokenGive,
+        amountGive: event.amountGive,
+        timestamp: event.timestamp,
+      } as MakeOrderEvent
+    })
+
+  dispatch({ type: eventTypes.ADD_MAKE_ORDERS, data: makeOrderEvents })
 }
 
 async function loadCancelOrderEvents(
@@ -29,22 +52,75 @@ async function loadCancelOrderEvents(
   dispatch: any
 ) {
   const events = await loadEvents(exchangeContract, "CancelOrderEvent")
-  dispatch({ type: eventTypes.ADD_CANCEL_ORDERS, data: events })
+
+  const cancelEvents = events
+    ?.filter((event: Result) => !!event)
+    .map((event: Result) => {
+      return {
+        id: event.id,
+        user: event.user,
+        timestamp: event.timestamp,
+      } as CancelOrderEvent
+    })
+
+  dispatch({ type: eventTypes.ADD_CANCEL_ORDERS, data: cancelEvents })
 }
 
 async function loadTradeEvents(exchangeContract: Contract, dispatch: any) {
   const events = await loadEvents(exchangeContract, "TradeEvent")
-  dispatch({ type: eventTypes.ADD_TRADES, data: events })
+
+  const tradeEvents = events
+    ?.filter((event: Result) => !!event)
+    .map((event: Result) => {
+      return {
+        amountGet: event.amountGet,
+        amountGive: event.amountGive,
+        id: event.id,
+        orderUser: event.orderUser,
+        timestamp: event.timestamp,
+        tokenGet: event.tokenGet,
+        tokenGive: event.tokenGive,
+        trader: event.trader,
+      } as TradeEvent
+    })
+
+  dispatch({ type: eventTypes.ADD_TRADES, data: tradeEvents })
 }
 
 async function loadDepositEvents(exchangeContract: Contract, dispatch: any) {
   const events = await loadEvents(exchangeContract, "DepositEvent")
-  dispatch({ type: eventTypes.ADD_DEPOSITS, data: events })
+
+  const depositEvents = events
+    ?.filter((event: Result) => !!event)
+    .map((event: Result) => {
+      return {
+        token: event.token,
+        user: event.user,
+        amount: event.amount,
+        balance: event.balance,
+        timestamp: event.timestamp,
+      } as DepositEvent
+    })
+
+  dispatch({ type: eventTypes.ADD_DEPOSITS, data: depositEvents })
 }
 
 async function loadWithdrawalEvents(exchangeContract: Contract, dispatch: any) {
   const events = await loadEvents(exchangeContract, "WithdrawalEvent")
-  dispatch({ type: eventTypes.ADD_WITHDRAWALS, data: events })
+
+  const withdrawalEvents = events
+    ?.filter((event: Result) => !!event)
+    .map((event: Result) => {
+      return {
+        token: event.token,
+        user: event.user,
+        amount: event.amount,
+        balance: event.balance,
+        timestamp: event.timestamp,
+      } as WithdrawalEvent
+    })
+
+  dispatch({ type: eventTypes.ADD_WITHDRAWALS, data: withdrawalEvents })
 }
 
 export {

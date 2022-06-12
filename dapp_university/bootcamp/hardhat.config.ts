@@ -40,7 +40,7 @@ const mnemonic = process.env.mnemonic!;
 const config: HardhatUserConfig = {
   defaultNetwork: "ganache",
   solidity: {
-    version: "0.8.4",
+    version: "0.8.14",
     settings: {
       optimizer: {
         enabled: true,
@@ -71,6 +71,7 @@ const config: HardhatUserConfig = {
     },
     ganache: {
       url: process.env.GANACHE_URL || "http://localhost:8545",
+      chainId: 1337
     },
   },
   gasReporter: {

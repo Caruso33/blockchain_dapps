@@ -1,13 +1,16 @@
+import { CancelOrderEvent } from "../../types"
+
 const eventTypes = {
   ADD_MAKE_ORDERS: "ADD_MAKE_ORDERS",
   ADD_CANCEL_ORDERS: "ADD_CANCEL_ORDERS",
+  ADD_CANCEL_ORDER: "ADD_CANCEL_ORDER",
   ADD_TRADES: "ADD_TRADES",
   ADD_DEPOSITS: "ADD_DEPOSITS",
   ADD_WITHDRAWALS: "ADD_WITHDRAWALS",
-};
+}
 
 const eventsReducer = (state, action = {}) => {
-  const { data, type } = action;
+  const { data, type } = action
 
   switch (type) {
     case eventTypes.ADD_MAKE_ORDERS: {
@@ -17,7 +20,7 @@ const eventsReducer = (state, action = {}) => {
           ...state.events,
           makeOrders: [...state.events.makeOrders, ...data],
         },
-      };
+      }
     }
 
     case eventTypes.ADD_CANCEL_ORDERS: {
@@ -27,7 +30,28 @@ const eventsReducer = (state, action = {}) => {
           ...state.events,
           cancelOrders: [...state.events.cancelOrders, ...data],
         },
-      };
+      }
+    }
+
+    case eventTypes.ADD_CANCEL_ORDER: {
+      const cancelOrders = state.events.cancelOrders
+
+      if (
+        !cancelOrders.find(
+          (order: CancelOrderEvent) =>
+            order.id.toString() === data.id.toString()
+        )
+      ) {
+        cancelOrders.push(data)
+      }
+
+      return {
+        ...state,
+        events: {
+          ...state.events,
+          cancelOrders,
+        },
+      }
     }
 
     case eventTypes.ADD_TRADES: {
@@ -37,7 +61,7 @@ const eventsReducer = (state, action = {}) => {
           ...state.events,
           trades: [...state.events.trades, ...data],
         },
-      };
+      }
     }
 
     case eventTypes.ADD_DEPOSITS: {
@@ -47,7 +71,7 @@ const eventsReducer = (state, action = {}) => {
           ...state.events,
           deposits: [...state.events.deposits, ...data],
         },
-      };
+      }
     }
 
     case eventTypes.ADD_WITHDRAWALS: {
@@ -57,12 +81,12 @@ const eventsReducer = (state, action = {}) => {
           ...state.events,
           withdrawals: [...state.events.withdrawals, ...data],
         },
-      };
+      }
     }
 
     default:
-      return state;
+      return state
   }
-};
+}
 
-export { eventsReducer as default, eventTypes };
+export { eventsReducer as default, eventTypes }

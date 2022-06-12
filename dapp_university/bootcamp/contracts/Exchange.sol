@@ -34,13 +34,15 @@ contract Exchange is Ownable {
         address token,
         address user,
         uint256 amount,
-        uint256 balance
+        uint256 balance,
+        uint256 timestamp
     );
     event WithdrawalEvent(
         address token,
         address user,
         uint256 amount,
-        uint256 balance
+        uint256 balance,
+        uint256 timestamp
     );
     event MakeOrderEvent(
         uint256 id,
@@ -51,7 +53,7 @@ contract Exchange is Ownable {
         uint256 amountGive,
         uint256 timestamp
     );
-    event CancelOrderEvent(uint256 id, address user);
+    event CancelOrderEvent(uint256 id, address user, uint256 timestamp);
     event TradeEvent(
         uint256 id,
         address trader,
@@ -76,7 +78,8 @@ contract Exchange is Ownable {
             ETHER,
             msg.sender,
             msg.value,
-            balances[ETHER][msg.sender]
+            balances[ETHER][msg.sender],
+            block.timestamp
         );
     }
 
@@ -92,7 +95,8 @@ contract Exchange is Ownable {
             ETHER,
             msg.sender,
             _amount,
-            balances[ETHER][msg.sender]
+            balances[ETHER][msg.sender],
+            block.timestamp
         );
     }
 
@@ -111,7 +115,8 @@ contract Exchange is Ownable {
             _token,
             msg.sender,
             _amount,
-            balances[_token][msg.sender]
+            balances[_token][msg.sender],
+            block.timestamp
         );
     }
 
@@ -135,7 +140,8 @@ contract Exchange is Ownable {
             _token,
             msg.sender,
             _amount,
-            balances[_token][msg.sender]
+            balances[_token][msg.sender],
+            block.timestamp
         );
     }
 
@@ -189,7 +195,7 @@ contract Exchange is Ownable {
         require(!orders[_orderId].isFilled, "Order has already been filled");
         orders[_orderId].isCancelled = true;
 
-        emit CancelOrderEvent(_orderId, msg.sender);
+        emit CancelOrderEvent(_orderId, msg.sender, block.timestamp);
     }
 
     function _trade(

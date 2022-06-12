@@ -122,7 +122,7 @@ export default function MainContent() {
   return (
     <Grid
       templateColumns="0 repeat(5, 1fr) 0"
-      templateRows="5vh repeat(2, 1fr) 0"
+      templateRows="5vh repeat(2, 47vh) 0"
       gap={3}
     >
       <GridItem
