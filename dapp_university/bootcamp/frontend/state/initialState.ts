@@ -12,6 +12,6 @@ const initialState = {
     deposits: [],
     withdrawals: [],
   },
-};
+}
 
-export { initialState as default };
+export { initialState as default }

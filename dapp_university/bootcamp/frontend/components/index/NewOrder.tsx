@@ -1,5 +1,5 @@
-import React from "react";
-import { Flex, Text } from "@chakra-ui/react";
+import React from "react"
+import { Flex, Text } from "@chakra-ui/react"
 
 const NewOrder: React.FC = () => {
   return (
@@ -8,7 +8,7 @@ const NewOrder: React.FC = () => {
         NewOrder
       </Text>
     </Flex>
-  );
-};
+  )
+}
 
-export default NewOrder;
+export default NewOrder

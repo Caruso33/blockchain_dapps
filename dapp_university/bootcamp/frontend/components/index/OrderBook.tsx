@@ -6,14 +6,14 @@ import {
   Td,
   Text,
   Tr,
-} from "@chakra-ui/react";
-import React from "react";
+} from "@chakra-ui/react"
+import React from "react"
 import useMakeOrderEvents, {
   MakeOrderEventEnhanced,
-} from "./trades/useMakeOrderEvents";
+} from "./trades/useMakeOrderEvents"
 
 const OrderBook: React.FC = () => {
-  const [, buyOrders, sellOrders] = useMakeOrderEvents();
+  const [, buyOrders, sellOrders] = useMakeOrderEvents()
 
   return (
     <Flex flexDirection="column" p="1rem" height="100%">
@@ -55,7 +55,7 @@ const OrderBook: React.FC = () => {
         </Table>
       </TableContainer>
     </Flex>
-  );
-};
+  )
+}
 
-export default OrderBook;
+export default OrderBook

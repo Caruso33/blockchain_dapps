@@ -15,34 +15,34 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react";
-import formatISO9075 from "date-fns/formatISO9075";
-import React, { useState } from "react";
-import { useSigner } from "wagmi";
-import useAppState from "../../state";
+} from "@chakra-ui/react"
+import formatISO9075 from "date-fns/formatISO9075"
+import React, { useState } from "react"
+import { useSigner } from "wagmi"
+import useAppState from "../../state"
 import useMakeOrderEvents, {
   MakeOrderEventEnhanced,
-} from "./trades/useMakeOrderEvents";
-import useTradeEvents, { TradeEventEnhanced } from "./trades/useTradeEvents";
+} from "./trades/useMakeOrderEvents"
+import useTradeEvents, { TradeEventEnhanced } from "./trades/useTradeEvents"
 
 const MyTransactions: React.FC = () => {
-  const [state] = useAppState();
+  const [state] = useAppState()
 
-  const { data: signer } = useSigner();
+  const { data: signer } = useSigner()
 
-  const [, myTradeEvents] = useTradeEvents();
-  const [, , , myOrders] = useMakeOrderEvents();
+  const [, myTradeEvents] = useTradeEvents()
+  const [, , , myOrders] = useMakeOrderEvents()
 
-  const [isCanceling, setIsCanceling] = useState<number>(0);
+  const [isCanceling, setIsCanceling] = useState<number>(0)
 
   async function cancelOrder(eventId: number) {
-    const exchange = state.contracts?.exchangeContract;
-    setIsCanceling(eventId);
+    const exchange = state.contracts?.exchangeContract
+    setIsCanceling(eventId)
 
     try {
-      await exchange.connect(signer).cancelOrder(eventId);
+      await exchange.connect(signer).cancelOrder(eventId)
     } finally {
-      setIsCanceling(0);
+      setIsCanceling(0)
     }
   }
 
@@ -151,7 +151,7 @@ const MyTransactions: React.FC = () => {
         </TabPanels>
       </Tabs>
     </Flex>
-  );
-};
+  )
+}
 
-export default MyTransactions;
+export default MyTransactions

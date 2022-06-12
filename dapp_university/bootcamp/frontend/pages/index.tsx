@@ -1,12 +1,12 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import { MainContent } from "../components/index";
-import useLoadContracts from "../hooks/useLoadContracts";
-import useWalletData from "../hooks/useWalletData";
+import type { NextPage } from "next"
+import Head from "next/head"
+import { MainContent } from "../components/index"
+import useLoadContracts from "../hooks/useLoadContracts"
+import useWalletData from "../hooks/useWalletData"
 
 const Home: NextPage = () => {
-  useWalletData();
-  useLoadContracts();
+  useWalletData()
+  useLoadContracts()
 
   return (
     <>
@@ -18,7 +18,7 @@ const Home: NextPage = () => {
 
       <MainContent />
     </>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

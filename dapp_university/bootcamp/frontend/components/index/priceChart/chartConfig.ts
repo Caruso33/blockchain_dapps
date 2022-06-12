@@ -63,4 +63,4 @@ export const chartConfig = {
       rotate: 0,
     },
   },
-};
+}

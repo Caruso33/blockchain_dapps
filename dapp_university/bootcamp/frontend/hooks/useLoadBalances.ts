@@ -1,46 +1,46 @@
-import { ethers } from "ethers";
-import { useCallback, useEffect } from "react";
-import { useProvider, useSigner } from "wagmi";
-import useAppState from "../state";
-import { actionTypes } from "../state/reducer";
+import { ethers } from "ethers"
+import { useCallback, useEffect } from "react"
+import { useProvider, useSigner } from "wagmi"
+import useAppState from "../state"
+import { actionTypes } from "../state/reducer"
 
 function useLoadBalances() {
-  const [state, dispatch] = useAppState();
-  const provider = useProvider();
-  const { data: signer } = useSigner();
+  const [state, dispatch] = useAppState()
+  const provider = useProvider()
+  const { data: signer } = useSigner()
 
   const loadBalances = useCallback(async () => {
-    const { tokenContract, exchangeContract } = state.contracts;
-    const account = state.user.account;
+    const { tokenContract, exchangeContract } = state.contracts
+    const account = state.user.account
 
     if (!tokenContract || !exchangeContract || !account) {
-      return;
+      return
     }
 
-    let etherBalance;
-    let tokenBalance;
-    let exchangeEtherBalance;
-    let exchangeTokenBalance;
+    let etherBalance
+    let tokenBalance
+    let exchangeEtherBalance
+    let exchangeTokenBalance
 
     try {
       if (provider) {
-        etherBalance = await provider.getBalance(account?.address);
+        etherBalance = await provider.getBalance(account?.address)
       }
 
       if (signer) {
         exchangeEtherBalance = await exchangeContract.balanceOf(
           ethers.constants.AddressZero,
           account?.address
-        );
+        )
 
         exchangeTokenBalance = await exchangeContract.balanceOf(
           tokenContract.address,
           account?.address
-        );
+        )
 
         tokenBalance = await tokenContract
           .connect(signer)
-          .balanceOf(account?.address);
+          .balanceOf(account?.address)
       }
 
       dispatch({
@@ -51,15 +51,15 @@ function useLoadBalances() {
           exchangeEther: exchangeEtherBalance,
           exchangeToken: exchangeTokenBalance,
         },
-      });
+      })
     } catch (e) {
-      console.error("Error: ", e);
+      console.error("Error: ", e)
     }
-  }, [provider, signer, state.contracts, state.user.account, dispatch]);
+  }, [provider, signer, state.contracts, state.user.account, dispatch])
 
   useEffect(() => {
-    loadBalances();
-  }, [loadBalances]);
+    loadBalances()
+  }, [loadBalances])
 }
 
-export default useLoadBalances;
+export default useLoadBalances

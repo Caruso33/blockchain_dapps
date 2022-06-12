@@ -1,5 +1,5 @@
-import { AppStateProvider, useAppState } from "./context";
-import { initialState, combineReducers, appReducers } from "./reducer";
+import { AppStateProvider, useAppState } from "./context"
+import { initialState, combineReducers, appReducers } from "./reducer"
 
 export {
   useAppState as default,
@@ -7,4 +7,4 @@ export {
   initialState,
   combineReducers,
   appReducers,
-};
+}

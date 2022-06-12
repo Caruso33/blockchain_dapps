@@ -16,18 +16,18 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react";
-import { ethers } from "ethers";
-import React from "react";
-import useLoadBalances from "../../hooks/useLoadBalances";
-import useAppState from "../../state";
+} from "@chakra-ui/react"
+import { ethers } from "ethers"
+import React from "react"
+import useLoadBalances from "../../hooks/useLoadBalances"
+import useAppState from "../../state"
 
 const Balance: React.FC = () => {
-  const [state] = useAppState();
+  const [state] = useAppState()
 
-  useLoadBalances();
+  useLoadBalances()
 
-  const { ether, token, exchangeEther, exchangeToken } = state?.user?.balances;
+  const { ether, token, exchangeEther, exchangeToken } = state?.user?.balances
 
   return (
     <Flex flexDirection="column" p="1rem" height="inherit" width="inherit">
@@ -122,7 +122,7 @@ const Balance: React.FC = () => {
         </Flex>
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default Balance;
+export default Balance

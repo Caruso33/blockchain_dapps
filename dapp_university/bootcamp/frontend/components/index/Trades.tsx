@@ -8,13 +8,13 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react";
-import formatISO9075 from "date-fns/formatISO9075";
-import React from "react";
-import useTradeEvents, { TradeEventEnhanced } from "./trades/useTradeEvents";
+} from "@chakra-ui/react"
+import formatISO9075 from "date-fns/formatISO9075"
+import React from "react"
+import useTradeEvents, { TradeEventEnhanced } from "./trades/useTradeEvents"
 
 const Trades: React.FC = () => {
-  const [tradeEvents] = useTradeEvents();
+  const [tradeEvents] = useTradeEvents()
 
   return (
     <Flex p="1rem" direction="column">
@@ -52,7 +52,7 @@ const Trades: React.FC = () => {
         </Table>
       </TableContainer>
     </Flex>
-  );
-};
+  )
+}
 
-export default Trades;
+export default Trades

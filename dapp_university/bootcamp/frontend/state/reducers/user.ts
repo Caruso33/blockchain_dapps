@@ -4,38 +4,38 @@ const userTypes = {
   ADD_CHAIN: "ADD_CHAIN",
   REMOVE_CHAIN: "REMOVE_CHAIN",
   ADD_BALANCES: "ADD_BALANCES",
-};
+}
 
 const userReducer = (state, action = {}) => {
-  const { data, type } = action;
+  const { data, type } = action
 
   switch (type) {
     case userTypes.ADD_WALLET: {
       return {
         ...state,
         user: { ...state.user, account: { ...state.user.account, ...data } },
-      };
+      }
     }
 
     case userTypes.REMOVE_WALLET: {
       return {
         ...state,
         user: { ...state.user, account: {} },
-      };
+      }
     }
 
     case userTypes.ADD_CHAIN: {
       return {
         ...state,
         user: { ...state.user, chain: { ...state.user.chain, ...data } },
-      };
+      }
     }
 
     case userTypes.REMOVE_CHAIN: {
       return {
         ...state,
         user: { ...state.user, chain: {} },
-      };
+      }
     }
 
     case userTypes.ADD_BALANCES: {
@@ -48,12 +48,12 @@ const userReducer = (state, action = {}) => {
             ...data,
           },
         },
-      };
+      }
     }
 
     default:
-      return state;
+      return state
   }
-};
+}
 
-export { userReducer as default, userTypes };
+export { userReducer as default, userTypes }
