@@ -1,6 +1,27 @@
+[To the Website](https://supply-blockchain.surge.sh/)
+
+[Code on Github](https://github.com/Caruso33/blockchain_dapps/tree/master/udacity_blockchain_development/3_ethereum_dapp)
+
 # Supply chain & data auditing
 
-This repository containts an Ethereum DApp that demonstrates a Supply Chain flow between a Seller and Buyer. The user story is similar to any commonly used supply chain process. A Seller can add items to the inventory system stored in the blockchain. A Buyer can purchase such items from the inventory system. Additionally a Seller can mark an item as Shipped, and similarly a Buyer can mark an item as Received.
+This repository contains an Ethereum DApp that demonstrates a Supply Chain flow between a Seller and Buyer. The user story is similar to any commonly used supply chain process. A Seller can add items to the inventory system stored in the blockchain. A Buyer can purchase such items from the inventory system. Additionally a Seller can mark an item as Shipped, and similarly a Buyer can mark an item as Received.
+
+## Deployment
+
+The contracts were deployed to rinkeby, see the logging at the bottom.
+The SupplyChain contract can be found on [rinkeby.etherscan](https://rinkeby.etherscan.io/address/0x86406bd74f67fb3245e380294d59a5d2350ce20e)
+
+## Accounts
+
+There are different accounts involved. Through the public mnemonic, the accounts can be accessed. The private keys are as follows:
+
+Owner: 9137dc4de37d28802ff9e5ee3fe982f1ca2e5faa52f54a00a6023f546b23e779  
+Farmer: 18911376efeff48444d1323178bc9f5319686b754845e53eb1b777e08949ee9b  
+Distributor: f948c5bb8b54d25b2060b5b19967f50f07dc388d6a5dada56e5904561e19f08b  
+Retailer: fad19151620a352ab90e5f9c9f4282e89e1fe32e070f2c618e7bc9f6d0d236fb  
+Consumer: 19d1242b0a3f09e1787d7868a4ec7613ac4e85746e95e447797ce36962c7f68b
+
+## Interface
 
 The DApp User Interface looks like this:
 
@@ -21,21 +42,6 @@ The DApp User Interface looks like this:
 ![supplychainsequence.drawio.png](uml/supplychainsequence.drawio.png)
 
 ![supplychainstate.drawio.png](uml/supplychainstate.drawio.png)
-
-## Deployment
-
-The contracts were deployed to rinkeby, see the logging at the bottom.
-The SupplyChain contract can be found on [rinkeby.etherscan](https://rinkeby.etherscan.io/address/0x86406bd74f67fb3245e380294d59a5d2350ce20e)
-
-## Accounts
-
-There are different accounts involved. Through the public mnemonic, the accounts can be accessed. The private keys are as follows:
-
-Owner: 9137dc4de37d28802ff9e5ee3fe982f1ca2e5faa52f54a00a6023f546b23e779  
-Farmer: 18911376efeff48444d1323178bc9f5319686b754845e53eb1b777e08949ee9b  
-Distributor: f948c5bb8b54d25b2060b5b19967f50f07dc388d6a5dada56e5904561e19f08b  
-Retailer: fad19151620a352ab90e5f9c9f4282e89e1fe32e070f2c618e7bc9f6d0d236fb  
-Consumer: 19d1242b0a3f09e1787d7868a4ec7613ac4e85746e95e447797ce36962c7f68b
 
 ## Built With
 
@@ -90,7 +96,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Please make sure you've already installed ganache-cli, Truffle and enabled MetaMask extension in your browser.
+Please make sure you've already installed ganache-cli/-gui, Truffle and enabled MetaMask extension in your browser.
 
 ### Installing
 
