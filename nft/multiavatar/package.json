@@ -5,7 +5,10 @@
   "license": "MIT",
   "scripts": {
     "create:avatars": "node scripts/createAvatars",
-    "upload:files": "node scripts/uploadToIpfs.js"
+    "upload:files": "node scripts/uploadToIpfs.js",
+    "compile": "hardhat compile",
+    "create:marketNfts": "hardhat run scripts/createMarketNfts.js",
+    "create:marketNfts:mumbai": "hardhat run scripts/createMarketNfts.js --network mumbai"
   },
   "dependencies": {
     "@faker-js/faker": "^7.2.0",

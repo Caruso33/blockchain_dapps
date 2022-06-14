@@ -25,19 +25,14 @@ interface NFTMarket is IERC721 {
         bool sold
     );
 
-    // getters from public vars
-    function owner() external returns (address);
-
-    function listingPrice() external returns (uint256);
-
     // ERC721URIStorage extension function
-    function tokenURI(uint256 tokenId) external returns (string memory);
+    function tokenURI(uint256 tokenId) external view returns (string memory);
 
     // /* Updates the listing price of the contract */
     function updateListingPrice(uint256 _listingPrice) external;
 
     // /* Returns the listing price of the contract */
-    function getListingPrice() external returns (uint256);
+    function getListingPrice() external view returns (uint256);
 
     // /* Mints a token and lists it in the marketplace */
     function createToken(string memory tokenURI, uint256 price)
@@ -53,17 +48,17 @@ interface NFTMarket is IERC721 {
     function createMarketSale(uint256 tokenId) external payable;
 
     // /* Returns all unsold market items */
-    function fetchMarketItems() external returns (MarketItem[] memory);
+    function fetchMarketItems() external view returns (MarketItem[] memory);
 
     // /* Returns all sold market items */
     function fetchSoldMarketItems() external view returns (MarketItem[] memory);
 
     // /* Returns only items that a user has purchased */
-    function fetchMyNFTs() external returns (MarketItem[] memory);
+    function fetchMyNFTs() external view returns (MarketItem[] memory);
 
     // /* Returns only items a user has listed */
-    function fetchNFTsCreated() external returns (MarketItem[] memory);
+    function fetchNFTsCreated() external view returns (MarketItem[] memory);
 
     // /* Returns only items a user is selling */
-    function fetchNFTsSelling() external returns (MarketItem[] memory);
+    function fetchNFTsSelling() external view returns (MarketItem[] memory);
 }
