@@ -1,7 +1,7 @@
-import { faker } from "@faker-js/faker"
-import multiavatar from "@multiavatar/multiavatar/esm"
-import fs from "fs"
-import svg2img from "svg2img"
+const { faker } = require("@faker-js/faker")
+const multiavatar = require("@multiavatar/multiavatar")
+const fs = require("fs")
+const svg2img = require("svg2img")
 
 function createSvg(string = "Binx Bond") {
   const svgCode = multiavatar(string)
@@ -45,7 +45,7 @@ async function main(collectionName = "output", numberOfAvatars = 1) {
 }
 
 const collectionName = "output"
-const numberOfAvatars = 10
+const numberOfAvatars = 1
 
 main(collectionName, numberOfAvatars)
   .then((svgs) => {
