@@ -4,6 +4,7 @@ require("dotenv").config()
 
 module.exports = {
   solidity: "0.8.4",
+  defaultNetwork: "hardhat",
   networks: {
     hardhat: {
       chainId: 1337,
@@ -12,7 +13,7 @@ module.exports = {
     },
     mumbai: {
       url: process.env.POLYGON_MUMBAI,
-      accounts: [process.env.PRIVATE_KEY]
+      accounts: [process.env.PRIVATE_KEY],
     },
     mainnet: {
       url: process.env.POLYGON_MAIN,
