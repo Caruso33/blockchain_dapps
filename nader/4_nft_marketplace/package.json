@@ -7,10 +7,12 @@
     "test": "hardhat test",
     "compile": "hardhat compile",
     "node": "hardhat node",
+    "verify": "hardhat verify",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy:next": "vercel --prod"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
@@ -21,13 +23,16 @@
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.6.8",
     "hardhat": "^2.9.7",
+    "hardhat-gas-reporter": "^1.0.8",
     "ipfs-http-client": "^57.0.0",
     "next": "^12.1.6",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
+    "solidity-coverage": "^0.7.21",
     "web3modal": "^1.9.7"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@types/node": "^17.0.38",
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.5",

@@ -1,4 +1,7 @@
 require("@nomiclabs/hardhat-waffle")
+require("@nomiclabs/hardhat-etherscan")
+// require("solidity-coverage")
+// require("hardhat-gas-reporter")
 
 require("dotenv").config()
 
@@ -18,5 +21,8 @@ module.exports = {
       url: process.env.NEXT_PUBLIC_POLYGON_MAIN,
       accounts: [process.env.PRIVATE_KEY],
     },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
 }

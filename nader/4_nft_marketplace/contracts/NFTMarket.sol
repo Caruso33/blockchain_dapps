@@ -24,6 +24,7 @@ contract NFTMarket is ERC721URIStorage {
         address payable owner;
         uint256 price;
         bool sold;
+        bool burned;
         address[] prevOwners;
     }
 
@@ -31,8 +32,7 @@ contract NFTMarket is ERC721URIStorage {
         uint256 indexed tokenId,
         address seller,
         address owner,
-        uint256 price,
-        bool sold
+        uint256 price
     );
 
     modifier onlyOwner() {
@@ -42,20 +42,6 @@ contract NFTMarket is ERC721URIStorage {
 
     constructor() ERC721("Metaverse Tokens", "METAT") {
         owner = payable(msg.sender);
-    }
-
-    /* Updates the listing price of the contract */
-    function updateListingPrice(uint256 _listingPrice)
-        public
-        payable
-        onlyOwner
-    {
-        listingPrice = _listingPrice;
-    }
-
-    /* Returns the listing price of the contract */
-    function getListingPrice() public view returns (uint256) {
-        return listingPrice;
     }
 
     /* Mints a token and lists it in the marketplace */
@@ -88,17 +74,12 @@ contract NFTMarket is ERC721URIStorage {
             payable(address(this)),
             price,
             false,
+            false,
             prevOwners
         );
 
         _transfer(msg.sender, address(this), tokenId);
-        emit MarketItemCreated(
-            tokenId,
-            msg.sender,
-            address(this),
-            price,
-            false
-        );
+        emit MarketItemCreated(tokenId, msg.sender, address(this), price);
     }
 
     /* allows someone to resell a token they have purchased */
@@ -137,6 +118,24 @@ contract NFTMarket is ERC721URIStorage {
         _transfer(address(this), msg.sender, tokenId);
         payable(owner).transfer(listingPrice);
         payable(seller).transfer(msg.value);
+    }
+
+    /* Burns a token */
+    function burnToken(uint256 tokenId) public {
+        require(
+            idToMarketItem[tokenId].owner == msg.sender ||
+                idToMarketItem[tokenId].seller == msg.sender,
+            "Only item owner can perform this operation"
+        );
+        _burn(tokenId);
+        idToMarketItem[tokenId].owner = payable(address(0));
+        idToMarketItem[tokenId].seller = payable(address(0));
+        payable(msg.sender).transfer(listingPrice);
+    }
+
+    /* Updates the listing price of the contract */
+    function updateListingPrice(uint256 _listingPrice) public onlyOwner {
+        listingPrice = _listingPrice;
     }
 
     /* Returns all unsold market items */
@@ -245,5 +244,10 @@ contract NFTMarket is ERC721URIStorage {
             }
         }
         return items;
+    }
+
+    /* Returns the listing price of the contract */
+    function getListingPrice() public view returns (uint256) {
+        return listingPrice;
     }
 }

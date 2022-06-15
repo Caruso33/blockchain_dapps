@@ -20,7 +20,7 @@ describe("NFTMarket", async function () {
     // console.log({ seller: seller.address, buyer: buyer.address })
   })
 
-  it("should create and execute market sales", async () => {
+  it("should create and execute market sales and burn token afterwards", async () => {
     const listingPrice = await market.getListingPrice()
 
     const auctionPrice = ethers.utils.parseUnits("100", "ether")
@@ -42,7 +42,6 @@ describe("NFTMarket", async function () {
     expect(events[0].args.seller).to.equal(seller.address)
     expect(events[0].args.owner).to.equal(market.address)
     expect(events[0].args.price).to.equal(auctionPrice)
-    expect(events[0].args.sold).to.equal(false)
 
     let items = await market.fetchMarketItems()
     assert.equal(items.length, 2)
@@ -86,5 +85,9 @@ describe("NFTMarket", async function () {
     expect(items[0].owner).to.equal(market.address)
     expect(items[0].price).to.equal(auctionPrice)
     expect(items[0].prevOwners).to.deep.equal([seller.address, buyer.address])
+
+    await market.connect(buyer).burnToken(1)
+    items = await market.connect(buyer).fetchNFTsSelling()
+    expect(items.length).to.equal(0)
   })
 })
