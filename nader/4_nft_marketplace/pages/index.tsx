@@ -83,9 +83,9 @@ export default function Home() {
           {nfts.map((nft, i) => (
             <div
               key={`nft-listing-${i}`}
-              className="border shadow rounded-xl overflow-hidden"
+              className="flex flex-col border shadow rounded-xl overflow-hidden"
             >
-              {nft.image && (
+              {nft.image ? (
                 <Image
                   src={nft.image}
                   alt="Nft image"
@@ -94,6 +94,8 @@ export default function Home() {
                   layout="responsive"
                   objectFit="contain"
                 />
+              ) : (
+                <div style={{ height: "100%", width: "100%" }} />
               )}
 
               <div className="p-4">
@@ -107,6 +109,7 @@ export default function Home() {
                   <p className="text-gray-400">{nft?.description}</p>
                 </div>
               </div>
+
               <div className="p-4 bg-black">
                 <p className="text-2xl font-bold text-white">
                   {nft?.price} ETH

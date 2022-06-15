@@ -66,6 +66,23 @@ export default function CreatorDashboard() {
     setLoadingState("loaded")
   }
 
+  async function burnNft(nft: NftData) {
+    /* needs the user to sign the transaction, so will use Web3Provider and sign it */
+    const { signer } = await getWeb3Connection()
+    const contract = new ethers.Contract(
+      nftMarketAddress,
+      NFTMarket.abi,
+      signer
+    )
+
+    /* this will delete the nft */
+    const transaction = await contract._burn(nft.tokenId)
+    await transaction.wait()
+
+    loadNFTsCreated()
+    loadNFTsSelling()
+  }
+
   return (
     <div>
       <div className="p-4">
@@ -77,24 +94,41 @@ export default function CreatorDashboard() {
             nftsCreated.map((nft, i) => (
               <div
                 key={`nfts-created-${i}`}
-                className="border shadow rounded-xl overflow-hidden"
+                className="flex flex-col border shadow rounded-xl overflow-hidden"
               >
-                {nft.image && (
+                {nft.image ? (
                   <Image
                     src={nft.image}
-                    className="rounded"
                     alt="Nft image"
-                    height="100%"
                     width="100%"
+                    height="100%"
                     layout="responsive"
                     objectFit="contain"
                   />
+                ) : (
+                  <div style={{ height: "100%", width: "100%" }} />
                 )}
+
+                <div className="p-4">
+                  <p
+                    style={{ height: "64px" }}
+                    className="text-2xl font-semibold"
+                  >
+                    {nft?.name}
+                  </p>
+                </div>
 
                 <div className="p-4 bg-black">
                   <p className="text-2xl font-bold text-white">
                     Price - {nft?.price} Eth
                   </p>
+
+                  <button
+                    className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
+                    onClick={() => burnNft(nft)}
+                  >
+                    Burn
+                  </button>
                 </div>
               </div>
             ))
@@ -111,24 +145,41 @@ export default function CreatorDashboard() {
             nftsSelling.map((nft, i) => (
               <div
                 key={`nfts-selling-${i}`}
-                className="border shadow rounded-xl overflow-hidden"
+                className="flex flex-col border shadow rounded-xl overflow-hidden"
               >
-                {nft.image && (
+                {nft.image ? (
                   <Image
-                    src={nft?.image}
-                    className="rounded"
+                    src={nft.image}
                     alt="Nft image"
-                    height="100%"
                     width="100%"
+                    height="100%"
                     layout="responsive"
                     objectFit="contain"
                   />
+                ) : (
+                  <div style={{ height: "100%", width: "100%" }} />
                 )}
+
+                <div className="p-4">
+                  <p
+                    style={{ height: "64px" }}
+                    className="text-2xl font-semibold"
+                  >
+                    {nft?.name}
+                  </p>
+                </div>
 
                 <div className="p-4 bg-black">
                   <p className="text-2xl font-bold text-white">
                     Price - {nft?.price} Eth
                   </p>
+
+                  <button
+                    className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
+                    onClick={() => burnNft(nft)}
+                  >
+                    Burn
+                  </button>
                 </div>
               </div>
             ))
