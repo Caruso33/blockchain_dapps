@@ -205,7 +205,10 @@ contract NFTMarket is ERC721URIStorage {
         uint256 currentIndex = 0;
 
         for (uint256 i = 0; i < totalItemCount; i++) {
-            if (idToMarketItem[i + 1].prevOwners[0] == msg.sender) {
+            if (
+                idToMarketItem[i + 1].prevOwners[0] == msg.sender &&
+                !idToMarketItem[i + 1].burned
+            ) {
                 itemCount += 1;
             }
         }

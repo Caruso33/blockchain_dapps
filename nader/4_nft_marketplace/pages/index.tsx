@@ -3,6 +3,7 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
 import { getNftData } from "../components/index/utils"
+import Spinner from "../components/Spinner"
 import { getWeb3Connection } from "../components/web3/utils"
 import { nftMarketAddress } from "../config"
 import NftInterface, { NftData } from "../types/NftInterface"
@@ -10,6 +11,7 @@ import NftInterface, { NftData } from "../types/NftInterface"
 export default function Home() {
   const [nfts, setNfts] = useState<NftData[]>([])
   const [loadingState, setLoadingState] = useState("not-loaded")
+  const [loadingBuy, setLoadingBuy] = useState(false)
 
   useEffect(() => {
     loadNFTs()
@@ -35,6 +37,8 @@ export default function Home() {
       provider
     )
 
+    setLoadingState("not-loaded")
+
     let items: NftData[] = []
     try {
       const data = await contract.fetchMarketItems()
@@ -56,73 +60,87 @@ export default function Home() {
 
   async function buyNft(nft: NftData) {
     /* needs the user to sign the transaction, so will use Web3Provider and sign it */
-    const { signer } = await getWeb3Connection()
-    const contract = new ethers.Contract(
-      nftMarketAddress,
-      NFTMarket.abi,
-      signer
-    )
+    try {
+      const { signer } = await getWeb3Connection()
+      const contract = new ethers.Contract(
+        nftMarketAddress,
+        NFTMarket.abi,
+        signer
+      )
 
-    /* user will be prompted to pay the asking proces to complete the transaction */
-    const price = ethers.utils.parseUnits(nft.price.toString(), "ether")
-    const transaction = await contract.createMarketSale(nft.tokenId, {
-      value: price,
-    })
-    await transaction.wait()
+      setLoadingBuy(true)
+
+      /* user will be prompted to pay the asking proces to complete the transaction */
+      const price = ethers.utils.parseUnits(nft.price.toString(), "ether")
+      const transaction = await contract.createMarketSale(nft.tokenId, {
+        value: price,
+      })
+      await transaction.wait()
+    } catch (error) {
+      console.error(error)
+    }
+
+    setLoadingBuy(false)
 
     loadNFTs()
   }
-
-  if (loadingState === "loaded" && !nfts.length)
-    return <h1 className="px-20 py-10 text-3xl">No items in marketplace</h1>
 
   return (
     <div className="flex justify-center">
       <div className="px-4" style={{ maxWidth: "1600px" }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-          {nfts.map((nft, i) => (
-            <div
-              key={`nft-listing-${i}`}
-              className="flex flex-col border shadow rounded-xl overflow-hidden"
-            >
-              {nft.image ? (
-                <Image
-                  src={nft.image}
-                  alt="Nft image"
-                  width="100%"
-                  height="100%"
-                  layout="responsive"
-                  objectFit="contain"
-                />
-              ) : (
-                <div style={{ height: "100%", width: "100%" }} />
-              )}
+          {loadingState === "not-loaded" && <Spinner />}
 
-              <div className="p-4">
-                <p
-                  style={{ height: "64px" }}
-                  className="text-2xl font-semibold"
+          {loadingState === "loaded" &&
+            (!nfts.length ? (
+              <h1 className="px-20 py-10 text-3xl">No items in marketplace</h1>
+            ) : (
+              nfts.map((nft, i) => (
+                <div
+                  key={`nft-listing-${i}`}
+                  className="flex flex-col border shadow rounded-xl overflow-hidden"
                 >
-                  {nft?.name}
-                </p>
-                <div style={{ height: "70px", overflow: "hidden" }}>
-                  <p className="text-gray-400">{nft?.description}</p>
+                  {nft.image ? (
+                    <Image
+                      src={nft.image}
+                      alt="Nft image"
+                      width="100%"
+                      height="100%"
+                      layout="responsive"
+                      objectFit="contain"
+                    />
+                  ) : (
+                    <div style={{ height: "100%", width: "100%" }} />
+                  )}
+
+                  <div className="p-4">
+                    <p
+                      style={{ height: "64px" }}
+                      className="text-2xl font-semibold"
+                    >
+                      {nft?.name}
+                    </p>
+                    <div style={{ height: "70px", overflow: "hidden" }}>
+                      <p className="text-gray-400">{nft?.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-black">
+                    <p className="text-2xl font-bold text-white">
+                      {nft?.price} ETH
+                    </p>
+
+                    <button
+                      className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
+                      onClick={() => buyNft(nft)}
+                      disabled={loadingBuy}
+                    >
+                      {!loadingBuy ? "Buy" : <Spinner />}
+                    </button>
+                  </div>
                 </div>
-              </div>
-
-              <div className="p-4 bg-black">
-                <p className="text-2xl font-bold text-white">
-                  {nft?.price} ETH
-                </p>
-                <button
-                  className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
-                  onClick={() => buyNft(nft)}
-                >
-                  Buy
-                </button>
-              </div>
-            </div>
-          ))}
+              ))
+            ))}
         </div>
       </div>
     </div>
