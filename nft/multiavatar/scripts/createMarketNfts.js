@@ -1,6 +1,7 @@
 const { ethers } = require("hardhat")
 const uploadedIpfsNfts = require("../output/uploadedIpfs.json")
 const fs = require("fs")
+const { nftMarketAddress } = require("../config")
 
 require("dotenv").config()
 
@@ -50,8 +51,6 @@ async function createMarketNfts(
 }
 
 async function main() {
-  const contractAddress =
-    process.env.CONTRACT_ADDRESS || "0x148B94D622c2Ac3abfb550AEaF48F25F105EA18b"
   const gatewayUrl = "https://gateway.pinata.cloud/ipfs/"
   const avatarPriceInEther = 0.01
 
@@ -59,7 +58,7 @@ async function main() {
 
   try {
     await createMarketNfts(
-      contractAddress,
+      nftMarketAddress,
       gatewayUrl,
       avatarPriceInEther,
       outputFilePath

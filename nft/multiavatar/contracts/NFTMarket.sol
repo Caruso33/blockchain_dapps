@@ -2,7 +2,6 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
-// import "@openzeppelin/contracts/token/ERC721/extensions/IERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import "hardhat/console.sol";
@@ -25,16 +24,7 @@ interface NFTMarket is IERC721 {
         bool sold
     );
 
-    // ERC721URIStorage extension function
-    function tokenURI(uint256 tokenId) external view returns (string memory);
-
-    // /* Updates the listing price of the contract */
-    function updateListingPrice(uint256 _listingPrice) external;
-
-    // /* Returns the listing price of the contract */
-    function getListingPrice() external view returns (uint256);
-
-    // /* Mints a token and lists it in the marketplace */
+    /* Mints a token and lists it in the marketplace */
     function createToken(string memory tokenURI, uint256 price)
         external
         payable
@@ -47,18 +37,29 @@ interface NFTMarket is IERC721 {
     /* Transfers ownership of the item, as well as funds between parties */
     function createMarketSale(uint256 tokenId) external payable;
 
-    // /* Returns all unsold market items */
+    function burnToken(uint256 tokenId) external;
+
+    /* Updates the listing price of the contract */
+    function updateListingPrice(uint256 _listingPrice) external;
+
+    // ERC721URIStorage extension function
+    function tokenURI(uint256 tokenId) external view returns (string memory);
+
+    /* Returns all unsold market items */
     function fetchMarketItems() external view returns (MarketItem[] memory);
 
-    // /* Returns all sold market items */
+    /* Returns all sold market items */
     function fetchSoldMarketItems() external view returns (MarketItem[] memory);
 
-    // /* Returns only items that a user has purchased */
+    /* Returns only items that a user has purchased */
     function fetchMyNFTs() external view returns (MarketItem[] memory);
 
-    // /* Returns only items a user has listed */
+    /* Returns only items a user has listed */
     function fetchNFTsCreated() external view returns (MarketItem[] memory);
 
-    // /* Returns only items a user is selling */
+    /* Returns only items a user is selling */
     function fetchNFTsSelling() external view returns (MarketItem[] memory);
+
+    /* Returns the listing price of the contract */
+    function getListingPrice() external view returns (uint256);
 }
