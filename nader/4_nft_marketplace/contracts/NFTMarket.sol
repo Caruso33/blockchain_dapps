@@ -7,6 +7,14 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import "hardhat/console.sol";
 
+error NFTMarket__OnlyContractOwner();
+error NFTMarket__PriceOneWeiLeast();
+error NFTMarket__ValueNotEqualListingPrice();
+error NFTMarket__OnlyTokenOwner();
+error NFTMarket__OnlyTokenSeller();
+error NFTMarket__OnlyTokenSellerOrOwner();
+error NFTMarket__ValueNotEqualTokenPrice();
+
 contract NFTMarket is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -32,11 +40,25 @@ contract NFTMarket is ERC721URIStorage {
         uint256 indexed tokenId,
         address seller,
         address owner,
-        uint256 price
+        uint256 price,
+        uint256 timestamp
+    );
+    event MarketItemSold(
+        uint256 indexed tokenId,
+        address seller,
+        address owner,
+        uint256 price,
+        uint256 timestamp
+    );
+    event MarketItemBurned(
+        uint256 indexed tokenId,
+        address seller,
+        uint256 price,
+        uint256 timestamp
     );
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can do this");
+        if (msg.sender != owner) revert NFTMarket__OnlyContractOwner();
         _;
     }
 
@@ -60,11 +82,9 @@ contract NFTMarket is ERC721URIStorage {
     }
 
     function createMarketItem(uint256 tokenId, uint256 price) private {
-        require(price > 0, "Price must be at least 1 wei");
-        require(
-            msg.value == listingPrice,
-            "Price must be equal to listing price"
-        );
+        if (price <= 0) revert NFTMarket__PriceOneWeiLeast();
+        if (msg.value != listingPrice)
+            revert NFTMarket__ValueNotEqualListingPrice();
 
         address[] memory prevOwners = new address[](1);
         prevOwners[0] = msg.sender;
@@ -79,19 +99,22 @@ contract NFTMarket is ERC721URIStorage {
         );
 
         _transfer(msg.sender, address(this), tokenId);
-        emit MarketItemCreated(tokenId, msg.sender, address(this), price);
+        emit MarketItemCreated(
+            tokenId,
+            msg.sender,
+            address(this),
+            price,
+            block.timestamp
+        );
     }
 
     /* allows someone to resell a token they have purchased */
     function resellToken(uint256 tokenId, uint256 price) public payable {
-        require(
-            idToMarketItem[tokenId].owner == msg.sender,
-            "Only item owner can perform this operation"
-        );
-        require(
-            msg.value == listingPrice,
-            "Price must be equal to listing price"
-        );
+        if (idToMarketItem[tokenId].owner != msg.sender)
+            revert NFTMarket__OnlyTokenOwner();
+        if (msg.value != listingPrice)
+            revert NFTMarket__ValueNotEqualListingPrice();
+
         idToMarketItem[tokenId].sold = false;
         idToMarketItem[tokenId].price = price;
         idToMarketItem[tokenId].seller = payable(msg.sender);
@@ -106,10 +129,8 @@ contract NFTMarket is ERC721URIStorage {
     function createMarketSale(uint256 tokenId) public payable {
         uint256 price = idToMarketItem[tokenId].price;
         address seller = idToMarketItem[tokenId].seller;
-        require(
-            msg.value == price,
-            "Please submit the asking price in order to complete the purchase"
-        );
+        if (msg.value != price) revert NFTMarket__ValueNotEqualTokenPrice();
+
         idToMarketItem[tokenId].owner = payable(msg.sender);
         idToMarketItem[tokenId].sold = true;
         idToMarketItem[tokenId].seller = payable(address(0));
@@ -118,19 +139,45 @@ contract NFTMarket is ERC721URIStorage {
         _transfer(address(this), msg.sender, tokenId);
         payable(owner).transfer(listingPrice);
         payable(seller).transfer(msg.value);
+
+        emit MarketItemSold(
+            tokenId,
+            seller,
+            msg.sender,
+            price,
+            block.timestamp
+        );
+    }
+
+    /* Revokes selling rights of a marketplace item */
+    function revokeMarketItem(uint256 tokenId) public {
+        if (idToMarketItem[tokenId].seller != msg.sender)
+            revert NFTMarket__OnlyTokenSeller();
+
+        idToMarketItem[tokenId].owner = payable(msg.sender);
+        idToMarketItem[tokenId].seller = payable(address(0));
+
+        _transfer(address(this), msg.sender, tokenId);
     }
 
     /* Burns a token */
     function burnToken(uint256 tokenId) public {
-        require(
-            idToMarketItem[tokenId].owner == msg.sender ||
-                idToMarketItem[tokenId].seller == msg.sender,
-            "Only item owner can perform this operation"
-        );
+        if (
+            idToMarketItem[tokenId].owner != msg.sender &&
+            idToMarketItem[tokenId].seller != msg.sender
+        ) revert NFTMarket__OnlyTokenSellerOrOwner();
+
         _burn(tokenId);
         idToMarketItem[tokenId].owner = payable(address(0));
         idToMarketItem[tokenId].seller = payable(address(0));
-        payable(msg.sender).transfer(listingPrice);
+        idToMarketItem[tokenId].burned = true;
+
+        emit MarketItemBurned(
+            tokenId,
+            msg.sender,
+            idToMarketItem[tokenId].price,
+            block.timestamp
+        );
     }
 
     /* Updates the listing price of the contract */

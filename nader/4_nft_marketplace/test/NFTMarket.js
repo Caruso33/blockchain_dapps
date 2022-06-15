@@ -47,7 +47,12 @@ describe("NFTMarket", async function () {
     assert.equal(items.length, 2)
     // console.log({ beginning: items })
 
-    await market.connect(buyer).createMarketSale(1, { value: auctionPrice })
+    tx = await market
+      .connect(buyer)
+      .createMarketSale(1, { value: auctionPrice })
+
+    await expect(tx).to.emit(market, "MarketItemSold")
+    // .withArgs(1, seller.address, buyer.address, auctionPrice, tx.timestamp)
 
     items = await market.fetchMarketItems()
     // console.log({ sold: items })
@@ -86,8 +91,27 @@ describe("NFTMarket", async function () {
     expect(items[0].price).to.equal(auctionPrice)
     expect(items[0].prevOwners).to.deep.equal([seller.address, buyer.address])
 
-    await market.connect(buyer).burnToken(1)
+    tx = await market.connect(buyer).burnToken(1)
     items = await market.connect(buyer).fetchNFTsSelling()
     expect(items.length).to.equal(0)
+    await expect(tx).to.emit(market, "MarketItemBurned")
+
+    items = await market.fetchNFTsCreated()
+    expect(items.length).to.equal(1)
+    expect(items[0].tokenId).to.equal(2)
+
+    items = await market.fetchNFTsSelling()
+    expect(items.length).to.equal(1)
+    expect(items[0].tokenId).to.equal(2)
+    expect(items[0].seller).to.equal(seller.address)
+    expect(items[0].owner).to.equal(market.address)
+
+    await market.revokeMarketItem(2)
+    items = await market.fetchNFTsSelling()
+    expect(items.length).to.equal(0)
+    items = await market.fetchMyNFTs()
+    expect(items[0].tokenId).to.equal(2)
+    expect(items[0].owner).to.equal(seller.address)
+    expect(items[0].seller).to.equal(ethers.constants.AddressZero)
   })
 })
