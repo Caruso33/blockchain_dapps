@@ -97,7 +97,7 @@ function createLog(
   filenames,
   uploadedFiles,
   uploadedMetaData,
-  outputFilePath = "./uploaded.json"
+  outputFilePath = "./uploadedIpfs.json"
 ) {
   return new Promise((resolve, reject) => {
     const logs = {}
@@ -139,6 +139,6 @@ async function main(dirname = "output", outputFilePath) {
 }
 
 const dirname = "output"
-const outputFilePath = "output/uploaded.json"
+const outputFilePath = "output/uploadedIpfs.json"
 
 main(dirname, outputFilePath)
