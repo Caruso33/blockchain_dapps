@@ -17,13 +17,18 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     async function checkConnectedNetwork() {
-      const { provider } = await getWeb3Connection()
-      const network = await provider.getNetwork()
+      try {
+        const { provider } = await getWeb3Connection()
+        const network = await provider.getNetwork()
 
-      if (provider?.on) provider.on("chainChanged", setNewChainId)
-      else console.log("no handler")
+        if (provider?.on) provider.on("chainChanged", setNewChainId)
+        else console.log("no handler")
 
-      setChainId(network.chainId)
+        setChainId(network.chainId)
+      } catch (error) {
+        console.error(error)
+        setChainId(0)
+      }
     }
 
     checkConnectedNetwork()
