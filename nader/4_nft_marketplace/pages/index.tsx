@@ -6,6 +6,7 @@ import { getNftData } from "../components/index/utils"
 import Spinner from "../components/Spinner"
 import { getWeb3Connection } from "../components/web3/utils"
 import { nftMarketAddress } from "../config"
+import MarketItemInterface from "../types/MarketItemInterface"
 import NftInterface from "../types/NftInterface"
 
 export default function Home() {
@@ -43,14 +44,17 @@ export default function Home() {
     try {
       const data = await contract.fetchMarketItems()
 
-      console.log({ data })
       /*
        *  map over items returned from smart contract and format
        *  them as well as fetch their token metadata
        */
       items = await Promise.all(
-        data.map(async (nft: NftInterface) => getNftData(nft, contract))
+        data.map(async (nft: MarketItemInterface) => getNftData(nft, contract))
       )
+      console.dir({
+        items,
+        tokenids: items.map((item) => item.tokenId.toString()),
+      })
     } catch (e: any) {
       console.error(e.message)
     }

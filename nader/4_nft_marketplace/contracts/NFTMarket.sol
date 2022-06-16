@@ -160,6 +160,7 @@ contract NFTMarket is ERC721URIStorage {
         _itemsSold.increment();
 
         _transfer(address(this), msg.sender, tokenId);
+        payable(msg.sender).transfer(listingPrice);
     }
 
     /* Burns a token and removes it from marketplace */
@@ -192,12 +193,18 @@ contract NFTMarket is ERC721URIStorage {
 
     /* Returns all unsold market items */
     function fetchMarketItems() public view returns (MarketItem[] memory) {
-        uint256 itemCount = _tokenIds.current();
-        uint256 unsoldItemCount = _tokenIds.current() - _itemsSold.current();
+        uint256 totalItemCount = _tokenIds.current();
+        uint256 itemCount = 0;
         uint256 currentIndex = 0;
 
-        MarketItem[] memory items = new MarketItem[](unsoldItemCount);
-        for (uint256 i = 0; i < itemCount; i++) {
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (idToMarketItem[i + 1].owner == address(this)) {
+                itemCount += 1;
+            }
+        }
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+        for (uint256 i = 0; i < totalItemCount; i++) {
             if (idToMarketItem[i + 1].owner == address(this)) {
                 uint256 currentId = i + 1;
                 MarketItem storage currentItem = idToMarketItem[currentId];
@@ -226,7 +233,7 @@ contract NFTMarket is ERC721URIStorage {
 
         MarketItem[] memory items = new MarketItem[](soldItemCount);
         for (uint256 i = 0; i < itemCount; i++) {
-            if (idToMarketItem[i + 1].sold) {
+            if (idToMarketItem[i + 1].sold && !idToMarketItem[i + 1].burned) {
                 uint256 currentId = i + 1;
                 MarketItem storage currentItem = idToMarketItem[currentId];
                 items[currentIndex] = currentItem;
