@@ -4,6 +4,7 @@ import Image from "next/image"
 import { useRouter } from "next/router"
 import { ChangeEvent, useState } from "react"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
+import Spinner from "../components/Spinner"
 import { getWeb3Connection } from "../components/web3/utils"
 import { nftMarketAddress } from "../config"
 
@@ -16,12 +17,16 @@ export default function CreateItem() {
     name: "",
     description: "",
   })
+  const [isImageUploading, setIsImageUploading] = useState<boolean>(false)
+  const [isMetaUploading, setIsMetaUploading] = useState<boolean>(false)
+
   const router = useRouter()
 
   async function onChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e?.target?.files?.[0]
     if (!file) return
 
+    setIsImageUploading(true)
     try {
       const added = await client.add(file, {
         progress: (prog) => console.log(`received: ${prog}`),
@@ -31,6 +36,8 @@ export default function CreateItem() {
       setFileUrl(url)
     } catch (error) {
       console.log("Error uploading file: ", error)
+    } finally {
+      setIsImageUploading(false)
     }
   }
 
@@ -45,6 +52,7 @@ export default function CreateItem() {
       image: fileUrl,
     })
 
+    setIsMetaUploading(true)
     try {
       const added = await client.add(data)
       const url = `https://ipfs.infura.io/ipfs/${added.path}`
@@ -52,6 +60,8 @@ export default function CreateItem() {
       return url
     } catch (error) {
       console.log("Error uploading file: ", error)
+    } finally {
+      setIsMetaUploading(false)
     }
   }
 
@@ -114,6 +124,7 @@ export default function CreateItem() {
           name="Asset"
           className="my-4"
           onChange={(e) => onChange(e)}
+          disabled={isImageUploading || isMetaUploading}
         />
 
         {fileUrl && (
@@ -132,8 +143,9 @@ export default function CreateItem() {
         <button
           onClick={listNFTForSale}
           className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg"
+          disabled={isImageUploading || isMetaUploading}
         >
-          Create NFT
+          {isImageUploading || isMetaUploading ? <Spinner /> : "Create NFT"}
         </button>
       </div>
     </div>
