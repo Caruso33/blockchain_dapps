@@ -2,6 +2,16 @@ const { faker } = require("@faker-js/faker")
 const multiavatar = require("@multiavatar/multiavatar")
 const fs = require("fs")
 const svg2img = require("svg2img")
+const yargs = require("yargs")
+
+const argv = yargs
+  .option("numberOfAvatars", {
+    alias: "nr",
+    description: "Number of Avatars to Create",
+    type: "number",
+  })
+  .help()
+  .alias("help", "h").argv
 
 function createSvg(string = "Binx Bond") {
   const svgCode = multiavatar(string)
@@ -45,7 +55,7 @@ async function main(collectionName = "output", numberOfAvatars = 1) {
 }
 
 const collectionName = "output"
-const numberOfAvatars = 1
+const numberOfAvatars = argv.numberOfAvatars || 10
 
 main(collectionName, numberOfAvatars)
   .then((svgs) => {

@@ -4,11 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "compile": "hardhat compile",
     "create:avatars": "node scripts/createAvatars",
     "upload:files": "node scripts/uploadToIpfs.js",
-    "compile": "hardhat compile",
     "create:marketNfts": "hardhat run scripts/createMarketNfts.js",
-    "create:marketNfts:mumbai": "hardhat run scripts/createMarketNfts.js --network mumbai"
+    "run:all:local": "yarn run compile && yarn run create:avatars --numberOfAvatars 2 && yarn run upload:files && yarn create:marketNfts --price 0.01 --network localhost",
+    "run:all:mumbai": "yarn run compile && yarn run create:avatars --numberOfAvatars 2 && yarn run upload:files && yarn create:marketNfts --price 0.01 --network mumbai"
   },
   "dependencies": {
     "@faker-js/faker": "^7.2.0",
@@ -17,7 +18,9 @@
     "@pinata/sdk": "^1.1.26",
     "dotenv": "^16.0.1",
     "hardhat": "^2.9.9",
-    "svg2img": "^1.0.0-beta.1"
+    "ipfs-http-client": "^57.0.1",
+    "svg2img": "^1.0.0-beta.1",
+    "yargs": "^17.5.1"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

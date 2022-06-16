@@ -37,6 +37,10 @@ interface NFTMarket is IERC721 {
     /* Transfers ownership of the item, as well as funds between parties */
     function createMarketSale(uint256 tokenId) external payable;
 
+    /* Revokes selling rights of a marketplace item */
+    function revokeMarketItem(uint256 tokenId) external;
+
+    /* Burns a token and removes it from marketplace */
     function burnToken(uint256 tokenId) external;
 
     /* Updates the listing price of the contract */

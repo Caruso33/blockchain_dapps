@@ -1,5 +1,8 @@
 const pinata = require("./utils/pinata")
 const fs = require("fs")
+// const { create: ipfsHttpClient } = require("ipfs-http-client")
+
+// const client = ipfsHttpClient({ url: "https://ipfs.infura.io:5001/api/v0" })
 
 function readFiles(dirname, onFileContent, onError) {
   return new Promise((resolve, reject) => {
