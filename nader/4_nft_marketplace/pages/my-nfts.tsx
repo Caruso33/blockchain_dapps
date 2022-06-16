@@ -50,7 +50,6 @@ export default function MyAssets() {
   }
 
   function resellNFT(nft: NftInterface) {
-    console.log("nft:", nft)
     if (!nft.tokenURI) return
 
     router.push(`/resell-nft?id=${nft.tokenId}&tokenURI=${nft.tokenURI}`)

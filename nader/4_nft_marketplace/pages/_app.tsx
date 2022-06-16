@@ -1,12 +1,59 @@
-import "../styles/globals.css"
 import type { AppProps } from "next/app"
 import Link from "next/link"
+import { useCallback, useEffect, useState } from "react"
+import { getWeb3Connection } from "../components/web3/utils"
+import "../styles/globals.css"
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const [chainId, setChainId] = useState<number | null>()
+
+  const setNewChainId = useCallback((chainId: number) => {
+    console.log("Chain changed to: ", chainId)
+    // metamask has currently a bug so the user has to refresh the page manually when the chain
+    // is not set to polygons mumbai network initially
+    // https://github.com/MetaMask/metamask-mobile/issues/2927
+    setChainId(chainId)
+  }, [])
+
+  useEffect(() => {
+    async function checkConnectedNetwork() {
+      const { provider } = await getWeb3Connection()
+      const network = await provider.getNetwork()
+
+      if (provider?.on) provider.on("chainChanged", setNewChainId)
+      else console.log("no handler")
+
+      setChainId(network.chainId)
+    }
+
+    checkConnectedNetwork()
+  }, [setNewChainId])
+
+  let networkContent = (
+    <div className="flex justify-center">
+      <div className="p-4" style={{ maxWidth: "1600px" }}>
+        <p className="text-lg font-bold text-center">
+          {`Wrong network set.`}
+          <br />
+          <br />
+          {
+            "Please change your wallet to Polygon's Mumbai network as explained here and please refresh the page:"
+          }
+          <br />
+          {
+            "https://medium.com/stakingbits/how-to-connect-polygon-mumbai-testnet-to-metamask-fc3487a3871f"
+          }
+        </p>
+      </div>
+    </div>
+  )
+
   return (
     <div>
       <nav className="border-b p-6">
-        <p className="text-4xl font-bold tracking-widest">Avatar NFT Marketplace</p>
+        <p className="text-4xl font-bold tracking-widest">
+          Avatar NFT Marketplace
+        </p>
         <div className="flex mt-4">
           <Link href="/">
             <a className="mr-6 text-pink-500">Home</a>
@@ -26,7 +73,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       </nav>
 
-      <Component {...pageProps} />
+      {chainId !== Number(process.env.NEXT_PUBLIC_DEPLOYED_CHAINID) ? (
+        networkContent
+      ) : (
+        <Component {...pageProps} />
+      )}
     </div>
   )
 }

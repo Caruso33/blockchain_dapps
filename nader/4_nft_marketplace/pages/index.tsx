@@ -51,10 +51,6 @@ export default function Home() {
       items = await Promise.all(
         data.map(async (nft: MarketItemInterface) => getNftData(nft, contract))
       )
-      console.dir({
-        items,
-        tokenids: items.map((item) => item.tokenId.toString()),
-      })
     } catch (e: any) {
       console.error(e.message)
     }
