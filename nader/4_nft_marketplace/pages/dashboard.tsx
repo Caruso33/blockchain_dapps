@@ -6,13 +6,14 @@ import { getNftData } from "../components/index/utils"
 import Spinner from "../components/Spinner"
 import { getWeb3Connection } from "../components/web3/utils"
 import { nftMarketAddress } from "../config"
-import NftInterface, { NftData } from "../types/NftInterface"
+import MarketItemInterface from "../types/MarketItemInterface"
+import NftInterface from "../types/NftInterface"
 
 export default function CreatorDashboard() {
-  const [nftsCreated, setNftsCreated] = useState<NftData[]>([])
-  const [nftsSelling, setNftsSelling] = useState<NftData[]>([])
+  const [nftsCreated, setNftsCreated] = useState<NftInterface[]>([])
+  const [nftsSelling, setNftsSelling] = useState<NftInterface[]>([])
   const [loadingState, setLoadingState] = useState("not-loaded")
-  const [loadingBurn, setLoadingBurn] = useState(false)
+  const [loadingBurnOrRevoke, setLoadingBurnOrRevoke] = useState(false)
 
   useEffect(() => {
     loadNFTsCreated()
@@ -30,12 +31,12 @@ export default function CreatorDashboard() {
 
     setLoadingState("not-loaded")
 
-    let items: NftData[] = []
+    let items: NftInterface[] = []
     try {
       const data = await contract.fetchNFTsCreated()
 
       items = await Promise.all(
-        data.map(async (nft: NftInterface) => getNftData(nft, contract))
+        data.map(async (nft: MarketItemInterface) => getNftData(nft, contract))
       )
     } catch (e: any) {
       console.error(e.message)
@@ -56,12 +57,12 @@ export default function CreatorDashboard() {
 
     setLoadingState("not-loaded")
 
-    let items: NftData[] = []
+    let items: NftInterface[] = []
     try {
       const data = await contract.fetchNFTsSelling()
 
       items = await Promise.all(
-        data.map(async (nft: NftInterface) => getNftData(nft, contract))
+        data.map(async (nft: MarketItemInterface) => getNftData(nft, contract))
       )
     } catch (e: any) {
       console.error(e.message)
@@ -71,7 +72,7 @@ export default function CreatorDashboard() {
     setLoadingState("loaded")
   }
 
-  async function burnNft(nft: NftData) {
+  async function burnNft(nft: NftInterface) {
     /* needs the user to sign the transaction, so will use Web3Provider and sign it */
     try {
       const { signer } = await getWeb3Connection()
@@ -80,7 +81,7 @@ export default function CreatorDashboard() {
         NFTMarket.abi,
         signer
       )
-      setLoadingBurn(true)
+      setLoadingBurnOrRevoke(true)
 
       /* this will delete the nft */
       const transaction = await contract.burnToken(nft.tokenId)
@@ -89,7 +90,31 @@ export default function CreatorDashboard() {
       console.error(error)
     }
 
-    setLoadingBurn(false)
+    setLoadingBurnOrRevoke(false)
+
+    loadNFTsCreated()
+    loadNFTsSelling()
+  }
+
+  async function revokeNft(nft: NftInterface) {
+    /* needs the user to sign the transaction, so will use Web3Provider and sign it */
+    try {
+      const { signer } = await getWeb3Connection()
+      const contract = new ethers.Contract(
+        nftMarketAddress,
+        NFTMarket.abi,
+        signer
+      )
+      setLoadingBurnOrRevoke(true)
+
+      /* this will delete the nft */
+      const transaction = await contract.revokeMarketItem(nft.tokenId)
+      await transaction.wait()
+    } catch (error) {
+      console.error(error)
+    }
+
+    setLoadingBurnOrRevoke(false)
 
     loadNFTsCreated()
     loadNFTsSelling()
@@ -119,6 +144,7 @@ export default function CreatorDashboard() {
                       height="100%"
                       layout="responsive"
                       objectFit="contain"
+                      crossOrigin="anonymous"
                     />
                   ) : (
                     <div style={{ height: "100%", width: "100%" }} />
@@ -135,16 +161,8 @@ export default function CreatorDashboard() {
 
                   <div className="p-4 bg-black">
                     <p className="text-2xl font-bold text-white">
-                      Price - {nft?.price} Eth
+                      Price - {nft?.price?.toString()} Eth
                     </p>
-
-                    <button
-                      className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
-                      onClick={() => burnNft(nft)}
-                      disabled={loadingBurn}
-                    >
-                      {!loadingBurn ? "Burn" : <Spinner />}
-                    </button>
                   </div>
                 </div>
               ))
@@ -174,6 +192,7 @@ export default function CreatorDashboard() {
                       height="100%"
                       layout="responsive"
                       objectFit="contain"
+                      crossOrigin="anonymous"
                     />
                   ) : (
                     <div style={{ height: "100%", width: "100%" }} />
@@ -190,16 +209,26 @@ export default function CreatorDashboard() {
 
                   <div className="p-4 bg-black">
                     <p className="text-2xl font-bold text-white">
-                      Price - {nft?.price} Eth
+                      Price - {nft?.price?.toString()} Eth
                     </p>
 
-                    <button
-                      className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
-                      onClick={() => burnNft(nft)}
-                      disabled={loadingBurn}
-                    >
-                      {!loadingBurn ? "Burn" : <Spinner />}
-                    </button>
+                    <div className="flex flex-col">
+                      <button
+                        className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
+                        onClick={() => revokeNft(nft)}
+                        disabled={loadingBurnOrRevoke}
+                      >
+                        {!loadingBurnOrRevoke ? "Revoke Selling" : <Spinner />}
+                      </button>
+
+                      <button
+                        className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
+                        onClick={() => burnNft(nft)}
+                        disabled={loadingBurnOrRevoke}
+                      >
+                        {!loadingBurnOrRevoke ? "Burn" : <Spinner />}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))

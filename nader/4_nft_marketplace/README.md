@@ -12,7 +12,11 @@ Based on [How to build a fullstack nft marketplace on Polygon](https://www.youtu
 
 <!-- nftMarket deployed to: 0x663930fEBAD365ABC3E6388C6063829cCB1abedA -->
 
-nftMarket deployed to: 0xe27ece1d3d0A79692A85fc7114CA16e6cD421D91
+<!-- nftMarket deployed to: 0xe27ece1d3d0A79692A85fc7114CA16e6cD421D91 -->
+
+<!-- nftMarket deployed to: 0x39e618Ba8B2ba2E8902fabcBd184df6E9172e180 -->
+
+nftMarket deployed to: 0x30a1b68D207c39924513424F2f9969a02eba2E2E
 
 ---
 

@@ -108,6 +108,7 @@ export default function CreateItem() {
             updateFormInput({ ...formInput, price: e.target.value })
           }
         />
+
         <input
           type="file"
           name="Asset"
@@ -124,6 +125,7 @@ export default function CreateItem() {
             height="100%"
             layout="responsive"
             objectFit="contain"
+            crossOrigin="anonymous"
           />
         )}
 

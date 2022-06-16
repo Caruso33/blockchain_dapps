@@ -13,6 +13,9 @@ module.exports = {
       gas: 2100000,
       gasPrice: 8000000000,
     },
+    localhost: {
+      url: "http://localhost:8545",
+    },
     mumbai: {
       url: process.env.NEXT_PUBLIC_POLYGON_MUMBAI,
       accounts: [process.env.PRIVATE_KEY],

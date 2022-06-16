@@ -6,10 +6,10 @@ import { getNftData } from "../components/index/utils"
 import Spinner from "../components/Spinner"
 import { getWeb3Connection } from "../components/web3/utils"
 import { nftMarketAddress } from "../config"
-import NftInterface, { NftData } from "../types/NftInterface"
+import NftInterface from "../types/NftInterface"
 
 export default function Home() {
-  const [nfts, setNfts] = useState<NftData[]>([])
+  const [nfts, setNfts] = useState<NftInterface[]>([])
   const [loadingState, setLoadingState] = useState("not-loaded")
   const [loadingBuy, setLoadingBuy] = useState(false)
 
@@ -39,10 +39,11 @@ export default function Home() {
 
     setLoadingState("not-loaded")
 
-    let items: NftData[] = []
+    let items: NftInterface[] = []
     try {
       const data = await contract.fetchMarketItems()
 
+      console.log({ data })
       /*
        *  map over items returned from smart contract and format
        *  them as well as fetch their token metadata
@@ -58,7 +59,7 @@ export default function Home() {
     setLoadingState("loaded")
   }
 
-  async function buyNft(nft: NftData) {
+  async function buyNft(nft: NftInterface) {
     /* needs the user to sign the transaction, so will use Web3Provider and sign it */
     try {
       const { signer } = await getWeb3Connection()
@@ -93,9 +94,9 @@ export default function Home() {
 
           {loadingState === "loaded" &&
             (!nfts.length ? (
-              <h1 className="px-20 py-10 text-3xl">No items in marketplace</h1>
+              <h1 className="px-20 py-10 text-2xl">No items in marketplace</h1>
             ) : (
-              nfts.map((nft, i) => (
+              nfts.map((nft: NftInterface, i) => (
                 <div
                   key={`nft-listing-${i}`}
                   className="flex flex-col border shadow rounded-xl overflow-hidden"
@@ -108,6 +109,7 @@ export default function Home() {
                       height="100%"
                       layout="responsive"
                       objectFit="contain"
+                      crossOrigin="anonymous"
                     />
                   ) : (
                     <div style={{ height: "100%", width: "100%" }} />
@@ -127,7 +129,7 @@ export default function Home() {
 
                   <div className="p-4 bg-black">
                     <p className="text-2xl font-bold text-white">
-                      {nft?.price} ETH
+                      {nft?.price?.toString()} ETH
                     </p>
 
                     <button
