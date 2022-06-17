@@ -4,6 +4,7 @@ import { create as ipfsHttpClient } from "ipfs-http-client"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import { ChangeEvent, useState } from "react"
+import saveSvgAsPng from "save-svg-as-png"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
 import Spinner from "../components/Spinner"
 import { getWeb3Connection } from "../components/web3/utils"
@@ -18,49 +19,101 @@ export default function CreateItem() {
     description: "",
   })
   const [fileUrl, setFileUrl] = useState<string | null>(null)
-  const [fileSvg, setFileSvg] = useState<string>("")
+  const [fileSvgPath, setFileSvgPath] = useState<string | null>(null)
 
   const [isImageUploading, setIsImageUploading] = useState<boolean>(false)
   const [isMetaUploading, setIsMetaUploading] = useState<boolean>(false)
+  const [isCreatingItem, setIsCreatingItem] = useState<boolean>(false)
+
+  const isLoading = isImageUploading || isMetaUploading || isCreatingItem
 
   const router = useRouter()
 
-  async function onChangeInputFile(e: ChangeEvent<HTMLInputElement>) {
-    const file = e?.target?.files?.[0]
-    if (!file) return
+  async function uploadFileToIpfs(file: File) {
+    let url = ""
 
-    setFileSvg("")
     setIsImageUploading(true)
+
     try {
       const added = await client.add(file, {
         progress: (prog) => console.log(`received: ${prog}`),
       })
 
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`
-      setFileUrl(url)
+      url = `https://ipfs.infura.io/ipfs/${added.path}`
     } catch (error) {
       console.log("Error uploading file: ", error)
     } finally {
       setIsImageUploading(false)
     }
+
+    return url
   }
 
-  function onChangeAvatarInput(e: ChangeEvent<HTMLInputElement>) {
+  async function onChangeInputFile(file: File) {
+    if (!file) return
+
+    const url = await uploadFileToIpfs(file)
+
+    setFileSvgPath(null)
+    setFileUrl(url)
+  }
+
+  async function onChangeAvatarInput(e: ChangeEvent<HTMLInputElement>) {
     const svgPath = multiavatar(e.target.value)
 
-    setFileSvg(svgPath)
     setFileUrl(null)
+    setFileSvgPath(svgPath)
+  }
+
+  async function svgPathToFile(svgPath: string) {
+    const container = document.getElementById("svg-container")
+
+    if (!container) return
+
+    container.innerHTML = svgPath
+
+    try {
+      const dataUri = await saveSvgAsPng.svgAsDataUri(
+        document.getElementsByTagName("svg")[0]
+      )
+
+      const svgFile = await fetch(dataUri)
+        .then(function (res) {
+          return res.arrayBuffer()
+        })
+        .then(function (buf) {
+          return new File([buf], formInput?.name || "Avatar", {
+            type: "image/svg+xml",
+          })
+        })
+
+      return svgFile
+    } catch (error) {
+      console.error("Error creating file from Svg: ", error)
+    }
   }
 
   async function uploadToIPFS() {
     const { name, description, price } = formInput
-    if (!name || !description || !price || !fileUrl) return
+    if (!name || !description || !price || (!fileUrl && !fileSvgPath)) {
+      console.error("Please fill all inputs")
+      console.log(!name, !description, !price, !fileUrl, !fileSvgPath)
+      return
+    }
+
+    let imageUrl = fileUrl
+    if (fileSvgPath && !fileUrl) {
+      const fileSvg = await svgPathToFile(fileSvgPath)
+
+      if (!fileSvg) return
+      imageUrl = await uploadFileToIpfs(fileSvg)
+    }
 
     /* first, upload to IPFS */
     const data = JSON.stringify({
       name,
       description,
-      image: fileUrl,
+      image: imageUrl,
     })
 
     setIsMetaUploading(true)
@@ -78,6 +131,9 @@ export default function CreateItem() {
 
   async function listNFTForSale() {
     const url = await uploadToIPFS()
+    if (!url) return
+
+    console.log({ url })
 
     const { signer } = await getWeb3Connection()
 
@@ -88,19 +144,22 @@ export default function CreateItem() {
       NFTMarket.abi,
       signer
     )
-    let listingPrice = await contract.getListingPrice()
-    listingPrice = listingPrice.toString()
 
     try {
+      setIsCreatingItem(true)
+      let listingPrice = await contract.getListingPrice()
+      listingPrice = listingPrice.toString()
       const transaction = await contract.createToken(url, price, {
         value: listingPrice,
       })
       await transaction.wait()
+
+      router.push("/")
     } catch (e) {
       console.error(e)
+    } finally {
+      setIsCreatingItem(false)
     }
-
-    router.push("/")
   }
 
   return (
@@ -137,8 +196,12 @@ export default function CreateItem() {
             type="file"
             name="Asset"
             className="file:rounded-full file:border-0 file:bg-pink-300 hover:file:bg-pink-400 file:text-white file:px-2 file:my-2"
-            onChange={(e) => onChangeInputFile(e)}
-            disabled={isImageUploading || isMetaUploading}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const file = e?.target?.files?.[0]
+              if (!file) return
+              onChangeInputFile(file)
+            }}
+            disabled={isLoading}
           />
 
           <p className="text-xl py-2">OR autogenerate Multiavatar</p>
@@ -148,11 +211,11 @@ export default function CreateItem() {
             name="Asset"
             className="border rounded"
             onChange={(e) => onChangeAvatarInput(e)}
-            disabled={isImageUploading || isMetaUploading}
+            disabled={isLoading}
           />
         </div>
 
-        {(isImageUploading || isMetaUploading) && <Spinner />}
+        {isLoading && !fileUrl && !fileSvgPath && <Spinner />}
 
         <div
           className="flex justify-center my-2"
@@ -172,26 +235,42 @@ export default function CreateItem() {
                 layout="responsive"
                 objectFit="contain"
                 crossOrigin="anonymous"
+                unoptimized={true}
               />
             </div>
           )}
 
-          {fileSvg && (
-            <div
-              className="flex justify-center mt-4"
-              style={{ height: "100%", width: 350 }}
-              dangerouslySetInnerHTML={{ __html: fileSvg }}
-            />
-          )}
+          <div
+            id="svg-container"
+            className="flex justify-center mt-4"
+            style={{
+              height: "100%",
+              width: 350,
+              // TODO: Improve the following, it's a bit ugly
+              visibility: fileSvgPath ? "visible" : "hidden",
+              position: fileSvgPath ? "inherit" : "absolute",
+            }}
+            dangerouslySetInnerHTML={{ __html: fileSvgPath as string }}
+          />
         </div>
 
         <button
           onClick={listNFTForSale}
           className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg"
-          disabled={isImageUploading || isMetaUploading}
+          disabled={isLoading}
         >
-          {isImageUploading || isMetaUploading ? <Spinner /> : "Create NFT"}
+          {isLoading ? <Spinner /> : "Create NFT"}
         </button>
+
+        {isCreatingItem && (
+          <p className="text-xl text-center my-4">
+            Creating Item on Blockchain
+            <br />
+            <br />
+            This can take some minutes, please hang on. We're waiting also for
+            the transaction confirmation.
+          </p>
+        )}
       </div>
     </div>
   )

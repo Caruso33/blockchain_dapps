@@ -145,6 +145,7 @@ export default function CreatorDashboard() {
                       layout="responsive"
                       objectFit="contain"
                       crossOrigin="anonymous"
+                      unoptimized={true}
                     />
                   ) : (
                     <div style={{ height: "100%", width: "100%" }} />
@@ -193,6 +194,7 @@ export default function CreatorDashboard() {
                       layout="responsive"
                       objectFit="contain"
                       crossOrigin="anonymous"
+                      unoptimized={true}
                     />
                   ) : (
                     <div style={{ height: "100%", width: "100%" }} />

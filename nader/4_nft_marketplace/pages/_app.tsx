@@ -20,9 +20,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       try {
         const { provider } = await getWeb3Connection()
         const network = await provider.getNetwork()
+        console.log("HERE", provider)
 
         if (provider?.on) provider.on("chainChanged", setNewChainId)
-        else console.log("no handler")
 
         setChainId(network.chainId)
       } catch (error) {

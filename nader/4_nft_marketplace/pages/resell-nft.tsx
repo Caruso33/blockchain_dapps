@@ -68,6 +68,7 @@ export default function ResellNFT() {
               layout="responsive"
               objectFit="contain"
               crossOrigin="anonymous"
+              unoptimized={true}
             />
           </div>
         )}

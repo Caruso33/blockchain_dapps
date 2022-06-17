@@ -76,6 +76,7 @@ export default function MyAssets() {
                     layout="responsive"
                     objectFit="contain"
                     crossOrigin="anonymous"
+                    unoptimized={true}
                   />
                 )}
 

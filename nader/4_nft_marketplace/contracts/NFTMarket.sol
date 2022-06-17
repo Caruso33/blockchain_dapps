@@ -62,7 +62,7 @@ contract NFTMarket is ERC721URIStorage {
         _;
     }
 
-    constructor() ERC721("Metaverse Tokens", "METAT") {
+    constructor() ERC721("Avatar Tokens", "AVAT") {
         owner = payable(msg.sender);
     }
 

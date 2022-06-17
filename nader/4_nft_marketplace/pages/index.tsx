@@ -110,6 +110,7 @@ export default function Home() {
                       layout="responsive"
                       objectFit="contain"
                       crossOrigin="anonymous"
+                      unoptimized={true}
                     />
                   ) : (
                     <div style={{ height: "100%", width: "100%" }} />
