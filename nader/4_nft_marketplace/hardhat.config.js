@@ -17,6 +17,7 @@ module.exports = {
     },
     localhost: {
       url: "http://localhost:8545",
+      chainId: 1337,
     },
     mumbai: {
       url: process.env.NEXT_PUBLIC_POLYGON_MUMBAI,

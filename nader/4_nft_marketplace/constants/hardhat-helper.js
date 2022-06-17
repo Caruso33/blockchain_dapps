@@ -22,6 +22,7 @@ const networkConfig = {
 const developmentChains = ["hardhat", "localhost"]
 const VERIFICATION_BLOCK_CONFIRMATIONS = 6
 const contractArtifact = NFTMarket
+const contractAddressesPath = "./constants/contractAddresses.json"
 
 module.exports = {
   networkConfig,
@@ -29,4 +30,5 @@ module.exports = {
   VERIFICATION_BLOCK_CONFIRMATIONS,
   contractArtifact,
   contractAddresses,
+  contractAddressesPath,
 }
