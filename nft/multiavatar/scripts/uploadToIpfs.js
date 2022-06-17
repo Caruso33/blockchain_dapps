@@ -1,8 +1,5 @@
 const pinata = require("./utils/pinata")
 const fs = require("fs")
-// const { create: ipfsHttpClient } = require("ipfs-http-client")
-
-// const client = ipfsHttpClient({ url: "https://ipfs.infura.io:5001/api/v0" })
 
 function readFiles(dirname, onFileContent, onError) {
   return new Promise((resolve, reject) => {
@@ -62,12 +59,20 @@ function uploadFileToIpfs(dirpath, filenames) {
   return Promise.all(promises)
 }
 
-function uploadMetaDataToIpfs(filenames, uploadedFiles) {
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
+
+async function uploadMetaDataToIpfs(filenames, uploadedFiles) {
   const gatewayUrl = "https://gateway.pinata.cloud/ipfs/"
 
   const promises = []
 
-  for (const [i, filename] of filenames.entries()) {
+  // unfortunately pinata's rate limiting is triggered very easy
+  // TODO: Switch to another ipfs provider
+  for await (const [i, filename] of filenames.entries()) {
     const shortName = filename.split(".")[0]
 
     const metaData = {
@@ -90,6 +95,11 @@ function uploadMetaDataToIpfs(filenames, uploadedFiles) {
     }
 
     const uploadPromise = pinata.pinJSONToIPFS(metaData, options)
+
+    // Remove following 2 lines when no rate limits are applied
+    await uploadPromise
+    await sleep(1000)
+
     promises.push(uploadPromise)
   }
 
@@ -122,7 +132,7 @@ function createLog(
   })
 }
 
-async function main(dirname = "output", outputFilePath) {
+async function uploadToIpfs(dirname = "output", outputFilePath) {
   try {
     const filenames = await readFiles(dirname, null, console.error)
 
@@ -141,7 +151,4 @@ async function main(dirname = "output", outputFilePath) {
   }
 }
 
-const dirname = "output"
-const outputFilePath = "output/uploadedIpfs.json"
-
-main(dirname, outputFilePath)
+module.exports = uploadToIpfs

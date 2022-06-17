@@ -2,16 +2,6 @@ const { faker } = require("@faker-js/faker")
 const multiavatar = require("@multiavatar/multiavatar")
 const fs = require("fs")
 const svg2img = require("svg2img")
-const yargs = require("yargs")
-
-const argv = yargs
-  .option("numberOfAvatars", {
-    alias: "nr",
-    description: "Number of Avatars to Create",
-    type: "number",
-  })
-  .help()
-  .alias("help", "h").argv
 
 function createSvg(string = "Binx Bond") {
   const svgCode = multiavatar(string)
@@ -32,7 +22,7 @@ async function saveSvgToImg(svgCode, outputPath) {
   })
 }
 
-async function main(collectionName = "output", numberOfAvatars = 1) {
+async function createAvatars(collectionName = "output", numberOfAvatars = 1) {
   const promises = []
 
   for (let i = 0; i < numberOfAvatars; i++) {
@@ -54,15 +44,4 @@ async function main(collectionName = "output", numberOfAvatars = 1) {
   return Promise.all(promises)
 }
 
-const collectionName = "output"
-const numberOfAvatars = argv.numberOfAvatars || 10
-
-main(collectionName, numberOfAvatars)
-  .then((svgs) => {
-    console.log(`done creating ${svgs.length} avatars`)
-    process.exit(0)
-  })
-  .catch((error) => {
-    console.log(error)
-    process.exit(1)
-  })
+module.exports = createAvatars
