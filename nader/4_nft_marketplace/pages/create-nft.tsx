@@ -264,11 +264,12 @@ export default function CreateItem() {
 
         {isCreatingItem && (
           <p className="text-xl text-center my-4">
-            Creating Item on Blockchain
+            {"Creating Item on Blockchain"}
             <br />
             <br />
-            This can take some minutes, please hang on. We're waiting also for
-            the transaction confirmation.
+            {
+              "This can take some minutes, please hang on. We're waiting also for the transaction confirmation."
+            }
           </p>
         )}
       </div>
