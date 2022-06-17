@@ -1,3 +1,4 @@
+import multiavatar from "@multiavatar/multiavatar"
 import { ethers } from "ethers"
 import { create as ipfsHttpClient } from "ipfs-http-client"
 import Image from "next/image"
@@ -11,21 +12,24 @@ import { nftMarketAddress } from "../config"
 const client = ipfsHttpClient({ url: "https://ipfs.infura.io:5001/api/v0" })
 
 export default function CreateItem() {
-  const [fileUrl, setFileUrl] = useState<string | null>(null)
   const [formInput, updateFormInput] = useState({
     price: "",
     name: "",
     description: "",
   })
+  const [fileUrl, setFileUrl] = useState<string | null>(null)
+  const [fileSvg, setFileSvg] = useState<string>("")
+
   const [isImageUploading, setIsImageUploading] = useState<boolean>(false)
   const [isMetaUploading, setIsMetaUploading] = useState<boolean>(false)
 
   const router = useRouter()
 
-  async function onChange(e: ChangeEvent<HTMLInputElement>) {
+  async function onChangeInputFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e?.target?.files?.[0]
     if (!file) return
 
+    setFileSvg("")
     setIsImageUploading(true)
     try {
       const added = await client.add(file, {
@@ -39,6 +43,13 @@ export default function CreateItem() {
     } finally {
       setIsImageUploading(false)
     }
+  }
+
+  function onChangeAvatarInput(e: ChangeEvent<HTMLInputElement>) {
+    const svgPath = multiavatar(e.target.value)
+
+    setFileSvg(svgPath)
+    setFileUrl(null)
   }
 
   async function uploadToIPFS() {
@@ -119,26 +130,60 @@ export default function CreateItem() {
           }
         />
 
-        <input
-          type="file"
-          name="Asset"
-          className="my-4"
-          onChange={(e) => onChange(e)}
-          disabled={isImageUploading || isMetaUploading}
-        />
+        <div className="flex flex-col justify-between my-4">
+          <p className="text-xl font-bold">Image</p>
 
-        {fileUrl && (
-          <Image
-            className="rounded mt-4"
-            width="350"
-            src={fileUrl}
-            alt="Nft image"
-            height="100%"
-            layout="responsive"
-            objectFit="contain"
-            crossOrigin="anonymous"
+          <input
+            type="file"
+            name="Asset"
+            className="file:rounded-full file:border-0 file:bg-pink-300 hover:file:bg-pink-400 file:text-white file:px-2 file:my-2"
+            onChange={(e) => onChangeInputFile(e)}
+            disabled={isImageUploading || isMetaUploading}
           />
-        )}
+
+          <p className="text-xl py-2">OR autogenerate Multiavatar</p>
+
+          <input
+            type="text"
+            name="Asset"
+            className="border rounded"
+            onChange={(e) => onChangeAvatarInput(e)}
+            disabled={isImageUploading || isMetaUploading}
+          />
+        </div>
+
+        {(isImageUploading || isMetaUploading) && <Spinner />}
+
+        <div
+          className="flex justify-center my-2"
+          style={{ height: "100%", width: "100%" }}
+        >
+          {fileUrl && (
+            <div
+              className="text-center mt-4"
+              style={{ height: "100%", width: 350 }}
+            >
+              <Image
+                className="rounded mt-4"
+                width="100%"
+                src={fileUrl}
+                alt="Nft image"
+                height="100%"
+                layout="responsive"
+                objectFit="contain"
+                crossOrigin="anonymous"
+              />
+            </div>
+          )}
+
+          {fileSvg && (
+            <div
+              className="flex justify-center mt-4"
+              style={{ height: "100%", width: 350 }}
+              dangerouslySetInnerHTML={{ __html: fileSvg }}
+            />
+          )}
+        </div>
 
         <button
           onClick={listNFTForSale}

@@ -78,7 +78,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       </nav>
 
-      {chainId !== Number(process.env.NEXT_PUBLIC_DEPLOYED_CHAINID) ? (
+      {chainId &&
+      chainId !== Number(process.env.NEXT_PUBLIC_DEPLOYED_CHAINID) ? (
         networkContent
       ) : (
         <Component {...pageProps} />
