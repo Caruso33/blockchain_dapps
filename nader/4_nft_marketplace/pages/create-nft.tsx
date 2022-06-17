@@ -1,14 +1,17 @@
 import multiavatar from "@multiavatar/multiavatar"
-import { ethers } from "ethers"
+import { ethers, providers } from "ethers"
 import { create as ipfsHttpClient } from "ipfs-http-client"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import { ChangeEvent, useState } from "react"
 import saveSvgAsPng from "save-svg-as-png"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
+import {
+  contractArtifact,
+  contractAddresses,
+} from "../constants/hardhat-helper"
 import Spinner from "../components/Spinner"
 import { getWeb3Connection } from "../components/web3/utils"
-import { nftMarketAddress } from "../config"
 
 const client = ipfsHttpClient({ url: "https://ipfs.infura.io:5001/api/v0" })
 
@@ -135,13 +138,13 @@ export default function CreateItem() {
 
     console.log({ url })
 
-    const { signer } = await getWeb3Connection()
+    const { network, signer } = await getWeb3Connection()
 
     /* next, create the item */
     const price = ethers.utils.parseUnits(formInput.price, "ether")
     const contract = new ethers.Contract(
-      nftMarketAddress,
-      NFTMarket.abi,
+      contractAddresses[network.chainId],
+      contractArtifact.abi,
       signer
     )
 

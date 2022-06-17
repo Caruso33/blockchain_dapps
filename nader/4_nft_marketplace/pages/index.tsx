@@ -1,11 +1,13 @@
 import { ethers } from "ethers"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
 import { getNftData } from "../components/index/utils"
 import Spinner from "../components/Spinner"
 import { getWeb3Connection } from "../components/web3/utils"
-import { nftMarketAddress } from "../config"
+import {
+  contractAddresses,
+  contractArtifact,
+} from "../constants/hardhat-helper"
 import MarketItemInterface from "../types/MarketItemInterface"
 import NftInterface from "../types/NftInterface"
 
@@ -32,16 +34,17 @@ export default function Home() {
       rpcProviderUrl = process.env.NEXT_PUBLIC_POLYGON_MAIN!
 
     const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl)
-    const contract = new ethers.Contract(
-      nftMarketAddress,
-      NFTMarket.abi,
-      provider
-    )
 
     setLoadingState("not-loaded")
 
     let items: NftInterface[] = []
     try {
+      const contract = new ethers.Contract(
+        contractAddresses[(await provider.getNetwork()).chainId],
+        contractArtifact.abi,
+        provider
+      )
+
       const data = await contract.fetchMarketItems()
 
       /*
@@ -64,8 +67,8 @@ export default function Home() {
     try {
       const { signer } = await getWeb3Connection()
       const contract = new ethers.Contract(
-        nftMarketAddress,
-        NFTMarket.abi,
+        contractAddresses,
+        contractArtifact.abi,
         signer
       )
 
@@ -102,16 +105,21 @@ export default function Home() {
                   className="flex flex-col border shadow rounded-xl overflow-hidden"
                 >
                   {nft.image ? (
-                    <Image
-                      src={nft.image}
-                      alt="Nft image"
-                      width="100%"
-                      height="100%"
-                      layout="responsive"
-                      objectFit="contain"
-                      crossOrigin="anonymous"
-                      unoptimized={true}
-                    />
+                    <div
+                      className="text-center mt-4"
+                      style={{ height: "100%", width: "100%" }}
+                    >
+                      <Image
+                        src={nft.image}
+                        alt="Nft image"
+                        width="100%"
+                        height="100%"
+                        layout="responsive"
+                        objectFit="contain"
+                        crossOrigin="anonymous"
+                        unoptimized={true}
+                      />
+                    </div>
                   ) : (
                     <div style={{ height: "100%", width: "100%" }} />
                   )}

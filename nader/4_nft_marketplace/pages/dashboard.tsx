@@ -1,11 +1,10 @@
 import { ethers } from "ethers"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
 import { getNftData } from "../components/index/utils"
 import Spinner from "../components/Spinner"
 import { getWeb3Connection } from "../components/web3/utils"
-import { nftMarketAddress } from "../config"
+import { contractArtifact, contractAddresses } from "../constants/hardhat-helper"
 import MarketItemInterface from "../types/MarketItemInterface"
 import NftInterface from "../types/NftInterface"
 
@@ -21,11 +20,11 @@ export default function CreatorDashboard() {
   }, [])
 
   async function loadNFTsCreated() {
-    const { signer } = await getWeb3Connection()
+    const { network, signer } = await getWeb3Connection()
 
     const contract = new ethers.Contract(
-      nftMarketAddress,
-      NFTMarket.abi,
+      contractAddresses[network.chainId],
+      contractArtifact.abi,
       signer
     )
 
@@ -47,11 +46,11 @@ export default function CreatorDashboard() {
   }
 
   async function loadNFTsSelling() {
-    const { signer } = await getWeb3Connection()
+    const { network, signer } = await getWeb3Connection()
 
     const contract = new ethers.Contract(
-      nftMarketAddress,
-      NFTMarket.abi,
+      contractAddresses[network.chainId],
+      contractArtifact.abi,
       signer
     )
 
