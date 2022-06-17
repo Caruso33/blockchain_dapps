@@ -1,9 +1,13 @@
 require("@nomiclabs/hardhat-waffle")
 require("@nomiclabs/hardhat-etherscan")
-// require("solidity-coverage")
-// require("hardhat-gas-reporter")
+require("hardhat-deploy")
+require("solidity-coverage")
+require("hardhat-gas-reporter")
+require("hardhat-contract-sizer")
 
 require("dotenv").config()
+
+console.log(process.env.POLYSCAN_API_KEY)
 
 module.exports = {
   solidity: "0.8.4",
@@ -20,12 +24,18 @@ module.exports = {
       url: process.env.NEXT_PUBLIC_POLYGON_MUMBAI,
       accounts: [process.env.PRIVATE_KEY],
     },
-    mainnet: {
+    polygon: {
       url: process.env.NEXT_PUBLIC_POLYGON_MAIN,
       accounts: [process.env.PRIVATE_KEY],
     },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    // yarn hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
+    apiKey: {
+      mumbai: process.env.POLYSCAN_API_KEY,
+      polygon: process.env.POLYSCAN_API_KEY,
+      rinkeby: process.env.ETHERSCAN_API_KEY,
+      kovan: process.env.ETHERSCAN_API_KEY,
+    },
   },
 }
