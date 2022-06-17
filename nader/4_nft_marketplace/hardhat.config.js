@@ -7,8 +7,6 @@ require("hardhat-contract-sizer")
 
 require("dotenv").config()
 
-console.log(process.env.POLYSCAN_API_KEY)
-
 module.exports = {
   solidity: "0.8.4",
   networks: {
@@ -29,6 +27,14 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
     },
   },
+  namedAccounts: {
+    deployer: {
+      default: 0,
+    },
+    buyer: {
+      default: 1,
+    },
+  },
   etherscan: {
     // yarn hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
     apiKey: {
@@ -37,5 +43,15 @@ module.exports = {
       rinkeby: process.env.ETHERSCAN_API_KEY,
       kovan: process.env.ETHERSCAN_API_KEY,
     },
+  },
+  gasReporter: {
+    enabled: true,
+    currency: "USD",
+    outputFile: "contracts/gas-report.txt",
+    noColors: true,
+    // coinmarketcap: process.env.COINMARKET_API_KEY,
+  },
+  mocha: {
+    timeout: 100000, // 100 seconds max for running tests
   },
 }
