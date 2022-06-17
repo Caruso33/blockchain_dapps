@@ -9,7 +9,7 @@
     "upload:files": "yarn hardhat uploadToIpfs",
     "create:marketNfts": "yarn hardhat createMarketNfts --price 0.001",
     "run:all:local": "yarn run compile && yarn hardhat createAvatars --number-of-avatars 2 && yarn hardhat uploadToIpfs && yarn hardhat createMarketNfts --price 0.001 --network localhost",
-    "run:all:mumbai": "yarn run compile && yarn hardhat createAvatars --number-of-avatars 2 && yarn hardhat uploadToIpfs && yarn hardhat createMarketNfts --price 0.001 --network mumbai"
+    "run:all:mumbai": "yarn run compile && yarn hardhat createAvatars --number-of-avatars 20 && yarn hardhat uploadToIpfs && yarn hardhat createMarketNfts --price 0.001 --network mumbai"
   },
   "dependencies": {
     "@faker-js/faker": "^7.2.0",

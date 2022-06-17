@@ -1,4 +1,4 @@
-const nftMarketAddress = "0x9b2B9869a1DA2b85e5C50168aC38dE2053f09A9f"
+const nftMarketAddress = "0xB70C94932E241120e45B2cBE06b07D90a100Fd89"
 
 module.exports = {
   nftMarketAddress,
