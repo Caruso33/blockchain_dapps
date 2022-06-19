@@ -13,13 +13,13 @@ async function getContracts(
   const contractData = deploymentChainData[0]
   if (!contractData) return null
 
-  const tokenContract = await new ethers.Contract(
+  const tokenContract = new ethers.Contract(
     contractData.contracts.Token.address,
     contractData.contracts.Token.abi,
     provider
   )
 
-  const exchangeContract = await new ethers.Contract(
+  const exchangeContract = new ethers.Contract(
     contractData.contracts.Exchange.address,
     contractData.contracts.Exchange.abi,
     provider
