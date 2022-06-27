@@ -72,7 +72,7 @@ const MyTransactions: React.FC = () => {
                 </Thead>
 
                 <Tbody>
-                  {myTradeEvents.map((event: TradeEventEnhanced, i) => (
+                  {myTradeEvents.map((event: TradeEventEnhanced, i: number) => (
                     <Tr key={`my-trades-${i}`}>
                       <Td>{formatISO9075(event.dateTime)}</Td>
                       <Td isNumeric>
@@ -109,7 +109,7 @@ const MyTransactions: React.FC = () => {
                 </Thead>
 
                 <Tbody>
-                  {myOrders.map((event: MakeOrderEventEnhanced, i) => (
+                  {myOrders.map((event: MakeOrderEventEnhanced, i: number) => (
                     <Tr key={`my-orders-${i}`}>
                       <Td isNumeric>
                         <Text

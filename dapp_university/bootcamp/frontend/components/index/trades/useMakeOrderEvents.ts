@@ -74,7 +74,10 @@ function useMakeOrderEvents() {
         !cancelledAndFilledIds.includes(event.id.toString())
     )
 
-    events = events.sort((a, b) => b.tokenPrice - a.tokenPrice)
+    events = events.sort(
+      (a: MakeOrderEventEnhanced, b: MakeOrderEventEnhanced) =>
+        b.tokenPrice - a.tokenPrice
+    )
 
     const buyOrders = events.filter(
       (event: MakeOrderEventEnhanced) => event.orderType === "buy"

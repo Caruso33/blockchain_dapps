@@ -58,11 +58,7 @@ const Balance: React.FC = () => {
                   <Tr>
                     <Td>ETH</Td>
                     <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatUnits(
-                          exchangeEther?.toString() || "0"
-                        )
-                      ).toFixed(3)}
+                      {Number(exchangeEther?.toString() || "0").toFixed(3)}
                     </Td>
                     <Td isNumeric>Exchange</Td>
                   </Tr>
@@ -70,11 +66,7 @@ const Balance: React.FC = () => {
                   <Tr>
                     <Td>TOKEN</Td>
                     <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatUnits(
-                          exchangeToken?.toString() || "0"
-                        )
-                      ).toFixed(3)}
+                      {Number(exchangeToken?.toString() || "0").toFixed(3)}
                     </Td>
                     <Td isNumeric>Exchange</Td>
                   </Tr>
