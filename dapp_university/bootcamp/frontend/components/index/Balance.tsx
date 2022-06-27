@@ -2,11 +2,15 @@ import {
   Box,
   Button,
   Flex,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
   Spinner,
   Tab,
   Table,
@@ -21,13 +25,10 @@ import {
   Th,
   Thead,
   Tr,
-  Slider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
 } from "@chakra-ui/react"
 import { ethers } from "ethers"
 import React, { useState } from "react"
+import { useSigner } from "wagmi"
 import useLoadBalances from "../../hooks/useLoadBalances"
 import useAppState from "../../state"
 
@@ -37,15 +38,40 @@ const Balance: React.FC = () => {
   const [deposit, setDeposit] = useState({ ethAmount: 0.0, tokenAmount: 0 })
   const [isLoading, setIsLoading] = useState(false)
 
+  const { data: signer } = useSigner()
+
   useLoadBalances()
 
   const depositEth = async () => {
     setIsLoading(true)
-    setIsLoading(false)
+
+    const exchange = state.contracts?.exchangeContract
+
+    try {
+      await exchange.connect(signer).depositEther({ value: deposit.ethAmount })
+    } finally {
+      setIsLoading(false)
+    }
   }
   const depositToken = async () => {
     setIsLoading(true)
-    setIsLoading(false)
+
+    const tokenContract = state.contracts?.tokenContract
+    const exchangeContract = state.contracts?.exchangeContract
+
+    try {
+      await tokenContract
+        .connect(signer)
+        .approve(exchangeContract.address, deposit.tokenAmount)
+      await exchangeContract
+        .connect(signer)
+        .depositToken(
+          state.contracts?.tokenContract?.address,
+          deposit.tokenAmount
+        )
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const { ether, token, exchangeEther, exchangeToken } = state?.user?.balances
