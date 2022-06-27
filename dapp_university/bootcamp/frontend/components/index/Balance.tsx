@@ -59,16 +59,6 @@ const Balance: React.FC = () => {
                     <Td>ETH</Td>
                     <Td isNumeric>
                       {Number(
-                        ethers.utils.formatUnits(ether?.toString() || "0")
-                      ).toFixed(3)}
-                    </Td>
-                    <Td isNumeric>Origin</Td>
-                  </Tr>
-
-                  <Tr>
-                    <Td>ETH</Td>
-                    <Td isNumeric>
-                      {Number(
                         ethers.utils.formatUnits(
                           exchangeEther?.toString() || "0"
                         )
@@ -81,7 +71,19 @@ const Balance: React.FC = () => {
                     <Td>TOKEN</Td>
                     <Td isNumeric>
                       {Number(
-                        ethers.utils.formatUnits(token?.toString() || "0")
+                        ethers.utils.formatUnits(
+                          exchangeToken?.toString() || "0"
+                        )
+                      ).toFixed(3)}
+                    </Td>
+                    <Td isNumeric>Exchange</Td>
+                  </Tr>
+
+                  <Tr>
+                    <Td>ETH</Td>
+                    <Td isNumeric>
+                      {Number(
+                        ethers.utils.formatUnits(ether?.toString() || "0")
                       ).toFixed(3)}
                     </Td>
                     <Td isNumeric>Origin</Td>
@@ -91,12 +93,10 @@ const Balance: React.FC = () => {
                     <Td>TOKEN</Td>
                     <Td isNumeric>
                       {Number(
-                        ethers.utils.formatUnits(
-                          exchangeToken?.toString() || "0"
-                        )
+                        ethers.utils.formatUnits(token?.toString() || "0")
                       ).toFixed(3)}
                     </Td>
-                    <Td isNumeric>Exchange</Td>
+                    <Td isNumeric>Origin</Td>
                   </Tr>
                 </Tbody>
               </Table>
