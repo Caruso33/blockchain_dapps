@@ -107,7 +107,7 @@ async function seedExchange(taskArgs: any, hre: HardhatRuntimeEnvironment) {
     // open orders
 
     // 10 orders from user1
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       const ethAmount = etherAmount * Math.ceil(Math.random() * i);
       const tokAmount = tokenAmount * Math.ceil(Math.random() * i);
 
@@ -120,7 +120,7 @@ async function seedExchange(taskArgs: any, hre: HardhatRuntimeEnvironment) {
     }
 
     // 10 orders from user2
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       const ethAmount = etherAmount * Math.ceil(Math.random() * i);
       const tokAmount = tokenAmount * Math.ceil(Math.random() * i);
 
