@@ -5,15 +5,79 @@ import {
   Tbody,
   Td,
   Text,
+  Tooltip,
   Tr,
 } from "@chakra-ui/react"
-import React from "react"
+import React, { useState } from "react"
+import { useSigner } from "wagmi"
+import useAppState from "../../state"
+import { eventTypes } from "../../state/reducers/events"
 import useMakeOrderEvents, {
   MakeOrderEventEnhanced,
 } from "./trades/useMakeOrderEvents"
 
 const OrderBook: React.FC = () => {
   const [, buyOrders, sellOrders] = useMakeOrderEvents()
+  const [isTrading, setIsTrading] = useState<boolean>(false)
+
+  const { data: signer } = useSigner()
+
+  const [state, dispatch] = useAppState()
+  console.dir(state.events.trades)
+  const onBuyOrder = async (order: MakeOrderEventEnhanced) => {
+    if (isTrading) return
+
+    const exchange = state.contracts?.exchangeContract
+
+    setIsTrading(true)
+
+    try {
+      const tradeEvents = [
+        {
+          amountGet: order.amountGet,
+          amountGive: order.amountGive,
+          id: order.id,
+          user: order.user,
+          timestamp: order.timestamp,
+          tokenGet: order.tokenGet,
+          tokenGive: order.tokenGive,
+          trader: signer?.getAddress(),
+        },
+      ]
+
+      await exchange.connect(signer).fillOrder(order.id.toNumber())
+      dispatch({ type: eventTypes.ADD_TRADES, data: tradeEvents })
+    } finally {
+      setIsTrading(false)
+    }
+  }
+
+  const onSellOrder = async (order: MakeOrderEventEnhanced) => {
+    if (isTrading) return
+
+    const exchange = state.contracts?.exchangeContract
+
+    setIsTrading(true)
+
+    try {
+      const tradeEvents = [
+        {
+          amountGet: order.amountGet,
+          amountGive: order.amountGive,
+          id: order.id,
+          user: order.user,
+          timestamp: order.timestamp,
+          tokenGet: order.tokenGet,
+          tokenGive: order.tokenGive,
+          trader: signer?.getAddress(),
+        },
+      ]
+      await exchange.connect(signer).fillOrder(order.id.toNumber())
+      dispatch({ type: eventTypes.ADD_TRADES, data: tradeEvents })
+    } finally {
+      setIsTrading(false)
+    }
+  }
 
   return (
     <Flex flexDirection="column" p="1rem" height="100%">
@@ -24,14 +88,16 @@ const OrderBook: React.FC = () => {
       <TableContainer overflowX="auto" overflowY="auto" mt="1rem">
         <Table variant="simple" fontSize="sm">
           <Tbody>
-            {buyOrders.map((order: MakeOrderEventEnhanced, index) => (
-              <Tr key={"bid" + index}>
-                <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
-                <Td isNumeric color="green.200">
-                  {order.tokenPrice}
-                </Td>
-                <Td isNumeric>{order.etherAmount.toNumber()}</Td>
-              </Tr>
+            {buyOrders.map((order: MakeOrderEventEnhanced, index: number) => (
+              <Tooltip label="Click to Sell" key={"bid" + index}>
+                <Tr onClick={() => onSellOrder(order)}>
+                  <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
+                  <Td isNumeric color="green.200">
+                    {order.tokenPrice}
+                  </Td>
+                  <Td isNumeric>{order.etherAmount.toNumber()}</Td>
+                </Tr>
+              </Tooltip>
             ))}
 
             <Tr>
@@ -42,14 +108,16 @@ const OrderBook: React.FC = () => {
 
             {sellOrders
               .reverse()
-              .map((order: MakeOrderEventEnhanced, index) => (
-                <Tr key={"ask" + index}>
-                  <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
-                  <Td isNumeric color="red.200">
-                    {order.tokenPrice}
-                  </Td>
-                  <Td isNumeric>{order.etherAmount.toNumber()}</Td>
-                </Tr>
+              .map((order: MakeOrderEventEnhanced, index: number) => (
+                <Tooltip label="Click to Buy" key={"ask" + index}>
+                  <Tr onClick={() => onBuyOrder(order)}>
+                    <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
+                    <Td isNumeric color="red.200">
+                      {order.tokenPrice}
+                    </Td>
+                    <Td isNumeric>{order.etherAmount.toNumber()}</Td>
+                  </Tr>
+                </Tooltip>
               ))}
           </Tbody>
         </Table>
