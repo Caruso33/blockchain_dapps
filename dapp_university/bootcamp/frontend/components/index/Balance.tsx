@@ -2,7 +2,12 @@ import {
   Box,
   Button,
   Flex,
-  Input,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  Spinner,
   Tab,
   Table,
   TableContainer,
@@ -16,16 +21,32 @@ import {
   Th,
   Thead,
   Tr,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
 } from "@chakra-ui/react"
 import { ethers } from "ethers"
-import React from "react"
+import React, { useState } from "react"
 import useLoadBalances from "../../hooks/useLoadBalances"
 import useAppState from "../../state"
 
 const Balance: React.FC = () => {
   const [state] = useAppState()
 
+  const [deposit, setDeposit] = useState({ ethAmount: 0.0, tokenAmount: 0 })
+  const [isLoading, setIsLoading] = useState(false)
+
   useLoadBalances()
+
+  const depositEth = async () => {
+    setIsLoading(true)
+    setIsLoading(false)
+  }
+  const depositToken = async () => {
+    setIsLoading(true)
+    setIsLoading(false)
+  }
 
   const { ether, token, exchangeEther, exchangeToken } = state?.user?.balances
 
@@ -102,15 +123,91 @@ const Balance: React.FC = () => {
 
       <Flex direction="column" fontSize="sm" mt="0.5rem">
         <Flex>
-          <Input placeholder="Eth Amount" />{" "}
-          <Button ml="0.5rem">Deposit</Button>
+          <NumberInput
+            placeholder="Eth Amount"
+            value={deposit.ethAmount}
+            onChange={(value: string) =>
+              setDeposit({ ...deposit, ethAmount: Number(value) })
+            }
+            defaultValue={0.0}
+            min={0.0}
+            max={Number(ethers.utils.formatEther(ether || "0"))}
+            step={0.01}
+            maxW={150}
+            mr="0.5rem"
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+
+          <Slider
+            flex="1"
+            focusThumbOnChange={false}
+            value={deposit.ethAmount}
+            onChange={(value: number) =>
+              setDeposit({ ...deposit, ethAmount: value })
+            }
+            max={Number(ethers.utils.formatEther(ether || "0"))}
+          >
+            <SliderTrack>
+              <SliderFilledTrack />
+            </SliderTrack>
+            <SliderThumb />
+          </Slider>
+
+          <Button ml="0.5rem" onClick={() => depositEth()} disabled={isLoading}>
+            {isLoading ? <Spinner /> : "Deposit"}
+          </Button>
         </Flex>
 
         <Box mt="0.5rem">Dapp Balance</Box>
 
         <Flex mt="0.5rem">
-          <Input placeholder="Token Amount" />{" "}
-          <Button ml="0.5rem">Deposit</Button>
+          <NumberInput
+            placeholder="Token Amount"
+            value={deposit.tokenAmount}
+            onChange={(value: string) =>
+              setDeposit({ ...deposit, tokenAmount: Number(value) })
+            }
+            defaultValue={0}
+            min={0}
+            max={token}
+            step={1}
+            maxW={150}
+            mr="0.5rem"
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+
+          <Slider
+            flex="1"
+            focusThumbOnChange={false}
+            value={deposit.tokenAmount}
+            onChange={(value: number) =>
+              setDeposit({ ...deposit, tokenAmount: value })
+            }
+            max={token}
+          >
+            <SliderTrack>
+              <SliderFilledTrack />
+            </SliderTrack>
+            <SliderThumb />
+          </Slider>
+
+          <Button
+            ml="0.5rem"
+            onClick={() => depositToken()}
+            disabled={isLoading}
+          >
+            {isLoading ? <Spinner /> : "Deposit"}
+          </Button>
         </Flex>
       </Flex>
     </Flex>
