@@ -1,4 +1,5 @@
 import {
+  Box,
   Flex,
   Table,
   TableContainer,
@@ -85,7 +86,7 @@ const OrderBook: React.FC = () => {
         OrderBook
       </Text>
 
-      <TableContainer overflowX="auto" overflowY="auto" mt="1rem">
+      <TableContainer overflowX="auto" overflowY="auto" mt="1rem" h="45%">
         <Table variant="simple" fontSize="sm">
           <Tbody>
             {buyOrders.map((order: MakeOrderEventEnhanced, index: number) => (
@@ -99,13 +100,25 @@ const OrderBook: React.FC = () => {
                 </Tr>
               </Tooltip>
             ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
 
+      <TableContainer overflowX="auto" overflowY="auto" h="10%">
+        <Table variant="simple" fontSize="sm">
+          <Tbody>
             <Tr>
               <Td>TOKEN</Td>
               <Td>TOKEN/ETH</Td>
               <Td>ETH</Td>
             </Tr>
+          </Tbody>
+        </Table>
+      </TableContainer>
 
+      <TableContainer overflowX="auto" overflowY="auto" h="45%">
+        <Table variant="simple" fontSize="sm">
+          <Tbody>
             {sellOrders
               .reverse()
               .map((order: MakeOrderEventEnhanced, index: number) => (
