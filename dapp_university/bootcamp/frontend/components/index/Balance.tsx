@@ -95,7 +95,7 @@ const Balance: React.FC = () => {
             </TableContainer>
           </TabPanel>
           <TabPanel>
-            <p>two!</p>
+            <p>Add me!</p>
           </TabPanel>
         </TabPanels>
       </Tabs>

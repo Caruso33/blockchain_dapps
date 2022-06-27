@@ -79,10 +79,11 @@ function useMakeOrderEvents() {
         b.tokenPrice - a.tokenPrice
     )
 
-    const buyOrders = events.filter(
+    // reversed logic as user is on opposite side
+    const sellOrders = events.filter(
       (event: MakeOrderEventEnhanced) => event.orderType === "buy"
     )
-    const sellOrders = events.filter(
+    const buyOrders = events.filter(
       (event: MakeOrderEventEnhanced) => event.orderType === "sell"
     )
 
