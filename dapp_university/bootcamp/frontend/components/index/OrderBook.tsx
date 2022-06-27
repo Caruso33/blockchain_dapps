@@ -1,5 +1,4 @@
 import {
-  Box,
   Flex,
   Table,
   TableContainer,
@@ -9,6 +8,7 @@ import {
   Tooltip,
   Tr,
 } from "@chakra-ui/react"
+import { BigNumber } from "ethers"
 import React, { useState } from "react"
 import { useSigner } from "wagmi"
 import useAppState from "../../state"
@@ -24,8 +24,8 @@ const OrderBook: React.FC = () => {
   const { data: signer } = useSigner()
 
   const [state, dispatch] = useAppState()
-  console.dir(state.events.trades)
-  const onBuyOrder = async (order: MakeOrderEventEnhanced) => {
+
+  const fillOrder = async (order: MakeOrderEventEnhanced) => {
     if (isTrading) return
 
     const exchange = state.contracts?.exchangeContract
@@ -38,41 +38,14 @@ const OrderBook: React.FC = () => {
           amountGet: order.amountGet,
           amountGive: order.amountGive,
           id: order.id,
-          user: order.user,
-          timestamp: order.timestamp,
+          orderUser: order.user,
+          timestamp: BigNumber.from(Math.floor(new Date().getTime() / 1000)),
           tokenGet: order.tokenGet,
           tokenGive: order.tokenGive,
-          trader: signer?.getAddress(),
+          trader: state.user.account?.address,
         },
       ]
 
-      await exchange.connect(signer).fillOrder(order.id.toNumber())
-      dispatch({ type: eventTypes.ADD_TRADES, data: tradeEvents })
-    } finally {
-      setIsTrading(false)
-    }
-  }
-
-  const onSellOrder = async (order: MakeOrderEventEnhanced) => {
-    if (isTrading) return
-
-    const exchange = state.contracts?.exchangeContract
-
-    setIsTrading(true)
-
-    try {
-      const tradeEvents = [
-        {
-          amountGet: order.amountGet,
-          amountGive: order.amountGive,
-          id: order.id,
-          user: order.user,
-          timestamp: order.timestamp,
-          tokenGet: order.tokenGet,
-          tokenGive: order.tokenGive,
-          trader: signer?.getAddress(),
-        },
-      ]
       await exchange.connect(signer).fillOrder(order.id.toNumber())
       dispatch({ type: eventTypes.ADD_TRADES, data: tradeEvents })
     } finally {
@@ -91,7 +64,7 @@ const OrderBook: React.FC = () => {
           <Tbody>
             {buyOrders.map((order: MakeOrderEventEnhanced, index: number) => (
               <Tooltip label="Click to Sell" key={"bid" + index}>
-                <Tr onClick={() => onSellOrder(order)}>
+                <Tr onClick={() => fillOrder(order)}>
                   <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
                   <Td isNumeric color="green.200">
                     {order.tokenPrice}
@@ -123,7 +96,7 @@ const OrderBook: React.FC = () => {
               .reverse()
               .map((order: MakeOrderEventEnhanced, index: number) => (
                 <Tooltip label="Click to Buy" key={"ask" + index}>
-                  <Tr onClick={() => onBuyOrder(order)}>
+                  <Tr onClick={() => fillOrder(order)}>
                     <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
                     <Td isNumeric color="red.200">
                       {order.tokenPrice}

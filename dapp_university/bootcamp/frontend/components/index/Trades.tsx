@@ -16,8 +16,6 @@ import useTradeEvents, { TradeEventEnhanced } from "./trades/useTradeEvents"
 const Trades: React.FC = () => {
   const [tradeEvents] = useTradeEvents()
 
-  console.dir(tradeEvents)
-
   return (
     <Flex p="1rem" direction="column">
       <Text fontSize="xl" style={{ fontWeight: "bold" }}>

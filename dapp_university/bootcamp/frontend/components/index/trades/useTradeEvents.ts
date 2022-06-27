@@ -20,6 +20,7 @@ function useTradeEvents() {
   const tradeEvents = useMemo(() => {
     if (!state?.events?.trades) return []
 
+    const userAddress = state.user.account.address
     const precision = 10 ** 5
 
     let events = state.events.trades.sort(
@@ -55,8 +56,8 @@ function useTradeEvents() {
         !previousEvent || tokenPrice > previousEvent.tokenPrice
 
       const hasUserBought =
-        (orderType === "buy" && trader === state.user.account.address) ||
-        (orderType === "sell" && orderUser === state.user.account.address)
+        (orderType === "buy" && trader === userAddress) ||
+        (orderType === "sell" && orderUser === userAddress)
 
       return {
         tokenGive,
@@ -79,8 +80,7 @@ function useTradeEvents() {
 
     const myTradeEvents = events.filter(
       (event: TradeEventEnhanced) =>
-        event.orderUser === state.user.account.address ||
-        event.trader === state.user.account.address
+        event.orderUser === userAddress || event.trader === userAddress
     )
 
     return [events, myTradeEvents]
