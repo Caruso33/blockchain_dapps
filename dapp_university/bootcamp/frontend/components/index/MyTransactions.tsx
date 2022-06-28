@@ -53,7 +53,7 @@ const MyTransactions: React.FC = () => {
         MyTransactions
       </Text>
 
-      <Tabs mt="1rem" overflowY="auto">
+      <Tabs isFitted mt="1rem" overflowY="auto">
         <TabList>
           <Tab>Trades</Tab>
           <Tab>Orders</Tab>

@@ -39,16 +39,13 @@ const Balance: React.FC = () => {
   const [deposit, setDeposit] = useState({ ethAmount: 0.0, tokenAmount: 0 })
   const [isLoading, setIsLoading] = useState(false)
 
+  const [tabIndex, setTabIndex] = React.useState<number>(0)
+
+  const handleTabsChange = (index: number) => setTabIndex(index)
+
   const { data: signer } = useSigner()
 
   const { ether, token, exchangeEther, exchangeToken } = state?.user?.balances
-
-  console.log(
-    ether?.toString(),
-    token?.toString(),
-    exchangeEther?.toString(),
-    exchangeToken?.toString()
-  )
 
   useLoadBalances()
 
@@ -64,6 +61,7 @@ const Balance: React.FC = () => {
       await tx.wait()
 
       dispatch({ type: actionTypes.UPDATE_BALANCES })
+      setDeposit({ ...deposit, ethAmount: 0.0 })
     } finally {
       setIsLoading(false)
     }
@@ -90,6 +88,45 @@ const Balance: React.FC = () => {
       await tx.wait()
 
       dispatch({ type: actionTypes.UPDATE_BALANCES })
+      setDeposit({ ...deposit, tokenAmount: 0 })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const withdrawEther = async () => {
+    setIsLoading(true)
+
+    const exchange = state.contracts?.exchangeContract
+
+    try {
+      const tx = await exchange
+        .connect(signer)
+        .withdrawEther(ethers.utils.parseEther(deposit.ethAmount?.toString()))
+      await tx.wait()
+
+      dispatch({ type: actionTypes.UPDATE_BALANCES })
+      setDeposit({ ...deposit, ethAmount: 0.0 })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  const withdrawToken = async () => {
+    setIsLoading(true)
+
+    const exchangeContract = state.contracts?.exchangeContract
+
+    try {
+      const tx = await exchangeContract
+        .connect(signer)
+        .withdrawToken(
+          state.contracts?.tokenContract?.address,
+          ethers.utils.parseUnits(deposit.tokenAmount.toString())
+        )
+      await tx.wait()
+
+      dispatch({ type: actionTypes.UPDATE_BALANCES })
+      setDeposit({ ...deposit, tokenAmount: 0 })
     } finally {
       setIsLoading(false)
     }
@@ -103,7 +140,15 @@ const Balance: React.FC = () => {
         </Text>
       </Box>
 
-      <Tabs fontSize="sm" mt="1rem" overflowX="auto" overflowY="auto">
+      <Tabs
+        isFitted
+        index={tabIndex}
+        onChange={handleTabsChange}
+        fontSize="sm"
+        mt="1rem"
+        overflowX="auto"
+        overflowY="auto"
+      >
         <TabList>
           <Tab>Deposit</Tab>
           <Tab>Withdraw</Tab>
@@ -168,8 +213,64 @@ const Balance: React.FC = () => {
               </Table>
             </TableContainer>
           </TabPanel>
+
           <TabPanel>
-            <p>Add me!</p>
+            <TableContainer>
+              <Table variant="simple">
+                <Thead>
+                  <Tr>
+                    <Th>Asset</Th>
+                    <Th>Amount</Th>
+                    <Th>Location</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Tr>
+                    <Td>ETH</Td>
+                    <Td isNumeric>
+                      {Number(
+                        ethers.utils.formatEther(
+                          exchangeEther?.toString() || "0"
+                        )
+                      ).toFixed(3)}
+                    </Td>
+                    <Td isNumeric>Exchange</Td>
+                  </Tr>
+
+                  <Tr>
+                    <Td>TOKEN</Td>
+                    <Td isNumeric>
+                      {Number(
+                        ethers.utils.formatUnits(
+                          exchangeToken?.toString() || "0"
+                        )
+                      ).toFixed(3)}
+                    </Td>
+                    <Td isNumeric>Exchange</Td>
+                  </Tr>
+
+                  <Tr>
+                    <Td>ETH</Td>
+                    <Td isNumeric>
+                      {Number(
+                        ethers.utils.formatEther(ether?.toString() || "0")
+                      ).toFixed(3)}
+                    </Td>
+                    <Td isNumeric>Origin</Td>
+                  </Tr>
+
+                  <Tr>
+                    <Td>TOKEN</Td>
+                    <Td isNumeric>
+                      {Number(
+                        ethers.utils.formatUnits(token?.toString() || "0")
+                      ).toFixed(3)}
+                    </Td>
+                    <Td isNumeric>Origin</Td>
+                  </Tr>
+                </Tbody>
+              </Table>
+            </TableContainer>
           </TabPanel>
         </TabPanels>
       </Tabs>
@@ -184,7 +285,13 @@ const Balance: React.FC = () => {
             }
             defaultValue={0.0}
             min={0.0}
-            max={Number(ethers.utils.formatEther(ether || "0"))}
+            max={
+              tabIndex === 0
+                ? Number(ethers.utils.formatEther(ether || "0"))
+                : Number(
+                    ethers.utils.formatEther(exchangeEther?.toString() || "0")
+                  )
+            }
             step={0.01}
             maxW={150}
             mr="0.5rem"
@@ -203,7 +310,13 @@ const Balance: React.FC = () => {
             onChange={(value: number) =>
               setDeposit({ ...deposit, ethAmount: value })
             }
-            max={Number(ethers.utils.formatEther(ether || "0"))}
+            max={
+              tabIndex === 0
+                ? Number(ethers.utils.formatEther(ether || "0"))
+                : Number(
+                    ethers.utils.formatEther(exchangeEther?.toString() || "0")
+                  )
+            }
           >
             <SliderTrack>
               <SliderFilledTrack />
@@ -211,8 +324,12 @@ const Balance: React.FC = () => {
             <SliderThumb />
           </Slider>
 
-          <Button ml="0.5rem" onClick={() => depositEth()} disabled={isLoading}>
-            {isLoading ? <Spinner /> : "Deposit"}
+          <Button
+            ml="0.5rem"
+            onClick={() => (tabIndex === 0 ? depositEth() : withdrawEther())}
+            disabled={isLoading}
+          >
+            {isLoading ? <Spinner /> : tabIndex === 0 ? "Deposit" : "Withdraw"}
           </Button>
         </Flex>
 
@@ -227,7 +344,13 @@ const Balance: React.FC = () => {
             }
             defaultValue={0}
             min={0}
-            max={Number(ethers.utils.formatUnits(token || "0"))}
+            max={
+              tabIndex === 0
+                ? Number(ethers.utils.formatUnits(token || "0"))
+                : Number(
+                    ethers.utils.formatUnits(exchangeToken?.toString() || "0")
+                  )
+            }
             step={1}
             maxW={150}
             mr="0.5rem"
@@ -246,7 +369,13 @@ const Balance: React.FC = () => {
             onChange={(value: number) =>
               setDeposit({ ...deposit, tokenAmount: value })
             }
-            max={Number(ethers.utils.formatUnits(token || "0"))}
+            max={
+              tabIndex === 0
+                ? Number(ethers.utils.formatUnits(token || "0"))
+                : Number(
+                    ethers.utils.formatUnits(exchangeToken?.toString() || "0")
+                  )
+            }
           >
             <SliderTrack>
               <SliderFilledTrack />
@@ -256,10 +385,10 @@ const Balance: React.FC = () => {
 
           <Button
             ml="0.5rem"
-            onClick={() => depositToken()}
+            onClick={() => (tabIndex === 0 ? depositToken() : withdrawToken())}
             disabled={isLoading}
           >
-            {isLoading ? <Spinner /> : "Deposit"}
+            {isLoading ? <Spinner /> : tabIndex === 0 ? "Deposit" : "Withdraw"}
           </Button>
         </Flex>
       </Flex>
