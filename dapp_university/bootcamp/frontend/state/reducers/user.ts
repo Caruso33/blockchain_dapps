@@ -4,6 +4,7 @@ const userTypes = {
   ADD_CHAIN: "ADD_CHAIN",
   REMOVE_CHAIN: "REMOVE_CHAIN",
   ADD_BALANCES: "ADD_BALANCES",
+  UPDATE_BALANCES: "UPDATE_BALANCES",
 }
 
 const userReducer = (state, action = {}) => {
@@ -46,6 +47,18 @@ const userReducer = (state, action = {}) => {
           balances: {
             ...state.user.balances,
             ...data,
+          },
+        },
+      }
+    }
+
+    case userTypes.UPDATE_BALANCES: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          account: {
+            ...state.user.account,
           },
         },
       }

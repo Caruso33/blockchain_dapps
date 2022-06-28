@@ -1,4 +1,4 @@
-import { ethers } from "ethers"
+import { BigNumber, ethers } from "ethers"
 import { useCallback, useEffect } from "react"
 import { useProvider, useSigner } from "wagmi"
 import useAppState from "../state"
@@ -17,10 +17,10 @@ function useLoadBalances() {
       return
     }
 
-    let etherBalance
-    let tokenBalance
-    let exchangeEtherBalance
-    let exchangeTokenBalance
+    let etherBalance: BigNumber
+    let tokenBalance: BigNumber
+    let exchangeEtherBalance: BigNumber
+    let exchangeTokenBalance: BigNumber
 
     try {
       if (provider) {
@@ -46,10 +46,10 @@ function useLoadBalances() {
       dispatch({
         type: actionTypes.ADD_BALANCES,
         data: {
-          ether: etherBalance,
-          token: tokenBalance,
-          exchangeEther: exchangeEtherBalance,
-          exchangeToken: exchangeTokenBalance,
+          ether: etherBalance!,
+          token: tokenBalance!,
+          exchangeEther: exchangeEtherBalance!,
+          exchangeToken: exchangeTokenBalance!,
         },
       })
     } catch (e) {

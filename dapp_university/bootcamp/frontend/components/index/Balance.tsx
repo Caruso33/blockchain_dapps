@@ -31,14 +31,24 @@ import React, { useState } from "react"
 import { useSigner } from "wagmi"
 import useLoadBalances from "../../hooks/useLoadBalances"
 import useAppState from "../../state"
+import { actionTypes } from "../../state/reducer"
 
 const Balance: React.FC = () => {
-  const [state] = useAppState()
+  const [state, dispatch] = useAppState()
 
   const [deposit, setDeposit] = useState({ ethAmount: 0.0, tokenAmount: 0 })
   const [isLoading, setIsLoading] = useState(false)
 
   const { data: signer } = useSigner()
+
+  const { ether, token, exchangeEther, exchangeToken } = state?.user?.balances
+
+  console.log(
+    ether?.toString(),
+    token?.toString(),
+    exchangeEther?.toString(),
+    exchangeToken?.toString()
+  )
 
   useLoadBalances()
 
@@ -48,7 +58,12 @@ const Balance: React.FC = () => {
     const exchange = state.contracts?.exchangeContract
 
     try {
-      await exchange.connect(signer).depositEther({ value: deposit.ethAmount })
+      const tx = await exchange.connect(signer).depositEther({
+        value: ethers.utils.parseEther(deposit.ethAmount?.toString()),
+      })
+      await tx.wait()
+
+      dispatch({ type: actionTypes.UPDATE_BALANCES })
     } finally {
       setIsLoading(false)
     }
@@ -62,19 +77,23 @@ const Balance: React.FC = () => {
     try {
       await tokenContract
         .connect(signer)
-        .approve(exchangeContract.address, deposit.tokenAmount)
-      await exchangeContract
+        .approve(
+          exchangeContract.address,
+          ethers.utils.parseUnits(deposit.tokenAmount.toString())
+        )
+      const tx = await exchangeContract
         .connect(signer)
         .depositToken(
           state.contracts?.tokenContract?.address,
-          deposit.tokenAmount
+          ethers.utils.parseUnits(deposit.tokenAmount.toString())
         )
+      await tx.wait()
+
+      dispatch({ type: actionTypes.UPDATE_BALANCES })
     } finally {
       setIsLoading(false)
     }
   }
-
-  const { ether, token, exchangeEther, exchangeToken } = state?.user?.balances
 
   return (
     <Flex flexDirection="column" p="1rem" height="inherit" width="inherit">
@@ -105,7 +124,11 @@ const Balance: React.FC = () => {
                   <Tr>
                     <Td>ETH</Td>
                     <Td isNumeric>
-                      {Number(exchangeEther?.toString() || "0").toFixed(3)}
+                      {Number(
+                        ethers.utils.formatEther(
+                          exchangeEther?.toString() || "0"
+                        )
+                      ).toFixed(3)}
                     </Td>
                     <Td isNumeric>Exchange</Td>
                   </Tr>
@@ -113,7 +136,11 @@ const Balance: React.FC = () => {
                   <Tr>
                     <Td>TOKEN</Td>
                     <Td isNumeric>
-                      {Number(exchangeToken?.toString() || "0").toFixed(3)}
+                      {Number(
+                        ethers.utils.formatUnits(
+                          exchangeToken?.toString() || "0"
+                        )
+                      ).toFixed(3)}
                     </Td>
                     <Td isNumeric>Exchange</Td>
                   </Tr>
@@ -122,7 +149,7 @@ const Balance: React.FC = () => {
                     <Td>ETH</Td>
                     <Td isNumeric>
                       {Number(
-                        ethers.utils.formatUnits(ether?.toString() || "0")
+                        ethers.utils.formatEther(ether?.toString() || "0")
                       ).toFixed(3)}
                     </Td>
                     <Td isNumeric>Origin</Td>
@@ -147,7 +174,7 @@ const Balance: React.FC = () => {
         </TabPanels>
       </Tabs>
 
-      <Flex direction="column" fontSize="sm" mt="0.5rem">
+      <Flex direction="column" fontSize="sm" mt="1rem">
         <Flex>
           <NumberInput
             placeholder="Eth Amount"
@@ -200,7 +227,7 @@ const Balance: React.FC = () => {
             }
             defaultValue={0}
             min={0}
-            max={token}
+            max={Number(ethers.utils.formatUnits(token || "0"))}
             step={1}
             maxW={150}
             mr="0.5rem"
@@ -219,7 +246,7 @@ const Balance: React.FC = () => {
             onChange={(value: number) =>
               setDeposit({ ...deposit, tokenAmount: value })
             }
-            max={token}
+            max={Number(ethers.utils.formatUnits(token || "0"))}
           >
             <SliderTrack>
               <SliderFilledTrack />
