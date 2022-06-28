@@ -146,8 +146,6 @@ const Balance: React.FC = () => {
         onChange={handleTabsChange}
         fontSize="sm"
         mt="1rem"
-        overflowX="auto"
-        overflowY="auto"
       >
         <TabList>
           <Tab>Deposit</Tab>
@@ -155,127 +153,57 @@ const Balance: React.FC = () => {
         </TabList>
 
         <TabPanels>
-          <TabPanel>
-            <TableContainer>
-              <Table variant="simple">
-                <Thead>
-                  <Tr>
-                    <Th>Asset</Th>
-                    <Th>Amount</Th>
-                    <Th>Location</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  <Tr>
-                    <Td>ETH</Td>
-                    <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatEther(
-                          exchangeEther?.toString() || "0"
-                        )
-                      ).toFixed(3)}
-                    </Td>
-                    <Td isNumeric>Exchange</Td>
-                  </Tr>
+          <TabPanel></TabPanel>
 
-                  <Tr>
-                    <Td>TOKEN</Td>
-                    <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatUnits(
-                          exchangeToken?.toString() || "0"
-                        )
-                      ).toFixed(3)}
-                    </Td>
-                    <Td isNumeric>Exchange</Td>
-                  </Tr>
-
-                  <Tr>
-                    <Td>ETH</Td>
-                    <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatEther(ether?.toString() || "0")
-                      ).toFixed(3)}
-                    </Td>
-                    <Td isNumeric>Origin</Td>
-                  </Tr>
-
-                  <Tr>
-                    <Td>TOKEN</Td>
-                    <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatUnits(token?.toString() || "0")
-                      ).toFixed(3)}
-                    </Td>
-                    <Td isNumeric>Origin</Td>
-                  </Tr>
-                </Tbody>
-              </Table>
-            </TableContainer>
-          </TabPanel>
-
-          <TabPanel>
-            <TableContainer>
-              <Table variant="simple">
-                <Thead>
-                  <Tr>
-                    <Th>Asset</Th>
-                    <Th>Amount</Th>
-                    <Th>Location</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  <Tr>
-                    <Td>ETH</Td>
-                    <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatEther(
-                          exchangeEther?.toString() || "0"
-                        )
-                      ).toFixed(3)}
-                    </Td>
-                    <Td isNumeric>Exchange</Td>
-                  </Tr>
-
-                  <Tr>
-                    <Td>TOKEN</Td>
-                    <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatUnits(
-                          exchangeToken?.toString() || "0"
-                        )
-                      ).toFixed(3)}
-                    </Td>
-                    <Td isNumeric>Exchange</Td>
-                  </Tr>
-
-                  <Tr>
-                    <Td>ETH</Td>
-                    <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatEther(ether?.toString() || "0")
-                      ).toFixed(3)}
-                    </Td>
-                    <Td isNumeric>Origin</Td>
-                  </Tr>
-
-                  <Tr>
-                    <Td>TOKEN</Td>
-                    <Td isNumeric>
-                      {Number(
-                        ethers.utils.formatUnits(token?.toString() || "0")
-                      ).toFixed(3)}
-                    </Td>
-                    <Td isNumeric>Origin</Td>
-                  </Tr>
-                </Tbody>
-              </Table>
-            </TableContainer>
-          </TabPanel>
+          <TabPanel></TabPanel>
         </TabPanels>
       </Tabs>
 
+      <TableContainer>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Asset</Th>
+              <Th>Wallet</Th>
+              <Th>Exchange</Th>
+            </Tr>
+          </Thead>
+
+          <Tbody>
+            <Tr>
+              <Td>ETH</Td>
+              <Td isNumeric>
+                {Number(
+                  ethers.utils.formatEther(ether?.toString() || "0")
+                ).toFixed(3)}
+              </Td>
+              <Td isNumeric>
+                {Number(
+                  ethers.utils.formatEther(exchangeEther?.toString() || "0")
+                ).toFixed(3)}
+              </Td>
+            </Tr>
+
+            <Tr>
+              <Td>TOKEN</Td>
+              <Td isNumeric>
+                {Number(
+                  ethers.utils.formatUnits(token?.toString() || "0")
+                ).toFixed(3)}
+              </Td>
+              <Td isNumeric>
+                {Number(
+                  ethers.utils.formatUnits(exchangeToken?.toString() || "0")
+                ).toFixed(3)}
+              </Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      </TableContainer>
+
       <Flex direction="column" fontSize="sm" mt="1rem">
+        <Box mt="0.5rem">ETH Balance</Box>
+
         <Flex>
           <NumberInput
             placeholder="Eth Amount"
@@ -333,7 +261,7 @@ const Balance: React.FC = () => {
           </Button>
         </Flex>
 
-        <Box mt="0.5rem">Dapp Balance</Box>
+        <Box mt="0.5rem">Token Balance</Box>
 
         <Flex mt="0.5rem">
           <NumberInput
