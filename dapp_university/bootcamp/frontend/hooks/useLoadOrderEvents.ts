@@ -27,7 +27,7 @@ function useLoadCancelOrderEvents() {
   useEffect(() => {
     const exchangeContract = state.contracts?.exchangeContract
     if (exchangeContract && state?.events?.cancelOrders?.length === 0) {
-      // loadCancelOrderEvents(exchangeContract, dispatch)
+      loadCancelOrderEvents(exchangeContract, dispatch)
     }
   }, [
     state.contracts?.exchangeContract,

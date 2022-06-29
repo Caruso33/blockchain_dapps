@@ -30,7 +30,7 @@ export default function MainContent() {
   useLoadDepositEvents()
   useLoadWithdrawalEvents()
 
-  useSubscribeEvents()
+  // useSubscribeEvents()
 
   let content = null
   if (!state.user?.account?.address) {

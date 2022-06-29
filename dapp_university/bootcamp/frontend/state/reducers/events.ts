@@ -10,12 +10,22 @@ const eventTypes = {
   ADD_WITHDRAWALS: "ADD_WITHDRAWALS",
 }
 
-const eventsReducer = (
-  state = {
-    events: {},
-  },
-  action = {}
-) => {
+interface EventState {
+  events: {
+    makeOrders: any[]
+    cancelOrders: any[]
+    trades: any[]
+    deposits: any[]
+    withdrawals: any[]
+  }
+}
+
+interface EventAction {
+  data: any
+  type: string
+}
+
+const eventsReducer = (state: EventState, action: EventAction) => {
   const { data, type } = action
 
   switch (type) {
@@ -24,10 +34,11 @@ const eventsReducer = (
         ...state,
         events: {
           ...state.events,
-          makeOrders: [...state.events.makeOrders],
-          cancelOrders: [...state.events.cancelOrders],
-          trades: [...state.events.trades],
-          deposits: [...state.events.deposits],
+          makeOrders: [],
+          cancelOrders: [],
+          trades: [],
+          deposits: [],
+          withdrawals: [],
         },
       }
     }

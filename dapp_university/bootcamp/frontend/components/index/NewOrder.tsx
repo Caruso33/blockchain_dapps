@@ -11,9 +11,9 @@ import {
   Tab,
   TabList,
   Tabs,
-  Text,
+  Text
 } from "@chakra-ui/react"
-import { BigNumber, ethers } from "ethers"
+import { ethers } from "ethers"
 import React, { useState } from "react"
 import { useSigner } from "wagmi"
 import useAppState from "../../state"
@@ -75,8 +75,6 @@ const NewOrder: React.FC = () => {
         ethers.utils.formatEther(amountGet.toString()),
         ethers.utils.formatUnits(amountGive.toString())
       )
-      // setIsLoading(false)
-      // return
 
       const tx = await exchangeContract
         .connect(signer)

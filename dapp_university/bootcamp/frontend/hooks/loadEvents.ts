@@ -28,6 +28,8 @@ async function loadEvents(exchangeContract: Contract, eventName: string) {
 }
 
 async function loadMakeOrderEvents(exchangeContract: Contract, dispatch: any) {
+  console.log("HERE loadMakeOrderEvents")
+
   const events = await loadEvents(exchangeContract, "MakeOrderEvent")
 
   const makeOrderEvents = events
