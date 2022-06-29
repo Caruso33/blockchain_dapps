@@ -16,3 +16,8 @@
 
 - check coloring
 - trade event triggers state change and displays on trades, mytrans, price chart and balance
+
+### New Order
+
+- make amount with decimals work, less than 1
+- update orderbook as soon as new order created

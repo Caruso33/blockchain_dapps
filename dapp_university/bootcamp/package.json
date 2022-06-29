@@ -7,6 +7,7 @@
   "scripts": {
     "accounts": "hardhat accounts",
     "seed:exchange": "hardhat seed-exchange",
+    "listen:events": "hardhat listen-events",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "deploy": "hardhat deploy --export-all artifacts/deployments.json && yarn run cp:deployments",

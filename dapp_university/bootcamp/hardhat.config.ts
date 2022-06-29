@@ -1,15 +1,15 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig, task } from "hardhat/config";
+import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
-import "hardhat-gas-reporter";
-import "solidity-coverage";
-import seedExchange from "./scripts/seed-exchange";
-import "@nomiclabs/hardhat-ethers";
 import "hardhat-deploy";
-
+import "hardhat-gas-reporter";
+import { HardhatUserConfig, task } from "hardhat/config";
+import "solidity-coverage";
+import listenEvents from "./scripts/listenEvent";
+import seedExchange from "./scripts/seed-exchange";
 
 dotenv.config();
 
@@ -28,6 +28,12 @@ task("seed-exchange", "Prefills the Exchange contract with orders")
   .addParam("exchange", "The address of exchange contract")
   .setAction(async (taskArgs, hre) => {
     return seedExchange(taskArgs, hre);
+  });
+
+task("listen-events", "Listen to all events")
+  .addParam("exchange", "The address of exchange contract")
+  .setAction(async (taskArgs, hre) => {
+    return listenEvents(taskArgs, hre);
   });
 
 const mnemonic = process.env.mnemonic!;
@@ -71,7 +77,7 @@ const config: HardhatUserConfig = {
     },
     ganache: {
       url: process.env.GANACHE_URL || "http://localhost:8545",
-      chainId: 1337
+      chainId: 1337,
     },
   },
   gasReporter: {
