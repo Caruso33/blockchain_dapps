@@ -110,7 +110,10 @@ describe("Exchange contract", async function () {
               ETHER_ADDRESS,
               tokenUser.address,
               etherAmount,
-              etherAmount
+              etherAmount,
+              (
+                await ethers.provider.getBlock(tx.blockNumber!)
+              ).timestamp
             );
         });
 
@@ -127,13 +130,18 @@ describe("Exchange contract", async function () {
           const etherBalanceBefore = await tokenUser.getBalance();
           let tx = await contract.connect(tokenUser).withdrawEther(etherAmount);
           tx = await tx.wait();
+
+          const gasPrice =
+            tx.effectiveGasPrice ||
+            (await ethers.provider.getFeeData()).gasPrice;
+
           const etherBalanceAfter = await tokenUser.getBalance();
 
           const balanceDifference = etherBalanceAfter.sub(etherBalanceBefore);
           const gasConsumed = ethers.utils.parseUnits(
             (
               Number(tx.cumulativeGasUsed.toString()) *
-              Number(tx.effectiveGasPrice.toString())
+              Number(gasPrice.toString())
             ).toString(),
             "wei"
           );
@@ -160,7 +168,15 @@ describe("Exchange contract", async function () {
 
           await expect(tx)
             .to.emit(contract, "WithdrawalEvent")
-            .withArgs(ETHER_ADDRESS, tokenUser.address, etherAmount, 0);
+            .withArgs(
+              ETHER_ADDRESS,
+              tokenUser.address,
+              etherAmount,
+              0,
+              (
+                await ethers.provider.getBlock(tx.blockNumber)
+              ).timestamp
+            );
         });
       });
 
@@ -230,11 +246,12 @@ describe("Exchange contract", async function () {
         it("emits a deposit event", async () => {
           const { txDeposit } = await approveAndDepositToken();
           const tx = await txDeposit.wait();
-          // tx has now additional props
 
+          // tx has now additional props
           const event: Event = tx.events.find(
             (e: Event) => e.event === "DepositEvent"
           );
+          const block = await ethers.provider.getBlock(tx.blockNumber!);
           // listen events on transaction
           // eslint-disable-next-line
           expect(event).to.not.be.undefined;
@@ -242,6 +259,7 @@ describe("Exchange contract", async function () {
           expect(event.args?.user).to.equal(tokenUser.address);
           expect(event.args?.amount).to.equal(tokenAmount);
           expect(event.args?.balance).to.equal(tokenAmount);
+          expect(event.args?.timestamp).to.equal(block.timestamp);
 
           // listen events on contract
           // 1st method
@@ -251,16 +269,21 @@ describe("Exchange contract", async function () {
               tokenContract.address,
               tokenUser.address,
               tokenAmount,
-              tokenAmount
+              tokenAmount,
+              block.timestamp
             );
 
           // 2nd method
-          contract.on("DepositEvent", (from, to, amount, balance) => {
-            expect(from).to.equal(tokenContract.address);
-            expect(to).to.equal(tokenUser.address);
-            expect(amount.toString()).to.equal(tokenAmount.toString());
-            expect(balance.toString()).to.equal(tokenAmount.toString());
-          });
+          contract.on(
+            "DepositEvent",
+            (from, to, amount, balance, timestamp) => {
+              expect(from).to.equal(tokenContract.address);
+              expect(to).to.equal(tokenUser.address);
+              expect(amount.toString()).to.equal(tokenAmount.toString());
+              expect(balance.toString()).to.equal(tokenAmount.toString());
+              expect(timestamp).to.equal(block.timestamp);
+            }
+          );
         });
 
         it("can withdraw a token", async () => {
@@ -299,7 +322,15 @@ describe("Exchange contract", async function () {
 
           await expect(tx)
             .to.emit(contract, "WithdrawalEvent")
-            .withArgs(tokenContract.address, tokenUser.address, tokenAmount, 0);
+            .withArgs(
+              tokenContract.address,
+              tokenUser.address,
+              tokenAmount,
+              0,
+              (
+                await ethers.provider.getBlock(tx.blockNumber!)
+              ).timestamp
+            );
         });
       });
 
@@ -358,9 +389,8 @@ describe("Exchange contract", async function () {
 
           const addressOne = "0x0000000000000000000000000000000000000001";
 
-          await expect(
-            contract.depositToken(addressOne, tokenAmount)
-          ).to.be.revertedWith("function call to a non-contract account");
+          await expect(contract.depositToken(addressOne, tokenAmount)).to.be
+            .reverted;
         });
 
         it("reverts if not enough tokens are withdrawn", async () => {
@@ -495,7 +525,13 @@ describe("Exchange contract", async function () {
 
           await expect(cancelTx)
             .to.emit(contract, "CancelOrderEvent")
-            .withArgs(1, tokenUser.address);
+            .withArgs(
+              1,
+              tokenUser.address,
+              (
+                await ethers.provider.getBlock(cancelTx.blockNumber)
+              ).timestamp
+            );
         });
 
         it("fills order and tracks balances", async () => {
