@@ -67,14 +67,23 @@ function Wallet() {
 
         <Text ml="0.5rem">on {state.user?.chain?.name}</Text>
 
-        <Button ml="0.5rem" onClick={() => disconnect()}>
+        <Button
+          bg="blue.800"
+          size="sm"
+          ml="0.5rem"
+          onClick={() => disconnect()}
+        >
           Disconnect
         </Button>
       </>
     )
   }
 
-  return <Button onClick={() => connect()}>Connect Wallet</Button>
+  return (
+    <Button bg="blue.800" size="sm" onClick={() => connect()}>
+      Connect Wallet
+    </Button>
+  )
 }
 
 export default Navbar

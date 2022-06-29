@@ -5,7 +5,7 @@
       "chainId": "1337",
       "contracts": {
         "Token": {
-          "address": "0xE00c0D57Fa6E630c9e1aFb91B4374178F31b921b",
+          "address": "0x6a0Bb1802Ae61Fe3CcEE9c92D28b8376Ac87f7eC",
           "abi": [
             {
               "inputs": [],
@@ -285,7 +285,7 @@
           ]
         },
         "Exchange": {
-          "address": "0x3a26c7d5146A1A2b4CcAeeb841e538Ddc6D7eCAc",
+          "address": "0xa59bc8a50b873427cCF439F190a75707Cc91cF23",
           "abi": [
             {
               "inputs": [

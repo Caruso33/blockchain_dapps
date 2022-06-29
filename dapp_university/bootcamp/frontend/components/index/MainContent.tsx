@@ -1,4 +1,4 @@
-import { Center, Grid, GridItem, Text } from "@chakra-ui/react"
+import { Center, Flex, Grid, GridItem, Text } from "@chakra-ui/react"
 import {
   useLoadDepositEvents,
   useLoadWithdrawalEvents,
@@ -44,13 +44,15 @@ export default function MainContent() {
   } else if (!state.contracts?.contractData) {
     content = (
       <GridItem colSpan={7} rowSpan={1} m="5rem" bg="blue.800">
-        <Center height="100%">
-          <Text>The current chain has no deployment.</Text>
-          <br />
-          <Text>Please change the network</Text>
-          <br />
-          <Text>Current supported chains {["Polygon Mumbai"].join(", ")}</Text>
-        </Center>
+        <Flex direction="column" justify="center" align="center" height="100%">
+          <Text>The current chain has no deployment. </Text>
+
+          <Text mt="0.5rem">Please change the network. </Text>
+
+          <Text mt="0.5rem">
+            Current supported chains {["Polygon Mumbai"].join(", ")}
+          </Text>
+        </Flex>
       </GridItem>
     )
   } else {
@@ -78,7 +80,7 @@ export default function MainContent() {
 
         <GridItem
           gridRow="2 / span 1"
-          gridColumn="4 / span 2"
+          gridColumn="4 / 6"
           width="100%"
           height="100%"
           bg="blue.800"

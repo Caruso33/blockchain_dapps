@@ -1,6 +1,7 @@
 import { CancelOrderEvent } from "../../types"
 
 const eventTypes = {
+  UPDATE_EVENTS: "UPDATE_EVENTS",
   ADD_MAKE_ORDERS: "ADD_MAKE_ORDERS",
   ADD_CANCEL_ORDERS: "ADD_CANCEL_ORDERS",
   ADD_CANCEL_ORDER: "ADD_CANCEL_ORDER",
@@ -9,10 +10,28 @@ const eventTypes = {
   ADD_WITHDRAWALS: "ADD_WITHDRAWALS",
 }
 
-const eventsReducer = (state, action = {}) => {
+const eventsReducer = (
+  state = {
+    events: {},
+  },
+  action = {}
+) => {
   const { data, type } = action
 
   switch (type) {
+    case eventTypes.UPDATE_EVENTS: {
+      return {
+        ...state,
+        events: {
+          ...state.events,
+          makeOrders: [...state.events.makeOrders],
+          cancelOrders: [...state.events.cancelOrders],
+          trades: [...state.events.trades],
+          deposits: [...state.events.deposits],
+        },
+      }
+    }
+
     case eventTypes.ADD_MAKE_ORDERS: {
       return {
         ...state,

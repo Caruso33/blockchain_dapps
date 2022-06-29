@@ -17,6 +17,35 @@ function subscribeEvents(
   contract.on(eventName, listener)
 }
 
+function subscribeMakeOrderEvents(contract: Contract, dispatch: Dispatch<any>) {
+  if (!contract) return
+
+  const listener: Listener = (
+    id: BigNumber,
+    user: string,
+    timestamp: BigNumber
+  ) => {
+    dispatch({
+      type: actionTypes.ADD_CANCEL_ORDER,
+      data: { id, user, timestamp } as CancelOrderEvent,
+    })
+  }
+
+  subscribeEvents(
+    contract,
+    // "MakeOrderEvent",
+    {
+      topics: [
+        utils.id(
+          "MakeOrderEvent(uint256,address,address,uint256,address,uint256,uint256)"
+        ),
+      ],
+      fromBlock: "latest",
+    },
+    listener
+  )
+}
+
 function subscribeCancelOrderEvents(
   contract: Contract,
   dispatch: Dispatch<any>
@@ -45,4 +74,4 @@ function subscribeCancelOrderEvents(
   )
 }
 
-export { subscribeCancelOrderEvents }
+export { subscribeMakeOrderEvents, subscribeCancelOrderEvents }

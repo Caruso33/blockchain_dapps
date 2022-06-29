@@ -16,8 +16,6 @@ import {
   Table,
   TableContainer,
   TabList,
-  TabPanel,
-  TabPanels,
   Tabs,
   Tbody,
   Td,
@@ -39,7 +37,7 @@ const Balance: React.FC = () => {
   const [deposit, setDeposit] = useState({ ethAmount: 0.0, tokenAmount: 0 })
   const [isLoading, setIsLoading] = useState(false)
 
-  const [tabIndex, setTabIndex] = React.useState<number>(0)
+  const [tabIndex, setTabIndex] = useState<number>(0)
 
   const handleTabsChange = (index: number) => setTabIndex(index)
 
@@ -151,15 +149,9 @@ const Balance: React.FC = () => {
           <Tab>Deposit</Tab>
           <Tab>Withdraw</Tab>
         </TabList>
-
-        <TabPanels>
-          <TabPanel></TabPanel>
-
-          <TabPanel></TabPanel>
-        </TabPanels>
       </Tabs>
 
-      <TableContainer>
+      <TableContainer mt="0.5rem">
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -204,7 +196,7 @@ const Balance: React.FC = () => {
       <Flex direction="column" fontSize="sm" mt="1rem">
         <Box mt="0.5rem">ETH Balance</Box>
 
-        <Flex>
+        <Flex mt="0.5rem">
           <NumberInput
             placeholder="Eth Amount"
             value={deposit.ethAmount}
@@ -253,6 +245,7 @@ const Balance: React.FC = () => {
           </Slider>
 
           <Button
+            bg="blue.500"
             ml="0.5rem"
             onClick={() => (tabIndex === 0 ? depositEth() : withdrawEther())}
             disabled={isLoading}
@@ -312,6 +305,7 @@ const Balance: React.FC = () => {
           </Slider>
 
           <Button
+            bg="blue.500"
             ml="0.5rem"
             onClick={() => (tabIndex === 0 ? depositToken() : withdrawToken())}
             disabled={isLoading}
