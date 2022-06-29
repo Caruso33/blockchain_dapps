@@ -65,11 +65,11 @@ const OrderBook: React.FC = () => {
             {buyOrders.map((order: MakeOrderEventEnhanced, index: number) => (
               <Tooltip label="Click to Sell" key={"bid" + index}>
                 <Tr onClick={() => fillOrder(order)}>
-                  <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
+                  <Td isNumeric>{order.tokenAmount}</Td>
                   <Td isNumeric color="green.200">
                     {order.tokenPrice}
                   </Td>
-                  <Td isNumeric>{order.etherAmount.toNumber()}</Td>
+                  <Td isNumeric>{order.etherAmount}</Td>
                 </Tr>
               </Tooltip>
             ))}
@@ -97,11 +97,11 @@ const OrderBook: React.FC = () => {
               .map((order: MakeOrderEventEnhanced, index: number) => (
                 <Tooltip label="Click to Buy" key={"ask" + index}>
                   <Tr onClick={() => fillOrder(order)}>
-                    <Td isNumeric>{order.tokenAmount.toNumber()}</Td>
+                    <Td isNumeric>{order.tokenAmount}</Td>
                     <Td isNumeric color="red.200">
                       {order.tokenPrice}
                     </Td>
-                    <Td isNumeric>{order.etherAmount.toNumber()}</Td>
+                    <Td isNumeric>{order.etherAmount}</Td>
                   </Tr>
                 </Tooltip>
               ))}

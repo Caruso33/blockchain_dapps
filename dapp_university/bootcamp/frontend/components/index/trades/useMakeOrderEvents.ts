@@ -7,8 +7,8 @@ import useTradeEvents, { TradeEventEnhanced } from "./useTradeEvents"
 
 type MakeOrderEventEnhanced = MakeOrderEvent & {
   orderType: "buy" | "sell"
-  etherAmount: BigNumber
-  tokenAmount: BigNumber
+  etherAmount: string
+  tokenAmount: string
   tokenPrice: number
   dateTime: Date
 }
@@ -29,18 +29,18 @@ function useMakeOrderEvents() {
         const orderType =
           tokenGive.toString() === ethers.constants.AddressZero ? "buy" : "sell"
 
-        let etherAmount
-        let tokenAmount
+        let etherAmount: string
+        let tokenAmount: string
 
         if (tokenGive.toString() === ethers.constants.AddressZero) {
-          etherAmount = amountGive
-          tokenAmount = amountGet
+          etherAmount = ethers.utils.formatEther(amountGive)
+          tokenAmount = ethers.utils.formatUnits(amountGet)
         } else {
-          etherAmount = amountGet
-          tokenAmount = amountGive
+          etherAmount = ethers.utils.formatEther(amountGet)
+          tokenAmount = ethers.utils.formatUnits(amountGive)
         }
 
-        let tokenPrice = etherAmount.toNumber() / tokenAmount.toNumber()
+        let tokenPrice = Number(etherAmount) / Number(tokenAmount)
         tokenPrice = Math.round(tokenPrice * precision) / precision
 
         const dateTime = fromUnixTime(timestamp.toNumber())

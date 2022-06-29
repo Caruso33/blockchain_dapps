@@ -13,7 +13,7 @@ import {
   Tabs,
   Text
 } from "@chakra-ui/react"
-import { ethers } from "ethers"
+import { BigNumber, ethers } from "ethers"
 import React, { useState } from "react"
 import { useSigner } from "wagmi"
 import useAppState from "../../state"
@@ -39,35 +39,23 @@ const NewOrder: React.FC = () => {
     try {
       let tokenGet: string
       let tokenGive: string
-      let amountGet: number
-      let amountGive: number
+      let amountGet: BigNumber
+      let amountGive: BigNumber
 
       if (tabIndex === 0) {
         tokenGet = ethers.constants.AddressZero
-        amountGet = order.amount * order.price
-
+        amountGet = ethers.utils.parseEther(
+          (order.amount * order.price).toString()
+        )
         tokenGive = state.contracts?.tokenContract?.address
-        amountGive = order.amount
+        amountGive = ethers.utils.parseUnits(order.amount.toString())
       } else {
         tokenGet = state.contracts?.tokenContract?.address
-        amountGet = order.amount
-
+        amountGet = ethers.utils.parseUnits(order.amount.toString())
         tokenGive = ethers.constants.AddressZero
-        amountGive = order.amount * order.price
-
-        //   tokenGet = ethers.constants.AddressZero
-        //   amountGet = ethers.utils.parseEther(
-        //     (order.amount * order.price).toString()
-        //   )
-        //   tokenGive = state.contracts?.tokenContract?.address
-        //   amountGive = ethers.utils.parseUnits(order.amount.toString())
-        // } else {
-        //   tokenGet = state.contracts?.tokenContract?.address
-        //   amountGet = ethers.utils.parseUnits(order.amount.toString())
-        //   tokenGive = ethers.constants.AddressZero
-        //   amountGive = ethers.utils.parseEther(
-        //     (order.amount * order.price).toString()
-        //   )
+        amountGive = ethers.utils.parseEther(
+          (order.amount * order.price).toString()
+        )
       }
 
       console.dir(amountGet.toString(), amountGive.toString())
@@ -118,7 +106,7 @@ const NewOrder: React.FC = () => {
         }
         defaultValue={0.0}
         min={0.0}
-        step={0.01}
+        step={0.001}
         mt="0.5rem"
       >
         <NumberInputField />
@@ -139,7 +127,7 @@ const NewOrder: React.FC = () => {
         }
         defaultValue={0.0}
         min={0.0}
-        step={0.01}
+        step={0.001}
         mt="0.5rem"
       >
         <NumberInputField />

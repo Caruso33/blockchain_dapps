@@ -80,7 +80,7 @@ const MyTransactions: React.FC = () => {
                           color={event.hasUserBought ? "green.200" : "red.200"}
                         >
                           {event.hasUserBought ? "+" : "-"}
-                          {event.tokenAmount.toNumber()}
+                          {event.tokenAmount}
                         </Text>
                       </Td>
                       <Td isNumeric>
@@ -117,7 +117,7 @@ const MyTransactions: React.FC = () => {
                             event.orderType === "buy" ? "green.200" : "red.200"
                           }
                         >
-                          {event.tokenAmount.toNumber()}
+                          {event.tokenAmount}
                         </Text>
                       </Td>
                       <Td isNumeric>

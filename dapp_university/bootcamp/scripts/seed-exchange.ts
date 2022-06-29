@@ -107,22 +107,30 @@ async function seedExchange(taskArgs: any, hre: HardhatRuntimeEnvironment) {
     // open orders
 
     // 10 orders from user1
-    // for (let i = 0; i < 10; i++) {
-    //   const ethAmount = etherAmount * Math.ceil(Math.random() * i);
-    //   const tokAmount = tokenAmount * Math.ceil(Math.random() * i);
+    for (let i = 0; i < 10; i++) {
+      const ethAmount = ethers.utils.parseEther(
+        (etherAmount * Math.ceil(Math.random() * i)).toString()
+      );
+      const tokAmount = ethers.utils.parseUnits(
+        (tokenAmount * Math.ceil(Math.random() * i)).toString()
+      );
 
-    //   await exchange
-    //     .connect(user1)
-    //     .makeOrder(tokenAddress, tokAmount, ETHER_ADDRESS, ethAmount);
-    //   console.log(`Made order from ${user1.address}`);
+      await exchange
+        .connect(user1)
+        .makeOrder(tokenAddress, tokAmount, ETHER_ADDRESS, ethAmount);
+      console.log(`Made order from ${user1.address}`);
 
-    //   await advanceOneMinute(ethers);
-    // }
+      await advanceOneMinute(ethers);
+    }
 
     // 20 orders from user2
     for (let i = 0; i < 20; i++) {
-      const ethAmount = etherAmount * Math.ceil(Math.random() * i);
-      const tokAmount = tokenAmount * Math.ceil(Math.random() * i);
+      const ethAmount = ethers.utils.parseEther(
+        (etherAmount * Math.ceil(Math.random() * i)).toString()
+      );
+      const tokAmount = ethers.utils.parseEther(
+        (tokenAmount * Math.ceil(Math.random() * i)).toString()
+      );
 
       await exchange
         .connect(user2)
