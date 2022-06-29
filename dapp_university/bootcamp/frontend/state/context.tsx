@@ -1,7 +1,7 @@
 import React, { createContext, useReducer, useContext } from "react"
 import { object, func } from "prop-types"
 
-const Context = createContext(null)
+const Context = createContext([])
 
 export function AppStateProvider(props: {
   reducer: object
@@ -10,6 +10,7 @@ export function AppStateProvider(props: {
 }) {
   const { reducer, initialState = {}, children } = props
 
+  // @ts-ignore
   const value = useReducer(reducer, initialState)
 
   return <Context.Provider value={value}>{children}</Context.Provider>

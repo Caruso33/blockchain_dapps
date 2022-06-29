@@ -7,7 +7,20 @@ const userTypes = {
   UPDATE_BALANCES: "UPDATE_BALANCES",
 }
 
-const userReducer = (state, action = {}) => {
+interface UserState {
+  user: {
+    account: Record<string, any>
+    chain: Record<string, any>
+    balances: Record<string, any>
+  }
+}
+
+interface UserAction {
+  data: any
+  type: string
+}
+
+const userReducer = (state: UserState, action: UserAction) => {
   const { data, type } = action
 
   switch (type) {

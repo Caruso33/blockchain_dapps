@@ -27,6 +27,7 @@ const PriceChart: React.FC = () => {
 
       {typeof window !== "undefined" && (
         <Chart
+          // @ts-ignore
           options={chartConfig}
           series={[{ data: priceChartTrades }]}
           type="candlestick"

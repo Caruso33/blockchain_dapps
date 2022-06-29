@@ -3,7 +3,16 @@ const contractTypes = {
   REMOVE_CONTRACTS: "REMOVE_CONTRACTS",
 }
 
-const contractsReducer = (state, action = {}) => {
+interface ContractState {
+  contracts: Record<string, any>
+}
+
+interface ContractAction {
+  data: any
+  type: string
+}
+
+const contractsReducer = (state: ContractState, action: ContractAction) => {
   const { data, type } = action
 
   switch (type) {

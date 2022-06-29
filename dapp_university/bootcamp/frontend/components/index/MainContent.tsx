@@ -2,7 +2,7 @@ import { Center, Flex, Grid, GridItem, Text } from "@chakra-ui/react"
 import {
   useLoadDepositEvents,
   useLoadWithdrawalEvents,
-} from "../../hooks/useLoadDepositEvents.ts"
+} from "../../hooks/useLoadDepositEvents"
 import {
   useLoadCancelOrderEvents,
   useLoadMakeOrderEvents,

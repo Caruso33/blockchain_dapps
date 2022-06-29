@@ -20,6 +20,7 @@ module.exports = {
       "error",
       { ignores: ["modules"] },
     ],
+    "node/no-missing-import": ["warn", { allowModules: ["@types"] }],
     semi: 0,
   },
 };

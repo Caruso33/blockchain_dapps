@@ -6,7 +6,7 @@ import { CancelOrderEvent } from "../types"
 
 function subscribeEvents(
   contract: Contract,
-  eventName: string | object,
+  eventName: string | Record<string, any>,
   listener: Listener
 ) {
   console.log(
