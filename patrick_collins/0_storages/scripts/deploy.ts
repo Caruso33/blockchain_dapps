@@ -6,6 +6,7 @@
 import { ethers } from "hardhat";
 import fs from "fs";
 import path from "path";
+import StorageFactoryArtifact from "../artifacts/contracts/StorageFactory.sol/StorageFactory.json";
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -25,10 +26,12 @@ async function main() {
 
   const config = {
     address: storageFactory.address,
+    abi: StorageFactoryArtifact.abi,
+    bytecode: StorageFactory.bytecode,
   };
 
   fs.writeFileSync(
-    path.join(__dirname, "/../dapp/public/config.json"),
+    path.join(__dirname, "/../dapp/src/utils/deployment.json"),
     JSON.stringify(config, null, "\t"),
     "utf-8"
   );
