@@ -1,4 +1,3 @@
-import { getDefaultProvider, providers } from "ethers";
 import {
   chain,
   configureChains,
@@ -7,28 +6,36 @@ import {
   WagmiConfig,
 } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
+import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
-const { chains } = configureChains(
+const { chains, provider } = configureChains(
   [
     ...defaultChains,
     chain.polygon,
     chain.polygonMumbai,
-    chain.hardhat,
+    // chain.hardhat,
     chain.localhost,
   ],
-  [publicProvider()]
+  [
+    alchemyProvider({
+      alchemyId: process.env.REACT_APP_POLYGON_MUMBAI_KEY,
+    }),
+    publicProvider(),
+  ]
 );
-
 const wagmiClient = createClient({
   autoConnect: true,
   connectors: [new InjectedConnector({ chains })],
-  provider: (config) => {
-    if (config.chainId === chain.localhost.id)
-      return new providers.JsonRpcProvider();
+  provider,
+  // provider: (config) => {
+  //   // if (config.chainId === chain.localhost.id)
+  //   //   return new providers.JsonRpcProvider();
+  //   console.dir(chains, chain, config);
 
-    return getDefaultProvider(config.chainId);
-  },
+  //   return provider(config);
+  //   // return getDefaultProvider(config.chainId);
+  // },
 });
 
 export default function Wagmi({ children }) {

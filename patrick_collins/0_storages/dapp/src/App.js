@@ -1,7 +1,12 @@
-import logo from "./logo.svg"
+import Header from "./components/Header.tsx";
 
 function App() {
-  return <div>App</div>
+  return (
+    <>
+      <Header />
+      <div>Content</div>
+    </>
+  );
 }
 
-export default App
+export default App;
