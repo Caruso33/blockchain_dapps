@@ -1,4 +1,5 @@
-import { useAccount, useConnect, useNetwork } from "wagmi";
+import React from "react";
+import { useAccount, useConnect, useDisconnect, useNetwork } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { deployedChains } from "../utils/constants.ts";
 
@@ -9,23 +10,34 @@ function Header() {
   const { connect } = useConnect({
     connector: new InjectedConnector(),
   });
+  const { disconnect } = useDisconnect();
 
   let content: JSX.Element;
 
   if (!isConnected)
     content = <button onClick={() => connect()}>Connect Wallet</button>;
   else {
-    content = <div>Connected to {address}</div>;
+    content = (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>
+          <span>Connected to {address}</span>{" "}
+          <span>on network {chain?.name}</span>
+        </div>
+
+        <button onClick={() => disconnect()}>Disconnect</button>
+      </div>
+    );
 
     const deployedChainNames = deployedChains.map(
       (deployedChain) => deployedChain.name
     );
 
-    if (
-      chains?.filter((chain) => deployedChainNames.includes(chain?.name))
-        ?.length === 0 ||
-      !deployedChainNames?.includes(chain?.name)
-    ) {
+    if (!deployedChainNames?.includes(chain?.name)) {
       return (
         <>
           {content}

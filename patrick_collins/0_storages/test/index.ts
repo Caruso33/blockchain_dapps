@@ -1,19 +1,28 @@
 import { expect } from "chai";
+import { Contract } from "ethers";
 import { ethers } from "hardhat";
 
-describe("Greeter", function () {
-  it("Should return the new greeting once it's changed", async function () {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+describe("StorageFactory", function () {
+  let contract: Contract;
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+  beforeEach(async () => {
+    const factory = await ethers.getContractFactory("StorageFactory");
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
+    contract = await factory.deploy();
+    await contract.deployed();
+  });
 
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
+  it("should return the simpleStorageCounter", async function () {
+    const simpleStorageCounter = await contract.simpleStorageCounter();
 
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
+    expect(simpleStorageCounter).to.equal(0);
+  });
+
+  it("should return the simpleStorageCounter after incrementing it", async function () {
+    await contract.createSimpleStorageContract();
+
+    const simpleStorageCounter = await contract.simpleStorageCounter();
+
+    expect(simpleStorageCounter).to.equal(1);
   });
 });
