@@ -20,36 +20,73 @@ export default function StorageFactory() {
     ? new ethers.Contract(deployment.address, deployment.abi, signer)
     : null;
 
+  async function createSimpleStorage() {
+    setIsLoading(true);
+    try {
+      const tx = await storageFactory?.createSimpleStorageContract();
+      await tx.wait();
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function getStorageCounter() {
+    setIsLoading(true);
+    try {
+      const counter = await storageFactory?.simpleStorageCounter();
+      console.log("SimpleStorageCounter: ", counter.toNumber());
+      setSimpleStorageCounter(counter.toNumber());
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function getStorageValue() {
+    if (!storageIndex || isNaN(Number(storageIndex))) return;
+
+    setIsLoading(true);
+    try {
+      const value = await storageFactory?.sfGet(
+        Number(storageIndex).toFixed(0)
+      );
+      console.log("SimpleStorageValue: ", value.toNumber());
+      setSimpleStorageValue(value.toNumber());
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function setStorageVal() {
+    if (
+      !storageIndex ||
+      isNaN(Number(storageIndex)) ||
+      !storageValue ||
+      isNaN(Number(storageValue))
+    )
+      return;
+
+    setIsLoading(true);
+    try {
+      const tx = await storageFactory?.sfStore(
+        storageIndex,
+        Number(storageValue)
+      );
+      await tx.wait();
+      await getStorageValue();
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     isConnected && (
       <>
         <h2>Create new simple storage</h2>
-        <button
-          onClick={async () => {
-            setIsLoading(true);
-            try {
-              const tx = await storageFactory?.createSimpleStorageContract();
-              await tx.wait();
-            } finally {
-              setIsLoading(false);
-            }
-          }}
-        >
+        <button onClick={createSimpleStorage}>
           {isLoading ? <Spinner /> : "Create new simple storage"}
         </button>
         <h2>Get storage counter</h2>
-        <button
-          onClick={async () => {
-            setIsLoading(true);
-            try {
-              const counter = await storageFactory?.simpleStorageCounter();
-              console.log("SimpleStorageCounter: ", counter.toNumber());
-              setSimpleStorageCounter(counter.toNumber());
-            } finally {
-              setIsLoading(false);
-            }
-          }}
-        >
+        <button onClick={getStorageCounter}>
           {isLoading ? <Spinner /> : "Get counter"}
         </button>
         <pre>Simple Storage Counter: {simpleStorageCounter}</pre>
@@ -62,22 +99,7 @@ export default function StorageFactory() {
           onChange={(e) => setStorageIndex(e.target.value)}
         />
         <h2>Get storage</h2>
-        <button
-          onClick={async () => {
-            if (!storageIndex || isNaN(Number(storageIndex))) return;
-
-            setIsLoading(true);
-            try {
-              const value = await storageFactory?.sfGet(
-                Number(storageIndex).toFixed(0)
-              );
-              console.log("SimpleStorageValue: ", value.toNumber());
-              setSimpleStorageValue(value.toNumber());
-            } finally {
-              setIsLoading(false);
-            }
-          }}
-        >
+        <button onClick={getStorageValue}>
           {isLoading ? <Spinner /> : "Get Storage of current storage index"}
         </button>
         <pre>Simple Storage Value: {simpleStorageValue}</pre>
@@ -88,28 +110,7 @@ export default function StorageFactory() {
           value={storageValue}
           onChange={(e) => setStorageValue(e.target.value)}
         />
-        <button
-          onClick={async () => {
-            if (
-              !storageIndex ||
-              isNaN(Number(storageIndex)) ||
-              !storageValue ||
-              isNaN(Number(storageValue))
-            )
-              return;
-
-            setIsLoading(true);
-            try {
-              const tx = await storageFactory?.sfStore(
-                storageIndex,
-                Number(storageValue)
-              );
-              await tx.wait();
-            } finally {
-              setIsLoading(false);
-            }
-          }}
-        >
+        <button onClick={setStorageVal}>
           {isLoading ? <Spinner /> : "Save storage"}
         </button>
       </>
