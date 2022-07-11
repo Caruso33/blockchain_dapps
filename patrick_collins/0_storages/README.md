@@ -4,7 +4,9 @@
 
 ### Mumbai
 
-StorageFactory deployed to: 0x10d7526150f4134d9B6631c8C4A6d812a91dFfA7
+<!-- StorageFactory deployed to: 0x10d7526150f4134d9B6631c8C4A6d812a91dFfA7 -->
+
+StorageFactory deployed to: 0x157E131Fdf2E9c08c1228bEb677560eAb13424cD
 
 ## Advanced Sample Hardhat Project
 

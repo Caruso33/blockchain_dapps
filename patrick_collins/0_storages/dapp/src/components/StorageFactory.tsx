@@ -25,6 +25,7 @@ export default function StorageFactory() {
     try {
       const tx = await storageFactory?.createSimpleStorageContract();
       await tx.wait();
+      await getStorageCounter();
     } finally {
       setIsLoading(false);
     }
@@ -81,15 +82,15 @@ export default function StorageFactory() {
   return (
     isConnected && (
       <>
-        <h2>Create new simple storage</h2>
-        <button onClick={createSimpleStorage}>
-          {isLoading ? <Spinner /> : "Create new simple storage"}
-        </button>
         <h2>Get storage counter</h2>
         <button onClick={getStorageCounter}>
           {isLoading ? <Spinner /> : "Get counter"}
         </button>
         <pre>Simple Storage Counter: {simpleStorageCounter}</pre>
+        <h2>Create new simple storage</h2>
+        <button onClick={createSimpleStorage}>
+          {isLoading ? <Spinner /> : "Create new simple storage"}
+        </button>
         <h2>Set storage index</h2>
         <label>Storage Index 0-indexed</label>{" "}
         <input
@@ -98,12 +99,12 @@ export default function StorageFactory() {
           value={storageIndex}
           onChange={(e) => setStorageIndex(e.target.value)}
         />
-        <h2>Get storage</h2>
+        <h2>Get storage value</h2>
         <button onClick={getStorageValue}>
           {isLoading ? <Spinner /> : "Get Storage of current storage index"}
         </button>
         <pre>Simple Storage Value: {simpleStorageValue}</pre>
-        <h2>Save storage</h2>
+        <h2>Save storage value</h2>
         <input
           type="number"
           placeholder="Storage number"

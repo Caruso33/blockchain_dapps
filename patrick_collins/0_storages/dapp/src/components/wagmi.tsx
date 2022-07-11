@@ -21,7 +21,7 @@ const { chains, provider } = configureChains(
   ],
   [
     alchemyProvider({
-      alchemyId: process.env.REACT_APP_POLYGON_MUMBAI_KEY,
+      alchemyId: "_T4Y1H9zNezEgI5DpffZehtUcV3nr2o5",
     }),
 
     // jsonRpcProvider({
