@@ -12,7 +12,6 @@ contract FundMe {
     mapping(address => uint256) public addressToAmountFunded;
     address[] public funders;
 
-    // Could we make this constant?  /* hint: no! We should make it immutable! */
     address public immutable i_owner;
     uint256 public constant MINIMUM_USD = 0.5 * 10**18; // 0.5 USD
 

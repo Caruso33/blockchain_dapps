@@ -1,44 +1,15 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
-import {
-  chain,
-  configureChains,
-  createClient,
-  defaultChains,
-  WagmiConfig,
-} from "wagmi"
-import { InjectedConnector } from "wagmi/connectors/injected"
-// import { alchemyProvider } from "wagmi/providers/alchemy"
-import { publicProvider } from "wagmi/providers/public"
-import App from "./App"
+import App from "./App.tsx"
+import Wagmi from "./components/Wagmi.tsx"
 import reportWebVitals from "./reportWebVitals"
-
-
-
-// const alchemyPolygon = process.env.REACT_APP_POLYGON_MAIN
-// const alchemyPolygonMumbai = process.env.REACT_APP_POLYGON_MUMBAI
-
-const { chains, provider } = configureChains(
-  [...defaultChains, chain.hardhat, chain.polygon, chain.polygonMumbai],
-  [
-    // alchemyProvider({ alchemyId: alchemyPolygonMumbai }),
-    // alchemyProvider({ alchemyId: alchemyPolygon }),
-    publicProvider(),
-  ]
-)
-
-const client = createClient({
-  autoConnect: true,
-  connectors: [new InjectedConnector({ chains })],
-  provider,
-})
 
 const root = ReactDOM.createRoot(document.getElementById("root"))
 root.render(
   <React.StrictMode>
-    <WagmiConfig client={client}>
+    <Wagmi>
       <App />
-    </WagmiConfig>
+    </Wagmi>
   </React.StrictMode>
 )
 
