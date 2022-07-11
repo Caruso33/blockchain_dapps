@@ -24,15 +24,30 @@ export default function StorageFactory() {
     isConnected && (
       <>
         <h2>Create new simple storage</h2>
-        <button onClick={() => storageFactory?.createSimpleStorageContract()}>
-          {isLoading ? <Spinner /> : "Create"}
+        <button
+          onClick={async () => {
+            setIsLoading(true);
+            try {
+              const tx = await storageFactory?.createSimpleStorageContract();
+              await tx.wait();
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+        >
+          {isLoading ? <Spinner /> : "Create new simple storage"}
         </button>
         <h2>Get storage counter</h2>
         <button
           onClick={async () => {
-            const counter = await storageFactory?.simpleStorageCounter();
-            console.log("SimpleStorageCounter: ", counter.toNumber());
-            setSimpleStorageCounter(counter.toNumber());
+            setIsLoading(true);
+            try {
+              const counter = await storageFactory?.simpleStorageCounter();
+              console.log("SimpleStorageCounter: ", counter.toNumber());
+              setSimpleStorageCounter(counter.toNumber());
+            } finally {
+              setIsLoading(false);
+            }
           }}
         >
           {isLoading ? <Spinner /> : "Get counter"}
@@ -51,11 +66,16 @@ export default function StorageFactory() {
           onClick={async () => {
             if (!storageIndex || isNaN(Number(storageIndex))) return;
 
-            const value = await storageFactory?.sfGet(
-              Number(storageIndex).toFixed(0)
-            );
-            console.log("SimpleStorageValue: ", value.toNumber());
-            setSimpleStorageValue(value.toNumber());
+            setIsLoading(true);
+            try {
+              const value = await storageFactory?.sfGet(
+                Number(storageIndex).toFixed(0)
+              );
+              console.log("SimpleStorageValue: ", value.toNumber());
+              setSimpleStorageValue(value.toNumber());
+            } finally {
+              setIsLoading(false);
+            }
           }}
         >
           {isLoading ? <Spinner /> : "Get Storage of current storage index"}
