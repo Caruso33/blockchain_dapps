@@ -25,4 +25,21 @@ describe("StorageFactory", function () {
 
     expect(simpleStorageCounter).to.equal(1);
   });
+
+  it("should return the simpleStorageValue after creating a simpleStorage", async function () {
+    await contract.createSimpleStorageContract();
+
+    const simpleStorageValue = await contract.sfGet(0);
+
+    expect(simpleStorageValue).to.equal(0);
+  });
+
+  it("should save a simpleStorageValue", async function () {
+    await contract.createSimpleStorageContract();
+
+    await contract.sfStore(0, 1);
+
+    const simpleStorageValue = await contract.sfGet(0);
+    expect(simpleStorageValue).to.equal(1);
+  });
 });
