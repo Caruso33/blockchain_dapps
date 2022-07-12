@@ -1,11 +1,11 @@
 import { assert, expect } from "chai"
 import { BigNumber, Contract } from "ethers"
 import { deployments, ethers, getNamedAccounts, network } from "hardhat"
-import { developmentChains } from "../scripts/hardhat-helper-config"
+import { developmentChains } from "../../scripts/hardhat-helper-config"
 
 !developmentChains.includes(network.name)
   ? describe.skip
-  : describe("FundMe", async function () {
+  : describe("FundMe Unit Tests", async function () {
       let deployer: string
       let contract: Contract, aggregator: Contract
       const amount = ethers.utils.parseEther("1")
