@@ -3,6 +3,9 @@ import fs from "fs"
 import path from "path"
 import FundMeArtifact from "../artifacts/contracts/FundMe.sol/FundMe.json"
 
+// DEPRECATED:
+// use `hardhat deploy` instead
+
 async function main() {
   const factory = await ethers.getContractFactory("FundMe")
 

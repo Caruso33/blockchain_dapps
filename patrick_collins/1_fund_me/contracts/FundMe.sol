@@ -6,6 +6,10 @@ import "./PriceConverter.sol";
 
 error NotOwner();
 
+/**
+ * @title A contract for crowdfunding
+ * @author Tobias Leinss
+ */
 contract FundMe {
     using PriceConverter for uint256;
 
@@ -23,6 +27,26 @@ contract FundMe {
     constructor(address priceFeed_) {
         i_owner = msg.sender;
         priceFeed = AggregatorV3Interface(priceFeed_); // 0x8A753747A1Fa494EC906cE90E9f37563A8AF630e
+    }
+
+    // Explainer from: https://solidity-by-example.org/fallback/
+    // Ether is sent to contract
+    //      is msg.data empty?
+    //          /   \
+    //         yes  no
+    //         /     \
+    //    receive()?  fallback()
+    //     /   \
+    //   yes   no
+    //  /        \
+    //receive()  fallback()
+
+    receive() external payable {
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
     }
 
     function fund() public payable {
@@ -74,25 +98,5 @@ contract FundMe {
         require(callSuccess, "Call failed");
 
         emit Withdrawn(msg.sender, address(this).balance);
-    }
-
-    // Explainer from: https://solidity-by-example.org/fallback/
-    // Ether is sent to contract
-    //      is msg.data empty?
-    //          /   \
-    //         yes  no
-    //         /     \
-    //    receive()?  fallback()
-    //     /   \
-    //   yes   no
-    //  /        \
-    //receive()  fallback()
-
-    fallback() external payable {
-        fund();
-    }
-
-    receive() external payable {
-        fund();
     }
 }

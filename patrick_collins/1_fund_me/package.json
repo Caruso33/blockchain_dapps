@@ -2,9 +2,11 @@
   "scripts": {
     "compile": "hh compile",
     "test": "hh test",
+    "coverage": "hh coverage",
     "migrate": "hh migrate",
     "deploy:deprecated": "hh run scripts/deploy.ts",
     "deploy": "hh deploy",
+    "deploy:mocks": "hh deploy --tags mocks",
     "node": "hh node"
   },
   "dependencies": {
