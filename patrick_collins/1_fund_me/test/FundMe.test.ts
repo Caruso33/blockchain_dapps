@@ -30,7 +30,7 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
 
       describe("public vars", () => {
         it("returns owner", async () => {
-          const owner = await contract.i_owner()
+          const owner = await contract.getOwner()
           expect(owner).to.equal(deployer)
         })
 
@@ -42,7 +42,7 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
 
       describe("constructor", async () => {
         it("sets the aggregator addresses correctly", async () => {
-          const aggAddress = await contract.priceFeed()
+          const aggAddress = await contract.getPriceFeed()
           assert.equal(aggAddress, aggregator.address)
         })
       })
@@ -103,14 +103,14 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
       describe("fund", () => {
         it("fails if you don't send enough Eth", async () => {
           await expect(contract.fund()).to.be.revertedWith(
-            "You need to spend more ETH!"
+            "FundMe__SendMoreEth()"
           )
         })
 
         it("updates the amount funded data structure", async () => {
           await contract.fund({ value: amount })
 
-          const addressToAmountFunded = await contract.addressToAmountFunded(
+          const addressToAmountFunded = await contract.getAddressToAmountFunded(
             deployer
           )
           assert(addressToAmountFunded.toString(), amount.toString())
@@ -119,7 +119,7 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
         it("updates funders array", async () => {
           await contract.fund({ value: amount })
 
-          const funder = await contract.funders(0)
+          const funder = await contract.getFunder(0)
           assert(funder, deployer)
         })
 
@@ -143,11 +143,11 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
 
           await expect(
             contract.connect(attacker).withdraw({ gasLimit: 1000000 })
-          ).to.be.revertedWith("NotOwner()")
+          ).to.be.revertedWith("FundMe__NotOwner()")
 
           await expect(
             contract.connect(anotherAttacker).withdraw({ gasLimit: 1000000 })
-          ).to.be.revertedWith("NotOwner()")
+          ).to.be.revertedWith("FundMe__NotOwner()")
         })
 
         it("should return the value", async () => {
@@ -159,6 +159,10 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
           )
 
           let tx = await contract.withdraw()
+          await expect(tx)
+            .to.emit(contract, "Withdrawn")
+            .withArgs(deployer, "0")
+
           tx = await tx.wait()
 
           const { gasUsed, effectiveGasPrice } = tx
@@ -206,6 +210,10 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
           )
 
           let tx = await contract.withdraw()
+          await expect(tx)
+            .to.emit(contract, "Withdrawn")
+            .withArgs(deployer, "0")
+
           tx = await tx.wait()
 
           const { gasUsed, effectiveGasPrice } = tx
@@ -241,13 +249,66 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
           for (let i = 1; i < accounts.length; i++) {
             const account = accounts[i]
 
-            const balance = await contract.addressToAmountFunded(
+            const balance = await contract.getAddressToAmountFunded(
               account.address
             )
             assert.equal(balance.toString(), BigNumber.from("0").toString())
           }
 
-          await expect(contract.funders(0)).to.be.reverted
+          await expect(contract.getFunders(0)).to.be.reverted
+        })
+      })
+
+      describe("public getters", () => {
+        it("should get owner", async () => {
+          const owner = await contract.getOwner()
+
+          assert.equal(owner, deployer)
+        })
+
+        it("should get funders", async () => {
+          const [, other] = await ethers.getSigners()
+          await contract.fund({ value: amount })
+          await contract.connect(other).fund({ value: amount })
+
+          const funders = await contract.getFunders()
+
+          assert.equal(funders.length, 2)
+          assert.equal(funders[0], deployer)
+          assert.equal(funders[1], other.address)
+        })
+
+        it("should get funder", async () => {
+          await expect(contract.getFunder(0)).to.be.reverted
+
+          const [, other] = await ethers.getSigners()
+          await contract.fund({ value: amount })
+          await contract.connect(other).fund({ value: amount })
+
+          let funder = await contract.getFunder(0)
+          assert.equal(funder, deployer)
+
+          funder = await contract.getFunder(1)
+          assert.equal(funder, other.address)
+        })
+
+        it("should get address amount funded", async () => {
+          let addressToAmountFunded = await contract.getAddressToAmountFunded(
+            deployer
+          )
+          assert.equal(addressToAmountFunded.toString(), "0")
+
+          await contract.fund({ value: amount })
+
+          addressToAmountFunded = await contract.getAddressToAmountFunded(
+            deployer
+          )
+          assert.equal(addressToAmountFunded.toString(), amount.toString())
+        })
+
+        it("should get price feed", async () => {
+          const priceFeed = await contract.getPriceFeed()
+          assert.equal(priceFeed, aggregator.address)
         })
       })
     })
