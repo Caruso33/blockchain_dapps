@@ -139,10 +139,14 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
         })
 
         it("fails when other than owner tries to withdraw", async () => {
-          const [, other] = await ethers.getSigners()
+          const [, attacker, anotherAttacker] = await ethers.getSigners()
 
           await expect(
-            contract.connect(other).withdraw({ gasLimit: 1000000 })
+            contract.connect(attacker).withdraw({ gasLimit: 1000000 })
+          ).to.be.revertedWith("NotOwner()")
+
+          await expect(
+            contract.connect(anotherAttacker).withdraw({ gasLimit: 1000000 })
           ).to.be.revertedWith("NotOwner()")
         })
 
@@ -183,6 +187,67 @@ import { developmentChains } from "../scripts/hardhat-helper-config"
             endingDeployerBalance.toString(),
             startingDeployerBalance.add(amount).sub(gasCost).toString()
           )
+        })
+
+        it("allows to withdraw with multiple funders", async () => {
+          const accounts = await ethers.getSigners()
+
+          for (let i = 1; i < accounts.length; i++) {
+            const account = accounts[i]
+
+            await contract.connect(account).fund({ value: amount })
+          }
+
+          const startingFundMeBalance = await contract.provider.getBalance(
+            contract.address
+          )
+          const startingDeployerBalance = await contract.provider.getBalance(
+            deployer
+          )
+
+          let tx = await contract.withdraw()
+          tx = await tx.wait()
+
+          const { gasUsed, effectiveGasPrice } = tx
+          const gasCost = gasUsed.mul(effectiveGasPrice)
+
+          const endingFundMeBalance = await contract.provider.getBalance(
+            contract.address
+          )
+          const endingDeployerBalance = await contract.provider.getBalance(
+            deployer
+          )
+
+          assert.equal(
+            endingFundMeBalance.toString(),
+            startingFundMeBalance.sub(amount.mul(accounts.length)).toString()
+          )
+          assert.equal(
+            endingFundMeBalance.toString(),
+            BigNumber.from("0").toString()
+          )
+          assert.equal(
+            startingFundMeBalance.add(startingDeployerBalance).toString(),
+            endingDeployerBalance.add(gasCost).toString()
+          )
+          assert.equal(
+            endingDeployerBalance.toString(),
+            startingDeployerBalance
+              .add(amount.mul(accounts.length))
+              .sub(gasCost)
+              .toString()
+          )
+
+          for (let i = 1; i < accounts.length; i++) {
+            const account = accounts[i]
+
+            const balance = await contract.addressToAmountFunded(
+              account.address
+            )
+            assert.equal(balance.toString(), BigNumber.from("0").toString())
+          }
+
+          await expect(contract.funders(0)).to.be.reverted
         })
       })
     })
