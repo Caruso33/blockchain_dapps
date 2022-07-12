@@ -1,12 +1,12 @@
 const deployedChains = [
   {
-    name: "Polygon Mumbai",
-    chainId: 80001,
+    name: "Rinkeby",
+    chainId: 4,
   },
   {
     name: "Localhost",
     chainId: 1337,
   },
-];
+]
 
-export { deployedChains };
+export { deployedChains }

@@ -1,10 +1,12 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import deployment from "../utils/deployment.json"
 import Spinner from "./Spinner.tsx"
-import { useAccount, useSigner } from "wagmi"
-import { ethers } from "ethers"
+import { useAccount, useNetwork, useSigner } from "wagmi"
+import { Contract, ethers } from "ethers"
 
 export default function FundMe() {
+  const [contract, setContract] = useState<Contract | null>(null)
+
   const [funders, setFunders] = useState([])
   const [fundAmount, setFundAmount] = useState("")
   const [version, setVersion] = useState("")
@@ -13,10 +15,23 @@ export default function FundMe() {
 
   const { isConnected } = useAccount()
   const { data: signer } = useSigner()
+  const { chain } = useNetwork()
 
-  const fundMe = signer
-    ? new ethers.Contract(deployment.address, deployment.abi, signer)
-    : null
+  useEffect(() => {
+    if (!signer || !chain?.id) {
+      return
+    }
+
+    const address = deployment[chain?.id]?.address
+    const abi = deployment[chain?.id]?.abi
+
+    if (!address || !abi) {
+      return
+    }
+
+    const contract = new ethers.Contract(address, abi, signer)
+    setContract(contract)
+  }, [chain, signer])
 
   async function getFunders() {
     setIsLoading(true)
