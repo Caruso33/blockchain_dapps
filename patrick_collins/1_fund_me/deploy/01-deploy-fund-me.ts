@@ -1,6 +1,6 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types"
 import fs from "fs"
 import { network } from "hardhat"
+import { HardhatRuntimeEnvironment } from "hardhat/types"
 import path from "path"
 import {
   developmentChains,
@@ -37,14 +37,34 @@ const deploy = async (hre: HardhatRuntimeEnvironment) => {
   log(`FundMe deployed at ${fundMe.address}`)
 
   // frontend info
-  const config = {
-    address: fundMe.address,
-    abi: fundMe.abi,
-    bytecode: fundMe.bytecode,
+  const dappDeploymentFile = path.join(
+    __dirname,
+    "../dapp/src/utils/deployment.json"
+  )
+  const deploymentFile = path.join(
+    __dirname,
+    `../deployments/${network.name}/FundMe.json`
+  )
+
+  let data: any = {}
+  if (fs.existsSync(dappDeploymentFile)) {
+    log("Found existing deployment file")
+    const currentData = fs.readFileSync(dappDeploymentFile, {
+      encoding: "utf8",
+      flag: "r",
+    })
+    data = JSON.parse(currentData)
   }
+
+  const newData = fs.readFileSync(deploymentFile, {
+    encoding: "utf8",
+    flag: "r",
+  })
+  data[chainId] = JSON.parse(newData)
+
   fs.writeFileSync(
-    path.join(__dirname, "/../dapp/src/utils/deployment.json"),
-    JSON.stringify(config, null, "\t"),
+    dappDeploymentFile,
+    JSON.stringify(data, null, "\t"),
     "utf-8"
   )
 
