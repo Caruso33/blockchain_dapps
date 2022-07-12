@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./PriceConverter.sol";
 
 error NotOwner();
@@ -18,13 +18,16 @@ contract FundMe {
     event Funded(address indexed funder, uint256 amount);
     event Withdrawn(address indexed funder, uint256 amount);
 
-    constructor() {
+    AggregatorV3Interface public priceFeed;
+
+    constructor(address priceFeed_) {
         i_owner = msg.sender;
+        priceFeed = AggregatorV3Interface(priceFeed_); // 0x8A753747A1Fa494EC906cE90E9f37563A8AF630e
     }
 
     function fund() public payable {
         require(
-            msg.value.getConversionRate() >= MINIMUM_USD,
+            msg.value.getConversionRate(priceFeed) >= MINIMUM_USD,
             "You need to spend more ETH!"
         );
         // require(PriceConverter.getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
@@ -34,11 +37,12 @@ contract FundMe {
         emit Funded(msg.sender, msg.value);
     }
 
-    function getVersion() public view returns (uint256) {
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(
-            0x8A753747A1Fa494EC906cE90E9f37563A8AF630e
-        );
-        return priceFeed.version();
+    // function getVersion() public view returns (uint256) {
+    //     return priceFeed.version();
+    // }
+
+    function getFunders() external view returns (address[] memory) {
+        return funders;
     }
 
     modifier onlyOwner() {

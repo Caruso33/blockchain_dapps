@@ -1,16 +1,17 @@
-import * as dotenv from "dotenv";
+import * as dotenv from "dotenv"
 
-import { HardhatUserConfig, task } from "hardhat/config";
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
-import "hardhat-gas-reporter";
-import "solidity-coverage";
+import { HardhatUserConfig, task } from "hardhat/config"
+import "@nomiclabs/hardhat-etherscan"
+import "@nomiclabs/hardhat-waffle"
+import "@typechain/hardhat"
+import "hardhat-gas-reporter"
+import "solidity-coverage"
+import "hardhat-deploy"
 
-dotenv.config();
+dotenv.config()
 
-const mumbaiProvider = process.env.POLYGON_MUMBAI;
-const privateKey = process.env.PRIVATE_KEY;
+const mumbaiProvider = process.env.POLYGON_MUMBAI
+const privateKey = process.env.PRIVATE_KEY
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -26,7 +27,10 @@ const privateKey = process.env.PRIVATE_KEY;
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.14",
+  solidity: {
+    compilers: [{ version: "0.8.14" }, { version: "0.6.6" }],
+  },
+  defaultNetwork: "hardhat",
   networks: {
     hardhat: {
       chainId: 1337,
@@ -55,6 +59,12 @@ const config: HardhatUserConfig = {
   mocha: {
     timeout: 100000,
   },
-};
+  namedAccounts: {
+    deployer: {
+      default: 0,
+      1: 0, // use first account for mainnet (chainId 1)
+    },
+  },
+}
 
-export default config;
+export default config

@@ -7,8 +7,6 @@ function Header() {
   const { address, isConnected } = useAccount()
   const { chain } = useNetwork()
 
-  console.log({ chain, isConnected })
-
   const { connect } = useConnect({
     connector: new InjectedConnector(),
   })

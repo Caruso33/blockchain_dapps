@@ -9,6 +9,6 @@
     "resolveJsonModule": true,
     "jsx": "react-jsx"
   },
-  "include": ["./scripts", "./test", "./typechain"],
+  "include": ["./scripts", "./test", "./typechain", "./deploy"],
   "files": ["./hardhat.config.ts"]
 }
