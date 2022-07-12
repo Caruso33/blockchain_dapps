@@ -1,10 +1,18 @@
 # Address
 
-## Polygon
+<!-- ## Polygon
 
 ### Mumbai
 
-FundMe deployed to: 0x662F26b3A3Ddd5E91D5e6B85Fd9E253a873e33E6
+FundMe deployed to: 0x662F26b3A3Ddd5E91D5e6B85Fd9E253a873e33E6 -->
+
+## Ethereum
+
+### Rinkeby
+
+FundMe deployed to: 0x5e0c94e4ace275cc168234b52957f2d7ba4796e6
+
+[Etherscan](https://rinkeby.etherscan.io/address/0x5e0c94e4ace275cc168234b52957f2d7ba4796e6)
 
 ## Sample Hardhat Project
 

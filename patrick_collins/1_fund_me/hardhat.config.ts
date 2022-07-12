@@ -48,6 +48,11 @@ const config: HardhatUserConfig = {
       url: process.env.ROPSTEN_URL || "",
       accounts: privateKey !== undefined ? [privateKey] : [],
     },
+    rinkeby: {
+      url: process.env.RINKEBY_URL || "",
+      accounts: privateKey !== undefined ? [privateKey] : [],
+      chainId: 4,
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

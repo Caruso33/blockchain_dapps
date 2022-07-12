@@ -1,6 +1,6 @@
 import { run } from "hardhat"
 
-const verify = async (contractAddress: string, args: string[]) => {
+const verify = async (contractAddress: string, args: string | number[]) => {
   console.log("Verifying contract...")
   try {
     await run("verify:verify", {

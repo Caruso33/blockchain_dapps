@@ -27,12 +27,16 @@ const deploy = async (hre: HardhatRuntimeEnvironment) => {
   log("----------------------------------------------------")
   log("Deploying FundMe and waiting for confirmations...")
 
+  const waitBlockConfirmations = developmentChains.includes(network.name)
+    ? 1
+    : 6
+
   const fundMe = await deploy("FundMe", {
     from: deployer,
     args: [ethUsdPriceFeedAddress],
     log: true,
     // we need to wait if on a live network so we can verify properly
-    waitConfirmations: 1, // network.config.blockConfirmations ||
+    waitConfirmations: waitBlockConfirmations,
   })
   log(`FundMe deployed at ${fundMe.address}`)
 
@@ -43,7 +47,9 @@ const deploy = async (hre: HardhatRuntimeEnvironment) => {
   )
   const deploymentFile = path.join(
     __dirname,
-    `../deployments/${network.name}/FundMe.json`
+    `../deployments/${
+      network.name === "hardhat" ? "localhost" : network.name
+    }/FundMe.json`
   )
 
   let data: any = {}
