@@ -32,4 +32,4 @@ const mock = async (hre: HardhatRuntimeEnvironment) => {
 }
 
 export default mock
-export const tags = ["all", "mocks"]
+mock.tags = ["all", "mocks"]

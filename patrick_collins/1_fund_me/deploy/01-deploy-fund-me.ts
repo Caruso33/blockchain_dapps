@@ -77,4 +77,4 @@ const deploy = async (hre: HardhatRuntimeEnvironment) => {
 }
 
 export default deploy
-export const tags = ["all", "fundme"]
+deploy.tags = ["all", "fundme"]
