@@ -5,7 +5,7 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json"
 import { getWeb3Connection } from "../components/web3/utils"
-import { nftMarketAddress } from "../config"
+import { contractAddresses } from "../constants/contractAddresses"
 
 export default function ResellNFT() {
   const [formInput, updateFormInput] = useState({ price: "", image: "" })
@@ -32,10 +32,14 @@ export default function ResellNFT() {
   async function listNFTForSale() {
     if (!price) return
 
-    const { signer } = await getWeb3Connection()
+    const { signer, network } = await getWeb3Connection()
 
     const priceFormatted = ethers.utils.parseUnits(formInput.price, "ether")
-    let contract = new ethers.Contract(nftMarketAddress, NFTMarket.abi, signer)
+    const contract = new ethers.Contract(
+      contractAddresses[network.chainId],
+      NFTMarket.abi,
+      signer
+    )
     let listingPrice = await contract.getListingPrice()
 
     listingPrice = listingPrice.toString()
