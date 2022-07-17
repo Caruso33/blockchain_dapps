@@ -15,13 +15,6 @@ export class Post extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("title", Value.fromString(""));
-    this.set("contentHash", Value.fromString(""));
-    this.set("published", Value.fromBoolean(false));
-    this.set("postContent", Value.fromString(""));
-    this.set("createdAtTimestamp", Value.fromBigInt(BigInt.zero()));
-    this.set("updatedAtTimestamp", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -30,8 +23,7 @@ export class Post extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save Post entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
+        `Entities of type Post must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
       store.set("Post", id.toString(), this);
     }

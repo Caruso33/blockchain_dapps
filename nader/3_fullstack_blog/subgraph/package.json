@@ -1,16 +1,16 @@
 {
-  "name": "onchainblogmumbaitst",
+  "name": "web3-blog",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ dabit3/onchainblogmumbaitst",
-    "create-local": "graph create --node http://localhost:8020/ dabit3/onchainblogmumbaitst",
-    "remove-local": "graph remove --node http://localhost:8020/ dabit3/onchainblogmumbaitst",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 dabit3/onchainblogmumbaitst"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ caruso33/nader-blog",
+    "create-local": "graph create --node http://localhost:8020/ caruso33/nader-blog",
+    "remove-local": "graph remove --node http://localhost:8020/ caruso33/nader-blog",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 caruso33/nader-blog"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.26.0",
-    "@graphprotocol/graph-ts": "0.24.1"
+    "@graphprotocol/graph-cli": "0.32.0",
+    "@graphprotocol/graph-ts": "0.27.0"
   }
 }

@@ -1,17 +1,15 @@
-import { css } from '@emotion/css'
-import { useContext } from 'react'
-import { useRouter } from 'next/router'
-import { ethers } from 'ethers'
-import Link from 'next/link'
-import { AccountContext } from '../context'
+import { css } from "@emotion/css"
+import { useContext } from "react"
+import { useRouter } from "next/router"
+import { ethers } from "ethers"
+import Link from "next/link"
+import { AccountContext } from "../context"
 
 /* import contract address and contract owner address */
-import {
-  contractAddress, ownerAddress
-} from '../config'
+import { contractAddress, ownerAddress } from "../config"
 
 /* import Application Binary Interface (ABI) */
-import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
+import Blog from "../artifacts/contracts/Blog.sol/Blog.json"
 
 export default function Home(props) {
   /* posts are fetched server side and passed in as props */
@@ -21,7 +19,7 @@ export default function Home(props) {
 
   const router = useRouter()
   async function navigate() {
-    router.push('/create-post')
+    router.push("/create-post")
   }
 
   return (
@@ -35,9 +33,9 @@ export default function Home(props) {
                 <div className={linkStyle}>
                   <p className={postTitle}>{post[1]}</p>
                   <div className={arrowContainer}>
-                  <img
-                      src='/right-arrow.svg'
-                      alt='Right arrow'
+                    <img
+                      src="/right-arrow.svg"
+                      alt="Right arrow"
                       className={smallArrow}
                     />
                   </div>
@@ -48,20 +46,14 @@ export default function Home(props) {
         }
       </div>
       <div className={container}>
-        {
-          (account === ownerAddress) && posts && !posts.length && (
-            /* if the signed in user is the account owner, render a button */
-            /* to create the first post */
-            <button className={buttonStyle} onClick={navigate}>
-              Create your first post
-              <img
-                src='/right-arrow.svg'
-                alt='Right arrow'
-                className={arrow}
-              />
-            </button>
-          )
-        }
+        {account === ownerAddress && posts && !posts.length && (
+          /* if the signed in user is the account owner, render a button */
+          /* to create the first post */
+          <button className={buttonStyle} onClick={navigate}>
+            Create your first post
+            <img src="/right-arrow.svg" alt="Right arrow" className={arrow} />
+          </button>
+        )}
       </div>
     </div>
   )
@@ -71,20 +63,22 @@ export async function getServerSideProps() {
   /* here we check to see the current environment variable */
   /* and render a provider based on the environment we're in */
   let provider
-  if (process.env.ENVIRONMENT === 'local') {
+  if (process.env.NEXT_PUBLIC_ENVIRONMENT === "local") {
     provider = new ethers.providers.JsonRpcProvider()
-  } else if (process.env.ENVIRONMENT === 'testnet') {
-    provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.matic.today')
+  } else if (process.env.NEXT_PUBLIC_ENVIRONMENT === "testnet") {
+    provider = new ethers.providers.JsonRpcProvider(
+      "https://rpc-mumbai.matic.today"
+    )
   } else {
-    provider = new ethers.providers.JsonRpcProvider('https://polygon-rpc.com/')
+    provider = new ethers.providers.JsonRpcProvider("https://polygon-rpc.com/")
   }
 
   const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
   const data = await contract.fetchPosts()
   return {
     props: {
-      posts: JSON.parse(JSON.stringify(data))
-    }
+      posts: JSON.parse(JSON.stringify(data)),
+    },
   }
 }
 
@@ -113,7 +107,7 @@ const linkStyle = css`
 const postList = css`
   width: 700px;
   margin: 0 auto;
-  padding-top: 50px;  
+  padding-top: 50px;
 `
 
 const container = css`
@@ -130,7 +124,7 @@ const buttonStyle = css`
   padding: 20px 70px;
   border-radius: 15px;
   cursor: pointer;
-  box-shadow: 7px 7px rgba(0, 0, 0, .1);
+  box-shadow: 7px 7px rgba(0, 0, 0, 0.1);
 `
 
 const arrow = css`

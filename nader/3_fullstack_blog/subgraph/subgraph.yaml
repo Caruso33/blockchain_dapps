@@ -1,14 +1,18 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
     name: Blog
-    network: mumbai
+    # network: mumbai
+    network: mainnet
     source:
-      address: "0x45f8182632D06513DbF1e3A9F33F3881A2EF2809"
+      # address: "0x0441335a457883EC1Bbe22eBdCbC10769088943a"
+      # abi: Blog
+      # startBlock: 27215536
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       abi: Blog
-      startBlock: 24728768
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -24,3 +28,7 @@ dataSources:
         - event: PostUpdated(uint256,string,string,bool)
           handler: handlePostUpdated
       file: ./src/mapping.ts
+
+features:
+  - fullTextSearch
+  - ipfsOnEthereumContracts

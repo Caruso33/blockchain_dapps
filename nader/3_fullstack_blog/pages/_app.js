@@ -1,13 +1,13 @@
-import '../styles/globals.css'
-import { useState } from 'react'
-import Link from 'next/link'
-import { css } from '@emotion/css'
-import { ethers } from 'ethers'
-import Web3Modal from 'web3modal'
-import WalletConnectProvider from '@walletconnect/web3-provider'
-import { AccountContext } from '../context.js'
-import { ownerAddress } from '../config'
-import 'easymde/dist/easymde.min.css'
+import "../styles/globals.css"
+import { useState } from "react"
+import Link from "next/link"
+import { css } from "@emotion/css"
+import { ethers } from "ethers"
+import Web3Modal from "web3modal"
+import WalletConnectProvider from "@walletconnect/web3-provider"
+import { AccountContext } from "../context.js"
+import { ownerAddress } from "../config"
+import "easymde/dist/easymde.min.css"
 
 function MyApp({ Component, pageProps }) {
   /* create local state to save account information after signin */
@@ -15,13 +15,13 @@ function MyApp({ Component, pageProps }) {
   /* web3Modal configuration for enabling wallet access */
   async function getWeb3Modal() {
     const web3Modal = new Web3Modal({
-      network: 'mainnet',
+      network: "mainnet",
       cacheProvider: false,
       providerOptions: {
         walletconnect: {
           package: WalletConnectProvider,
-          options: { 
-            infuraId: process.env.NEXT_PUBLIC_INFURA_ID
+          options: {
+            infuraId: process.env.NEXT_PUBLIC_MUMBAI_PROVIDER,
           },
         },
       },
@@ -38,7 +38,7 @@ function MyApp({ Component, pageProps }) {
       const accounts = await provider.listAccounts()
       setAccount(accounts[0])
     } catch (err) {
-      console.log('error:', err)
+      console.log("error:", err)
     }
   }
 
@@ -48,11 +48,7 @@ function MyApp({ Component, pageProps }) {
         <div className={header}>
           <Link href="/">
             <a>
-              <img
-                src='/logo.svg'
-                alt="React Logo"
-                style={{ width: '50px' }}
-              />
+              <img src="/logo.svg" alt="React Logo" style={{ width: "50px" }} />
             </a>
           </Link>
           <Link href="/">
@@ -63,31 +59,25 @@ function MyApp({ Component, pageProps }) {
               </div>
             </a>
           </Link>
-          {
-            !account && (
-              <div className={buttonContainer}>
-                <button className={buttonStyle} onClick={connect}>Connect</button>
-              </div>
-            )
-          }
-          {
-            account && <p className={accountInfo}>{account}</p>
-          }
+          {!account && (
+            <div className={buttonContainer}>
+              <button className={buttonStyle} onClick={connect}>
+                Connect
+              </button>
+            </div>
+          )}
+          {account && <p className={accountInfo}>{account}</p>}
         </div>
         <div className={linkContainer}>
-          <Link href="/" >
-            <a className={link}>
-              Home
-            </a>
+          <Link href="/">
+            <a className={link}>Home</a>
           </Link>
           {
             /* if the signed in user is the contract owner, we */
             /* show the nav link to create a new post */
-            (account === ownerAddress) && (
+            account === ownerAddress && (
               <Link href="/create-post">
-                <a className={link}>
-                  Create Post
-                </a>
+                <a className={link}>Create Post</a>
               </Link>
             )
           }
@@ -125,7 +115,7 @@ const nav = css`
 
 const header = css`
   display: flex;
-  border-bottom: 1px solid rgba(0, 0, 0, .075);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.075);
   padding: 20px 30px;
 `
 
@@ -161,7 +151,7 @@ const buttonStyle = css`
   padding: 16px 70px;
   border-radius: 15px;
   cursor: pointer;
-  box-shadow: 7px 7px rgba(0, 0, 0, .1);
+  box-shadow: 7px 7px rgba(0, 0, 0, 0.1);
 `
 
 const link = css`
