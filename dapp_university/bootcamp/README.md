@@ -2,10 +2,13 @@
 
 ## Deployments
 
-### Localhost // 'ganache'
+Rinkeby
 
-"Token" 0xCC26c785434920A07A4E455411a78c9dA2500005
-"Exchange" 0xf5A3CF4DDe2124B9F4a03B451E1a75E0A40E8B03
+"Token" 0xa411D5C0F6f706Be523f8C1E46A18F155FeD342b
+[Etherscan](https://rinkeby.etherscan.io/address/0xa411D5C0F6f706Be523f8C1E46A18F155FeD342b)
+
+"Exchange" 0x629fE0F7744707b99967F7974009E7a7BD23109e
+[Etherscan](https://rinkeby.etherscan.io/address/0x629fE0F7744707b99967F7974009E7a7BD23109e)
 
 ---
 
