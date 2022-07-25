@@ -42,6 +42,7 @@
     "@typescript-eslint/parser": "^5.30.5",
     "eslint": "^8.19.0",
     "eslint-import-resolver-typescript": "^3.2.5",
-    "eslint-plugin-react": "^7.30.1"
+    "eslint-plugin-react": "^7.30.1",
+    "surge": "^0.23.1"
   }
 }
