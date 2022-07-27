@@ -1,0 +1,19 @@
+[features]
+seeds = false
+skip-lint = false
+
+# [programs.localnet]
+[programs.devnet]
+anchor_js = "H1mPUydgixxNogy8CPEegLaXXqD57e8MJ3VXrEVugi23"
+# anchor_js = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "devnet"
+# cluster = "localnet"
+wallet = "/Users/tobias/.config/solana/id.json"
+
+[scripts]
+test = "yarn run mocha -t 1000000 tests/"
