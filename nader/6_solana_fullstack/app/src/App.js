@@ -1,6 +1,6 @@
 import "./App.css"
 import { useState } from "react"
-import { Connection, PublicKey } from "@solana/web3.js"
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
 import * as anchor from "@project-serum/anchor"
 import idl from "./idl.json"
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets"
@@ -13,7 +13,8 @@ import {
   WalletModalProvider,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui"
-require("@solana/wallet-adapter-react-ui/styles.css")
+import keypair from "./keypair.json"
+import "@solana/wallet-adapter-react-ui/styles.css"
 
 const wallets = [
   /* view list of available wallets at https://github.com/solana-labs/wallet-adapter#wallets */
@@ -24,7 +25,12 @@ const { Program, AnchorProvider, web3 } = anchor
 const { SystemProgram, Keypair } = web3
 
 /* create an account  */
-const baseAccount = Keypair.generate()
+const arr = Object.values(keypair._keypair.secretKey)
+const secret = new Uint8Array(arr)
+const pair = web3.Keypair.fromSecretKey(secret)
+const baseAccount = new Keypair(pair)
+
+// const baseAccount = Keypair.generate()
 const opts = {
   preflightCommitment: "processed",
 }
@@ -121,9 +127,11 @@ function App() {
   }
 }
 
+const network = "http://127.0.0.1:8899" || clusterApiUrl("devnet") // change for devnet
+
 /* wallet configuration as specified here: https://github.com/solana-labs/wallet-adapter#setup */
 const AppWithProvider = () => (
-  <ConnectionProvider endpoint="http://127.0.0.1:8899">
+  <ConnectionProvider endpoint={network}>
     <WalletProvider wallets={wallets} autoConnect>
       <WalletModalProvider>
         <App />
