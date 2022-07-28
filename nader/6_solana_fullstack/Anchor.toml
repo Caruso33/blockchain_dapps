@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-solana_fullstack = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+solana_fullstack = "GVU4ACeyPutnT8FzbgerrANxoYAxw8k4irCRPbgxVnKe"
 
 [registry]
 url = "https://api.apr.dev"
