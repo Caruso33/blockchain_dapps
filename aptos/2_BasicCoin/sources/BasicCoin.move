@@ -9,68 +9,68 @@ module 0xCAFE::BasicCoin {
     const EINSUFFICIENT_BALANCE: u64 = 1;
     const EALREADY_HAS_BALANCE: u64 = 2;
 
-    struct Coin has store {
+    struct Coin<phantom CoinType> has store {
         value: u64,
     }
 
     /// Struct representing the balance of each address.
-    struct Balance has key {
-        coin: Coin
+    struct Balance<phantom CoinType> has key {
+        coin: Coin<CoinType>
     }
 
     /// Publish an empty balance resource under `account`'s address. This function must be called before
     /// minting or transferring to the account.
-    public fun publish_balance(account: &signer) {
+    public fun publish_balance<CoinType>(account: &signer) {
         // TODO: add an assert to check that `account` doesn't already have a `Balance` resource.
         let address = signer::address_of(account);
-        assert!(!exists<Balance>(address), EALREADY_HAS_BALANCE);
+        assert!(!exists<Balance<CoinType>>(address), EALREADY_HAS_BALANCE);
 
-        let empty_coin = Coin { value: 0 };
-        move_to(account, Balance { coin: empty_coin });
+        let empty_coin = Coin<CoinType> { value: 0 };
+        move_to(account, Balance<CoinType> { coin: empty_coin });
     }
 
     /// Initialize this module.
-    public fun mint(module_owner: &signer, mint_addr: address, amount: u64) acquires Balance {
+    public fun mint<CoinType>(module_owner: &signer, mint_addr: address, amount: u64) acquires Balance {
         // Only the owner of the module can initialize this module
         assert!(signer::address_of(module_owner) == MODULE_OWNER, ENOT_MODULE_OWNER);
 
         // Deposit `amount` of tokens to `mint_addr`'s balance
-        deposit(mint_addr, Coin { value: amount });
+        deposit(mint_addr, Coin<CoinType> { value: amount });
     }
 
     /// Returns the balance of `owner`.
-    public fun balance_of(owner: address): u64 acquires Balance {
-        borrow_global<Balance>(owner).coin.value
+    public fun balance_of<CoinType>(owner: address): u64 acquires Balance {
+        borrow_global<Balance<CoinType>>(owner).coin.value
     }
 
     /// Transfers `amount` of tokens from `from` to `to`.
-    public fun transfer(from: &signer, to: address, amount: u64) acquires Balance {
+    public fun transfer<CoinType: drop>(from: &signer, to: address, amount: u64) acquires Balance {
         let check = withdraw(signer::address_of(from), amount);
-        deposit(to, check);
+        deposit<CoinType>(to, check);
     }
 
     /// Withdraw `amount` number of tokens from the balance under `addr`.
-    fun withdraw(addr: address, amount: u64) : Coin acquires Balance {
-        let balance = balance_of(addr);
+    fun withdraw<CoinType>(addr: address, amount: u64) : Coin<CoinType> acquires Balance {
+        let balance = balance_of<CoinType>(addr);
         // balance must be greater than the withdraw amount
         assert!(balance >= amount, EINSUFFICIENT_BALANCE);
-        let balance_ref = &mut borrow_global_mut<Balance>(addr).coin.value;
+        let balance_ref = &mut borrow_global_mut<Balance<CoinType>>(addr).coin.value;
         *balance_ref = balance - amount;
-        Coin { value: amount }
+        Coin<CoinType> { value: amount }
     }
 
     /// Deposit `amount` number of tokens to the balance under `addr`.
-    fun deposit(_addr: address, check: Coin) acquires Balance {
+    fun deposit<CoinType>(_addr: address, check: Coin<CoinType>) acquires Balance {
         // TODO: follow the implementation of `withdraw` and implement me!
-        let Coin { value: _amount } = check; // unpacks the check
+        let Coin<CoinType> { value: _amount } = check; // unpacks the check
 
-        let balance_ref = &mut borrow_global_mut<Balance>(_addr).coin.value;
+        let balance_ref = &mut borrow_global_mut<Balance<CoinType>>(_addr).coin.value;
         *balance_ref = *balance_ref + _amount;
     }
 
     #[test(account = @0x1)] // Creates a signer for the `account` argument with address `@0x1`
     #[expected_failure] // This test should abort
-    fun mint_non_owner(account: signer) acquires Balance {
+    fun mint_non_owner<CoinType>(account: signer) acquires Balance {
         // Make sure the address we've chosen doesn't match the module
         // owner address
         publish_balance(&account);
@@ -79,7 +79,7 @@ module 0xCAFE::BasicCoin {
     }
 
     #[test(account = @NamedAddr)] // Creates a signer for the `account` argument with the value of the named address `NamedAddr`
-    fun mint_check_balance(account: signer) acquires Balance {
+    fun mint_check_balance<CoinType>(account: signer) acquires Balance {
         let addr = signer::address_of(&account);
         publish_balance(&account);
         mint(&account, @NamedAddr, 42);
@@ -87,7 +87,7 @@ module 0xCAFE::BasicCoin {
     }
 
     #[test(account = @0x1)]
-    fun publish_balance_has_zero(account: signer) acquires Balance {
+    fun publish_balance_has_zero<CoinType>(account: signer) acquires Balance {
         let addr = signer::address_of(&account);
         publish_balance(&account);
         assert!(balance_of(addr) == 0, 0);
@@ -95,7 +95,7 @@ module 0xCAFE::BasicCoin {
 
     #[test(account = @0x1)]
     #[expected_failure(abort_code = 2)] // Can specify an abort code
-    fun publish_balance_already_exists(account: signer) {
+    fun publish_balance_already_exists<CoinType>(account: signer) {
         publish_balance(&account);
         publish_balance(&account);
     }
@@ -103,32 +103,32 @@ module 0xCAFE::BasicCoin {
     // EXERCISE: Write `balance_of_dne` test here!
     #[test]
     #[expected_failure]
-    fun balance_of_dne() acquires Balance {
+    fun balance_of_dne<CoinType>() acquires Balance {
         balance_of(@0x11);
     }
 
     #[test]
     #[expected_failure]
-    fun withdraw_dne() acquires Balance {
+    fun withdraw_dne<CoinType>() acquires Balance {
         // Need to unpack the coin since `Coin` is a resource
-        Coin { value: _ } = withdraw(@0x1, 0);
+        Coin<CoinType> { value: _ } = withdraw(@0x1, 0);
     }
 
     #[test(account = @0x1)]
     #[expected_failure] // This test should fail
-    fun withdraw_too_much(account: signer) acquires Balance {
+    fun withdraw_too_much<CoinType>(account: signer) acquires Balance {
         let addr = signer::address_of(&account);
         publish_balance(&account);
-        Coin { value: _ } = withdraw(addr, 1);
+        Coin<CoinType> { value: _ } = withdraw(addr, 1);
     }
 
     #[test(account = @NamedAddr)]
-    fun can_withdraw_amount(account: signer) acquires Balance {
+    fun can_withdraw_amount<CoinType>(account: signer) acquires Balance {
         publish_balance(&account);
         let amount = 1000;
         let addr = signer::address_of(&account);
         mint(&account, addr, amount);
-        let Coin { value } = withdraw(addr, amount);
+        let Coin<CoinType> { value } = withdraw(addr, amount);
         assert!(value == amount, 0);
     }
 }
