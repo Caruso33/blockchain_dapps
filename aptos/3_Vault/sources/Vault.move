@@ -22,11 +22,13 @@ module Deployment::Vault {
         ManagedCoin::mint<VaultCoin<u64>>(account, mintAddress, amount);
     }
 
-    public fun init_account<VaultCoin>(account: &signer) acquires VaultStatus {
+    public fun init_account<VaultCoin>(module_owner: &signer, account: &signer) acquires VaultStatus {
         let is_vault_status_running = borrow_global<VaultStatus>(signer::address_of(account)).is_running;
         assert!(is_vault_status_running, EVAULT_NOT_RUNNING);
-        
-        ManagedCoin::publish_balance<VaultCoin>(account);
+
+        assert!(signer::address_of(module_owner) == MODULE_OWNER, ENOT_MODULE_OWNER);
+
+        ManagedCoin::publish_balance<VaultCoin>(module_owner);
     }
 
     public fun balance_of<VaultCoin>(owner: address): u64 {
@@ -65,10 +67,10 @@ module Deployment::Vault {
         init(account, amount);
 
         let balance = balance_of<VaultCoin<u64>>(addr);
+        assert!(balance == amount, 0);
+
         let is_vault_status_running = borrow_global<VaultStatus>(addr).is_running;
         assert!(is_vault_status_running, EVAULT_NOT_RUNNING);
-
-        assert!(balance == amount, 0);
     }
 
     #[test(account = @0x1)]
@@ -80,36 +82,98 @@ module Deployment::Vault {
     }
 
     // init_account
-    // #[test(account = @Owner)]
-    // public fun module_can_init_account<VaultCoin>(account: &signer) acquires VaultStatus {
+    // #[test(owner = @Owner, account = @TestAccount)]
+    // public entry fun module_can_init_account(owner: &signer, account: &signer) acquires VaultStatus {
     //     let addr = signer::address_of(account);
     //     let amount = 10;
 
-    //     init(account, amount);
-    //     // init_account<VaultCoin>(account);
+    //     init(owner, amount);
+    //     init_account<VaultCoin<u64>>(account);
 
-    //     let balance = balance_of<VaultCoin>(addr);
+    //     let balance = balance_of<VaultCoin<u64>>(addr);
     //     assert!(balance == amount, 0);
-
-    //     // let is_vault_status_running = borrow_global<VaultStatus>(addr).is_running;
-    //     // assert!(is_vault_status_running, EVAULT_NOT_RUNNING);
-
     // }
 
-    #[test(account = @0x1)]
+    #[test(module_owner = @Owner, account = @Deployment)]
     #[expected_failure]
-        public fun module_cant_be_init_account_twice<VaultCoin>(account: &signer) acquires VaultStatus {
-        init_account<VaultCoin>(account);
-        init_account<VaultCoin>(account);
+    public entry fun module_cant_init_account_twice<VaultCoin>(module_owner: &signer, account: &signer) acquires VaultStatus {
+        init_account<VaultCoin>(module_owner, account);
+        init_account<VaultCoin>(module_owner, account);
     }
 
-    #[test(account = @Owner)]
+    #[test(module_owner = @Owner, account = @Deployment)]
     #[expected_failure]
-    public fun module_cant_be_init_account_when_no_status<VaultCoin>(account: &signer) acquires VaultStatus {
+    public entry fun module_cant_init_account_when_no_status<VaultCoin>(module_owner: &signer, account: &signer) acquires VaultStatus {
         let addr = signer::address_of(account);
         let is_vault_status_running = &mut borrow_global_mut<VaultStatus>(addr).is_running;
         *is_vault_status_running = false;
 
-        init_account<VaultCoin>(account);
+        init_account<VaultCoin>(module_owner, account);
     }
+
+    // #[test(account = @Owner, testAccount = @TestAccount)]
+    // public entry fun module_can_balance_of_and_transfer(account: &signer, testAccount: &signer) acquires VaultStatus {
+    //     let addr_from = signer::address_of(account);
+    //     let addr_to = signer::address_of(testAccount);
+        
+    //     let amount = 10;
+    //     let transferAmount = 4;
+
+    //     init(account, amount);
+
+    //     let balance_from_before = balance_of<VaultCoin<u64>>(addr_from);
+    //     let balance_to_before = balance_of<VaultCoin<u64>>(addr_to);
+
+    //     assert!(balance_from_before == amount, 0);
+    //     assert!(balance_to_before == 0, 0);
+
+    //     transfer<VaultCoin<u64>>(account, account, addr_to, transferAmount);
+
+    //     let balance_from_after = balance_of<VaultCoin<u64>>(addr_from);
+    //     let balance_to_after = balance_of<VaultCoin<u64>>(addr_to);
+
+    //     assert!(balance_from_after == (amount - transferAmount), 0);
+    //     assert!(balance_to_after == (0 + transferAmount), 0);
+    // }
+
+    #[test(account = @Owner, testAccount = @TestAccount)]
+    #[expected_failure]
+    public entry fun module_cant_transfer_when_not_status(account: &signer, testAccount: &signer) acquires VaultStatus {
+        let addr_from = signer::address_of(account);
+        let addr_to = signer::address_of(testAccount);
+
+        let is_vault_status_running = &mut borrow_global_mut<VaultStatus>(addr_from).is_running;
+        *is_vault_status_running = false;
+
+        transfer<VaultCoin<u64>>(account, account, addr_to, 0);
+    }
+
+    // #[test(module_owner = @Owner, account = @Deployment)]
+    // public entry fun module_can_pause(module_owner: &signer, account: &signer) acquires VaultStatus {
+    //     let addr = signer::address_of(account);
+        
+    //     let is_vault_status_running = borrow_global<VaultStatus>(addr).is_running;
+    //     assert!(is_vault_status_running, 0);
+
+    //     pause(module_owner, account);
+
+    //     let is_vault_status_running = borrow_global<VaultStatus>(addr).is_running;
+    //     assert!(!is_vault_status_running, 0);
+    // }
+
+    // #[test(module_owner = @Owner, account = @Deployment)]
+    // public entry fun module_can_unpause(module_owner: &signer, account: &signer) acquires VaultStatus {
+    //     let addr = signer::address_of(account);
+        
+    //     let is_vault_status_running = &mut borrow_global_mut<VaultStatus>(addr).is_running;
+    //     *is_vault_status_running = false;
+
+    //     let is_vault_status_running = borrow_global<VaultStatus>(addr).is_running;
+    //     assert!(!is_vault_status_running, 0);
+
+    //     unpause(module_owner, account);
+
+    //     let is_vault_status_running = borrow_global<VaultStatus>(addr).is_running;
+    //     assert!(is_vault_status_running, 0);
+    // }
 }
