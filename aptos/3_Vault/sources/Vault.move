@@ -54,4 +54,62 @@ module Deployment::Vault {
         vault_status.is_running = true;
     }
 
+    // Tests
+
+    // init
+    #[test(account = @Owner)]
+    public entry fun module_can_initialize(account: &signer) acquires VaultStatus {
+        let addr = signer::address_of(account);
+        let amount = 10;
+
+        init(account, amount);
+
+        let balance = balance_of<VaultCoin<u64>>(addr);
+        let is_vault_status_running = borrow_global<VaultStatus>(addr).is_running;
+        assert!(is_vault_status_running, EVAULT_NOT_RUNNING);
+
+        assert!(balance == amount, 0);
+    }
+
+    #[test(account = @0x1)]
+    #[expected_failure]
+    public entry fun module_cant_initialize_by_nonowner(account: signer) {
+        let amount = 10;
+
+        init(&account, amount);
+    }
+
+    // init_account
+    // #[test(account = @Owner)]
+    // public fun module_can_init_account<VaultCoin>(account: &signer) acquires VaultStatus {
+    //     let addr = signer::address_of(account);
+    //     let amount = 10;
+
+    //     init(account, amount);
+    //     // init_account<VaultCoin>(account);
+
+    //     let balance = balance_of<VaultCoin>(addr);
+    //     assert!(balance == amount, 0);
+
+    //     // let is_vault_status_running = borrow_global<VaultStatus>(addr).is_running;
+    //     // assert!(is_vault_status_running, EVAULT_NOT_RUNNING);
+
+    // }
+
+    #[test(account = @0x1)]
+    #[expected_failure]
+        public fun module_cant_be_init_account_twice<VaultCoin>(account: &signer) acquires VaultStatus {
+        init_account<VaultCoin>(account);
+        init_account<VaultCoin>(account);
+    }
+
+    #[test(account = @Owner)]
+    #[expected_failure]
+    public fun module_cant_be_init_account_when_no_status<VaultCoin>(account: &signer) acquires VaultStatus {
+        let addr = signer::address_of(account);
+        let is_vault_status_running = &mut borrow_global_mut<VaultStatus>(addr).is_running;
+        *is_vault_status_running = false;
+
+        init_account<VaultCoin>(account);
+    }
 }

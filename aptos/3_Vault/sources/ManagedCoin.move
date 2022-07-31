@@ -21,9 +21,8 @@ module Deployment::ManagedCoin {
     /// Publish an empty balance resource under `account`'s address. This function must be called before
     /// minting or transferring to the account.
     public fun publish_balance<CoinType>(account: &signer) {
-        // TODO: add an assert to check that `account` doesn't already have a `Balance` resource.
-        let pubAddress = signer::address_of(account);
-        assert!(!exists<Balance<CoinType>>(pubAddress), EALREADY_HAS_BALANCE);
+        let addr = signer::address_of(account);
+        assert!(!exists<Balance<CoinType>>(addr), EALREADY_HAS_BALANCE);
 
         let empty_coin = Coin<CoinType> { value: 0 };
         move_to(account, Balance<CoinType> { coin: empty_coin });
