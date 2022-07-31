@@ -60,7 +60,7 @@ module Deployment::Vault {
 
     // init
     #[test(account = @Owner)]
-    public entry fun module_can_initialize(account: &signer) acquires VaultStatus {
+    public fun module_can_initialize(account: &signer) acquires VaultStatus {
         let addr = signer::address_of(account);
         let amount = 10;
 
@@ -75,7 +75,7 @@ module Deployment::Vault {
 
     #[test(account = @0x1)]
     #[expected_failure]
-    public entry fun module_cant_initialize_by_nonowner(account: signer) {
+    public fun module_cant_initialize_by_nonowner(account: signer) {
         let amount = 10;
 
         init(&account, amount);
@@ -83,12 +83,12 @@ module Deployment::Vault {
 
     // init_account
     // #[test(owner = @Owner, account = @TestAccount)]
-    // public entry fun module_can_init_account(owner: &signer, account: &signer) acquires VaultStatus {
+    // public fun module_can_init_account(owner: &signer, account: &signer) acquires VaultStatus {
     //     let addr = signer::address_of(account);
     //     let amount = 10;
 
     //     init(owner, amount);
-    //     init_account<VaultCoin<u64>>(account);
+    //     init_account<VaultCoin<u64>>(owner, account);
 
     //     let balance = balance_of<VaultCoin<u64>>(addr);
     //     assert!(balance == amount, 0);
@@ -96,14 +96,14 @@ module Deployment::Vault {
 
     #[test(module_owner = @Owner, account = @Deployment)]
     #[expected_failure]
-    public entry fun module_cant_init_account_twice<VaultCoin>(module_owner: &signer, account: &signer) acquires VaultStatus {
+    public fun module_cant_init_account_twice<VaultCoin>(module_owner: &signer, account: &signer) acquires VaultStatus {
         init_account<VaultCoin>(module_owner, account);
         init_account<VaultCoin>(module_owner, account);
     }
 
     #[test(module_owner = @Owner, account = @Deployment)]
     #[expected_failure]
-    public entry fun module_cant_init_account_when_no_status<VaultCoin>(module_owner: &signer, account: &signer) acquires VaultStatus {
+    public fun module_cant_init_account_when_no_status<VaultCoin>(module_owner: &signer, account: &signer) acquires VaultStatus {
         let addr = signer::address_of(account);
         let is_vault_status_running = &mut borrow_global_mut<VaultStatus>(addr).is_running;
         *is_vault_status_running = false;
@@ -112,7 +112,7 @@ module Deployment::Vault {
     }
 
     // #[test(account = @Owner, testAccount = @TestAccount)]
-    // public entry fun module_can_balance_of_and_transfer(account: &signer, testAccount: &signer) acquires VaultStatus {
+    // public fun module_can_balance_of_and_transfer(account: &signer, testAccount: &signer) acquires VaultStatus {
     //     let addr_from = signer::address_of(account);
     //     let addr_to = signer::address_of(testAccount);
         
@@ -138,7 +138,7 @@ module Deployment::Vault {
 
     #[test(account = @Owner, testAccount = @TestAccount)]
     #[expected_failure]
-    public entry fun module_cant_transfer_when_not_status(account: &signer, testAccount: &signer) acquires VaultStatus {
+    public fun module_cant_transfer_when_not_status(account: &signer, testAccount: &signer) acquires VaultStatus {
         let addr_from = signer::address_of(account);
         let addr_to = signer::address_of(testAccount);
 
@@ -149,7 +149,7 @@ module Deployment::Vault {
     }
 
     // #[test(module_owner = @Owner, account = @Deployment)]
-    // public entry fun module_can_pause(module_owner: &signer, account: &signer) acquires VaultStatus {
+    // public fun module_can_pause(module_owner: &signer, account: &signer) acquires VaultStatus {
     //     let addr = signer::address_of(account);
         
     //     let is_vault_status_running = borrow_global<VaultStatus>(addr).is_running;
@@ -162,7 +162,7 @@ module Deployment::Vault {
     // }
 
     // #[test(module_owner = @Owner, account = @Deployment)]
-    // public entry fun module_can_unpause(module_owner: &signer, account: &signer) acquires VaultStatus {
+    // public fun module_can_unpause(module_owner: &signer, account: &signer) acquires VaultStatus {
     //     let addr = signer::address_of(account);
         
     //     let is_vault_status_running = &mut borrow_global_mut<VaultStatus>(addr).is_running;
