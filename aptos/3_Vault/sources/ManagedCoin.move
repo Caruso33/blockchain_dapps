@@ -88,11 +88,11 @@ module Deployment::ManagedCoin {
     }
 
     /// Deposit `amount` number of tokens to the balance under `addr`.
-    fun deposit<CoinType>(_addr: address, check: Coin<CoinType>) acquires Balance {
+    fun deposit<CoinType>(addr: address, check: Coin<CoinType>) acquires Balance {
         // TODO: follow the implementation of `withdraw` and implement me!
         let Coin<CoinType> { value: _amount } = check; // unpacks the check
 
-        let balance_ref = &mut borrow_global_mut<Balance<CoinType>>(_addr).coin.value;
+        let balance_ref = &mut borrow_global_mut<Balance<CoinType>>(addr).coin.value;
         *balance_ref = *balance_ref + _amount;
     }
 

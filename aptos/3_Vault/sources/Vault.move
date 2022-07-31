@@ -22,7 +22,10 @@ module Deployment::Vault {
         ManagedCoin::mint<VaultCoin<u64>>(account, mintAddress, amount);
     }
 
-    public fun publish_balance<VaultCoin>(account: &signer) {
+    public fun init_account<VaultCoin>(account: &signer) acquires VaultStatus {
+        let is_vault_status_running = borrow_global<VaultStatus>(signer::address_of(account)).is_running;
+        assert!(is_vault_status_running, EVAULT_NOT_RUNNING);
+        
         ManagedCoin::publish_balance<VaultCoin>(account);
     }
 
@@ -30,7 +33,10 @@ module Deployment::Vault {
         ManagedCoin::balance_of<VaultCoin>(owner)
     }
 
-    public fun transfer<VaultCoin: drop>(from: &signer, to: address, amount: u64) acquires VaultStatus {
+    public fun transfer<VaultCoin: drop>(account: &signer, from: &signer, to: address, amount: u64) acquires VaultStatus {
+        let is_vault_status_running = borrow_global<VaultStatus>(signer::address_of(account)).is_running;
+        assert!(is_vault_status_running, EVAULT_NOT_RUNNING);
+
         ManagedCoin::transfer<VaultCoin>(from, to, amount);
     }
 
