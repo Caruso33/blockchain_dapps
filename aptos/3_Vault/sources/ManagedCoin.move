@@ -106,7 +106,7 @@ module Deployment::ManagedCoin {
         ensures balance_post == balance + check_value;
     }
 
-    #[test(account = @0x1)] // Creates a signer for the `account` argument with address `@0x1`
+    #[test(account = @Deployment)] // Creates a signer for the `account` argument with address `@0x1`
     #[expected_failure] // This test should abort
     fun mint_non_owner<CoinType>(account: signer) acquires Balance {
         // Make sure the address we've chosen doesn't match the module
@@ -124,14 +124,14 @@ module Deployment::ManagedCoin {
     //     assert!(balance_of<CoinType>(addr) == 42, 0);
     // }
 
-    // #[test(account = @0x1)]
+    // #[test(account = @Deployment)]
     // fun publish_balance_has_zero<CoinType>(account: signer) acquires Balance {
     //     let addr = signer::address_of(&account);
     //     publish_balance<CoinType>(&account);
     //     assert!(balance_of<CoinType>(addr) == 0, 0);
     // }
 
-    // #[test(account = @0x1)]
+    // #[test(account = @Deployment)]
     // #[expected_failure(abort_code = 2)] // Can specify an abort code
     // fun publish_balance_already_exists<CoinType>(account: signer) {
     //     publish_balance<CoinType>(&account);
@@ -151,7 +151,7 @@ module Deployment::ManagedCoin {
         Coin<CoinType> { value: _ } = withdraw(@0x1, 0);
     }
 
-    #[test(account = @0x1)]
+    #[test(account = @Deployment)]
     #[expected_failure] // This test should fail
     fun withdraw_too_much<CoinType>(account: signer) acquires Balance {
         let addr = signer::address_of(&account);
