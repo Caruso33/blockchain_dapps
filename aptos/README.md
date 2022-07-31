@@ -45,3 +45,17 @@ better:
 ### Test
 
 `aptos move test`
+
+#### Coverage
+
+`move test --coverage`
+
+`move coverage summary`
+`move coverage summary --summarize-functions`
+`move coverage source --module BasicCoin`
+
+### Proofing specs
+
+`aptos move prove`
+
+`move prove`

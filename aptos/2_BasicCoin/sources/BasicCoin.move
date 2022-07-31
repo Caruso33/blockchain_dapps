@@ -43,10 +43,27 @@ module NamedAddr::BasicCoin {
         borrow_global<Balance<CoinType>>(owner).coin.value
     }
 
+    spec balance_of {
+        pragma aborts_if_is_strict;
+        aborts_if !exists<Balance<CoinType>>(owner);
+    }
+
     /// Transfers `amount` of tokens from `from` to `to`.
     public fun transfer<CoinType: drop>(from: &signer, to: address, amount: u64) acquires Balance {
         let check = withdraw(signer::address_of(from), amount);
         deposit<CoinType>(to, check);
+    }
+
+    spec transfer {
+        let addr_from = signer::address_of(from);
+
+        let balance_from = global<Balance<CoinType>>(addr_from).coin.value;
+        let balance_to = global<Balance<CoinType>>(to).coin.value;
+        let post balance_from_post = global<Balance<CoinType>>(addr_from).coin.value;
+        let post balance_to_post = global<Balance<CoinType>>(to).coin.value;
+
+        ensures balance_from_post == balance_from - amount;
+        ensures balance_to_post == balance_to + amount;
     }
 
     /// Withdraw `amount` number of tokens from the balance under `addr`.
@@ -59,6 +76,17 @@ module NamedAddr::BasicCoin {
         Coin<CoinType> { value: amount }
     }
 
+    spec withdraw {
+        let balance = global<Balance<CoinType>>(addr).coin.value;
+
+        aborts_if !exists<Balance<CoinType>>(addr);
+        aborts_if balance < amount;
+
+        let post balance_post = global<Balance<CoinType>>(addr).coin.value;
+        ensures result == Coin<CoinType> { value: amount };
+        ensures balance_post == balance - amount;
+    }
+
     /// Deposit `amount` number of tokens to the balance under `addr`.
     fun deposit<CoinType>(_addr: address, check: Coin<CoinType>) acquires Balance {
         // TODO: follow the implementation of `withdraw` and implement me!
@@ -66,6 +94,17 @@ module NamedAddr::BasicCoin {
 
         let balance_ref = &mut borrow_global_mut<Balance<CoinType>>(_addr).coin.value;
         *balance_ref = *balance_ref + _amount;
+    }
+
+    spec deposit {
+        let balance = global<Balance<CoinType>>(addr).coin.value;
+        let check_value = check.value;
+
+        aborts_if !exists<Balance<CoinType>>(addr);
+        aborts_if balance + check_value > MAX_U64;
+
+        let post balance_post = global<Balance<CoinType>>(addr).coin.value;
+        ensures balance_post == balance + check_value;
     }
 
     #[test(account = @0x1)] // Creates a signer for the `account` argument with address `@0x1`
@@ -78,29 +117,28 @@ module NamedAddr::BasicCoin {
         mint<CoinType>(&account, @0x1, 10);
     }
 
-    #[test(account = @NamedAddr)] // Creates a signer for the `account` argument with the value of the named address `NamedAddr`
-    fun mint_check_balance<CoinType>(account: signer) acquires Balance {
-        let addr = signer::address_of(&account);
-        publish_balance<CoinType>(&account);
-        mint<CoinType>(&account, @NamedAddr, 42);
-        assert!(balance_of<CoinType>(addr) == 42, 0);
-    }
+    // #[test(account = @NamedAddr)] // Creates a signer for the `account` argument with the value of the named address `NamedAddr`
+    // fun mint_check_balance<CoinType>(account: signer) acquires Balance {
+    //     let addr = signer::address_of(&account);
+    //     publish_balance<CoinType>(&account);
+    //     mint<CoinType>(&account, @NamedAddr, 42);
+    //     assert!(balance_of<CoinType>(addr) == 42, 0);
+    // }
 
-    #[test(account = @0x1)]
-    fun publish_balance_has_zero<CoinType>(account: signer) acquires Balance {
-        let addr = signer::address_of(&account);
-        publish_balance<CoinType>(&account);
-        assert!(balance_of<CoinType>(addr) == 0, 0);
-    }
+    // #[test(account = @0x1)]
+    // fun publish_balance_has_zero<CoinType>(account: signer) acquires Balance {
+    //     let addr = signer::address_of(&account);
+    //     publish_balance<CoinType>(&account);
+    //     assert!(balance_of<CoinType>(addr) == 0, 0);
+    // }
 
-    #[test(account = @0x1)]
-    #[expected_failure(abort_code = 2)] // Can specify an abort code
-    fun publish_balance_already_exists<CoinType>(account: signer) {
-        publish_balance<CoinType>(&account);
-        publish_balance<CoinType>(&account);
-    }
+    // #[test(account = @0x1)]
+    // #[expected_failure(abort_code = 2)] // Can specify an abort code
+    // fun publish_balance_already_exists<CoinType>(account: signer) {
+    //     publish_balance<CoinType>(&account);
+    //     publish_balance<CoinType>(&account);
+    // }
 
-    // EXERCISE: Write `balance_of_dne` test here!
     #[test]
     #[expected_failure]
     fun balance_of_dne<CoinType>() acquires Balance {
@@ -122,13 +160,13 @@ module NamedAddr::BasicCoin {
         Coin<CoinType> { value: _ } = withdraw(addr, 1);
     }
 
-    #[test(account = @NamedAddr)]
-    fun can_withdraw_amount<CoinType>(account: signer) acquires Balance {
-        publish_balance<CoinType>(&account);
-        let amount = 1000;
-        let addr = signer::address_of(&account);
-        mint<CoinType>(&account, addr, amount);
-        let Coin<CoinType> { value } = withdraw(addr, amount);
-        assert!(value == amount, 0);
-    }
+    // #[test(account = @NamedAddr)]
+    // fun can_withdraw_amount<CoinType>(account: signer) acquires Balance {
+    //     publish_balance<CoinType>(&account);
+    //     let amount = 1000;
+    //     let addr = signer::address_of(&account);
+    //     mint<CoinType>(&account, addr, amount);
+    //     let Coin<CoinType> { value } = withdraw(addr, amount);
+    //     assert!(value == amount, 0);
+    // }
 }
