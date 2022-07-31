@@ -1,4 +1,4 @@
-module 0xCAFE::BasicCoin {
+module NamedAddr::BasicCoin {
     use std::signer;
 
     /// Address of the owner of this module
@@ -22,8 +22,8 @@ module 0xCAFE::BasicCoin {
     /// minting or transferring to the account.
     public fun publish_balance<CoinType>(account: &signer) {
         // TODO: add an assert to check that `account` doesn't already have a `Balance` resource.
-        let address = signer::address_of(account);
-        assert!(!exists<Balance<CoinType>>(address), EALREADY_HAS_BALANCE);
+        let pubAddress = signer::address_of(account);
+        assert!(!exists<Balance<CoinType>>(pubAddress), EALREADY_HAS_BALANCE);
 
         let empty_coin = Coin<CoinType> { value: 0 };
         move_to(account, Balance<CoinType> { coin: empty_coin });
@@ -73,38 +73,38 @@ module 0xCAFE::BasicCoin {
     fun mint_non_owner<CoinType>(account: signer) acquires Balance {
         // Make sure the address we've chosen doesn't match the module
         // owner address
-        publish_balance(&account);
+        publish_balance<CoinType>(&account);
         assert!(signer::address_of(&account) != MODULE_OWNER, 0);
-        mint(&account, @0x1, 10);
+        mint<CoinType>(&account, @0x1, 10);
     }
 
     #[test(account = @NamedAddr)] // Creates a signer for the `account` argument with the value of the named address `NamedAddr`
     fun mint_check_balance<CoinType>(account: signer) acquires Balance {
         let addr = signer::address_of(&account);
-        publish_balance(&account);
-        mint(&account, @NamedAddr, 42);
-        assert!(balance_of(addr) == 42, 0);
+        publish_balance<CoinType>(&account);
+        mint<CoinType>(&account, @NamedAddr, 42);
+        assert!(balance_of<CoinType>(addr) == 42, 0);
     }
 
     #[test(account = @0x1)]
     fun publish_balance_has_zero<CoinType>(account: signer) acquires Balance {
         let addr = signer::address_of(&account);
-        publish_balance(&account);
-        assert!(balance_of(addr) == 0, 0);
+        publish_balance<CoinType>(&account);
+        assert!(balance_of<CoinType>(addr) == 0, 0);
     }
 
     #[test(account = @0x1)]
     #[expected_failure(abort_code = 2)] // Can specify an abort code
     fun publish_balance_already_exists<CoinType>(account: signer) {
-        publish_balance(&account);
-        publish_balance(&account);
+        publish_balance<CoinType>(&account);
+        publish_balance<CoinType>(&account);
     }
 
     // EXERCISE: Write `balance_of_dne` test here!
     #[test]
     #[expected_failure]
     fun balance_of_dne<CoinType>() acquires Balance {
-        balance_of(@0x11);
+        balance_of<CoinType>(@0x11);
     }
 
     #[test]
@@ -118,16 +118,16 @@ module 0xCAFE::BasicCoin {
     #[expected_failure] // This test should fail
     fun withdraw_too_much<CoinType>(account: signer) acquires Balance {
         let addr = signer::address_of(&account);
-        publish_balance(&account);
+        publish_balance<CoinType>(&account);
         Coin<CoinType> { value: _ } = withdraw(addr, 1);
     }
 
     #[test(account = @NamedAddr)]
     fun can_withdraw_amount<CoinType>(account: signer) acquires Balance {
-        publish_balance(&account);
+        publish_balance<CoinType>(&account);
         let amount = 1000;
         let addr = signer::address_of(&account);
-        mint(&account, addr, amount);
+        mint<CoinType>(&account, addr, amount);
         let Coin<CoinType> { value } = withdraw(addr, amount);
         assert!(value == amount, 0);
     }
