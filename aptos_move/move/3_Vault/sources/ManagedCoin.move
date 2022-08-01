@@ -66,7 +66,7 @@ module Deployment::ManagedCoin {
     }
 
     /// Withdraw `amount` number of tokens from the balance under `addr`.
-    fun withdraw<CoinType>(addr: address, amount: u64) : Coin<CoinType> acquires Balance {
+    fun withdraw<CoinType>(addr: address, amount: u64): Coin<CoinType> acquires Balance {
         let balance = balance_of<CoinType>(addr);
         // balance must be greater than the withdraw amount
         assert!(balance >= amount, EINSUFFICIENT_BALANCE);
@@ -107,19 +107,23 @@ module Deployment::ManagedCoin {
         ensures balance_post == balance + check_value;
     }
 
+    /*
+        TEST
+    */
     #[test_only]
-    struct TestCoin {
+    struct TestCoin has drop {
         value: u64,
     }
 
+    // minting
     #[test(account = @Deployment)] // Creates a signer for the `account` argument with address `@0x1`
     #[expected_failure] // This test should abort
-    fun mint_non_owner<CoinType>(account: signer) acquires Balance {
+    fun mint_non_owner<CoinType>(account: &signer) acquires Balance {
         // Make sure the address we've chosen doesn't match the module
         // owner address
-        publish_balance<CoinType>(&account);
-        assert!(signer::address_of(&account) != MODULE_OWNER, 0);
-        mint<CoinType>(&account, @0x1, 10);
+        publish_balance<CoinType>(account);
+        assert!(signer::address_of(account) != MODULE_OWNER, 0);
+        mint<CoinType>(account, @0x1, 10);
     }
 
     #[test(module_owner = @Owner, account = @TestAccount)] // Creates a signer for the `account` argument with the value of the named address `Owner`
@@ -133,48 +137,126 @@ module Deployment::ManagedCoin {
         assert!(balance_of<TestCoin>(addr) == amount, 0);
     }
 
-    // #[test(account = @Deployment)]
-    // fun publish_balance_has_zero<CoinType>(account: signer) acquires Balance {
-    //     let addr = signer::address_of(&account);
-    //     publish_balance<CoinType>(&account);
-    //     assert!(balance_of<CoinType>(addr) == 0, 0);
-    // }
-
-    // #[test(account = @Deployment)]
-    // #[expected_failure(abort_code = 2)] // Can specify an abort code
-    // fun publish_balance_already_exists<CoinType>(account: signer) {
-    //     publish_balance<CoinType>(&account);
-    //     publish_balance<CoinType>(&account);
-    // }
-
-    #[test]
-    #[expected_failure]
-    fun balance_of_dne<CoinType>() acquires Balance {
-        balance_of<CoinType>(@0x11);
+    // publish balance
+    #[test(account = @Deployment)]
+    fun publish_balance_has_zero(account: &signer) acquires Balance {
+        let addr = signer::address_of(account);
+        publish_balance<TestCoin>(account);
+        assert!(balance_of<TestCoin>(addr) == 0, 0);
     }
 
+    #[test(account = @Deployment)]
+    #[expected_failure(abort_code = 2)] // Can specify an abort code
+    fun publish_balance_already_exists(account: &signer) {
+        publish_balance<TestCoin>(account);
+        publish_balance<TestCoin>(account);
+    }
+
+    // balance of
     #[test]
     #[expected_failure]
-    fun withdraw_dne<CoinType>() acquires Balance {
+    fun balance_of_dne() acquires Balance {
+        balance_of<TestCoin>(@0x11);
+    }
+
+    // transfer
+    #[test(module_owner = @Owner, account = @TestAccount)]
+    fun transfer_amount(module_owner: &signer, account: &signer) acquires Balance {
+        let owner_addr = signer::address_of(module_owner);
+        let account_addr = signer::address_of(account);
+
+        let amount = 100;
+        let transfer_amount = 30;
+
+        publish_balance<TestCoin>(module_owner);
+        publish_balance<TestCoin>(account);
+
+        mint<TestCoin>(module_owner, owner_addr, amount);
+
+        transfer<TestCoin>(module_owner, account_addr, transfer_amount);
+        assert!(balance_of<TestCoin>(owner_addr) == (amount - transfer_amount), 0);
+        assert!(balance_of<TestCoin>(account_addr) == transfer_amount, 0);
+    }
+
+    // withdraw
+    #[test]
+    #[expected_failure]
+    fun withdraw_dne() acquires Balance {
         // Need to unpack the coin since `Coin` is a resource
-        Coin<CoinType> { value: _ } = withdraw(@0x1, 0);
+        Coin<TestCoin> { value: _ } = withdraw(@0x1, 0);
     }
 
     #[test(account = @Deployment)]
     #[expected_failure] // This test should fail
-    fun withdraw_too_much<CoinType>(account: signer) acquires Balance {
-        let addr = signer::address_of(&account);
-        publish_balance<CoinType>(&account);
-        Coin<CoinType> { value: _ } = withdraw(addr, 1);
+    fun withdraw_too_much(account: &signer) acquires Balance {
+        let addr = signer::address_of(account);
+        publish_balance<TestCoin>(account);
+        Coin<TestCoin> { value: _ } = withdraw(addr, 1);
     }
 
-    // #[test(account = @Owner)]
-    // fun can_withdraw_amount<CoinType>(account: signer) acquires Balance {
-    //     publish_balance<CoinType>(&account);
-    //     let amount = 1000;
-    //     let addr = signer::address_of(&account);
-    //     mint<CoinType>(&account, addr, amount);
-    //     let Coin<CoinType> { value } = withdraw(addr, amount);
-    //     assert!(value == amount, 0);
-    // }
+    #[test(account = @Owner)]
+    fun can_withdraw_amount(account: &signer) acquires Balance {
+        publish_balance<TestCoin>(account);
+        let amount = 1000;
+        let addr = signer::address_of(account);
+        
+        mint<TestCoin>(account, addr, amount);
+        assert!(balance_of<TestCoin>(addr) == amount, 0);
+
+        let Coin<TestCoin> { value } = withdraw<TestCoin>(addr, amount);
+        assert!(value == amount, 0);
+        assert!(balance_of<TestCoin>(addr) == 0, 0);
+    }
+
+    #[test(account = @Owner)]
+    fun can_withdraw_some_amount(account: &signer) acquires Balance {
+        publish_balance<TestCoin>(account);
+        let amount = 1000;
+        let withdraw_amount = 200;
+        let addr = signer::address_of(account);
+
+        mint<TestCoin>(account, addr, amount);
+        assert!(balance_of<TestCoin>(addr) == amount, 0);
+        
+        let Coin<TestCoin> { value } = withdraw(addr, withdraw_amount);
+
+        assert!(value == withdraw_amount, 0);
+        assert!(balance_of<TestCoin>(addr) == (amount - withdraw_amount), 0);
+    }
+
+    // e2e
+    #[test(module_owner = @Owner, account = @TestAccount)]
+    fun can_e2e_perform(module_owner: &signer, account: &signer) acquires Balance {
+        publish_balance<TestCoin>(module_owner);
+        publish_balance<TestCoin>(account);
+
+        let owner_amount = 1000;
+        let account_amount = 500;
+
+        let withdraw_amount = 200;
+        let transfer_amount = 50;
+
+        let owner_addr = signer::address_of(module_owner);
+        let account_addr = signer::address_of(account);
+
+        mint<TestCoin>(module_owner, owner_addr, owner_amount);
+        mint<TestCoin>(module_owner, account_addr, account_amount);
+
+        assert!(balance_of<TestCoin>(owner_addr) == owner_amount, 0);
+        assert!(balance_of<TestCoin>(account_addr) == account_amount, 0);
+
+        let Coin<TestCoin> { value } = withdraw<TestCoin>(account_addr, withdraw_amount);
+        assert!(balance_of<TestCoin>(account_addr) == (account_amount - withdraw_amount), 0);        
+        assert!(value == withdraw_amount, 0);
+
+        let account_new_value = (account_amount - withdraw_amount + transfer_amount);
+        transfer<TestCoin>(module_owner, account_addr, transfer_amount);
+        assert!(balance_of<TestCoin>(owner_addr) == (owner_amount - transfer_amount), 0);
+        assert!(balance_of<TestCoin>(account_addr) == account_new_value, 0);
+
+        let owner_new_value = (owner_amount + transfer_amount);
+        transfer<TestCoin>(account, owner_addr, 2 * transfer_amount);
+        assert!(balance_of<TestCoin>(owner_addr) == owner_new_value, 0);
+        assert!(balance_of<TestCoin>(account_addr) == (account_new_value - 2 * transfer_amount), 0);
+    }
 }
