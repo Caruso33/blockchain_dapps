@@ -20,7 +20,7 @@ module Deployment::ManagedCoin {
 
     /// Publish an empty balance resource under `account`'s address. This function must be called before
     /// minting or transferring to the account.
-    public fun publish_balance<CoinType>(account: &signer) {
+    public fun publish_balance<CoinType>(account: &signer) :() {
         let addr = signer::address_of(account);
         assert!(!exists<Balance<CoinType>>(addr), EALREADY_HAS_BALANCE);
 
@@ -116,13 +116,13 @@ module Deployment::ManagedCoin {
         mint<CoinType>(&account, @0x1, 10);
     }
 
-    // #[test(account = @Owner)] // Creates a signer for the `account` argument with the value of the named address `Owner`
-    // fun mint_check_balance<CoinType>(account: signer) acquires Balance {
-    //     let addr = signer::address_of(&account);
-    //     publish_balance<CoinType>(&account);
-    //     mint<CoinType>(&account, @Owner, 42);
-    //     assert!(balance_of<CoinType>(addr) == 42, 0);
-    // }
+    #[test(account = @Owner)] // Creates a signer for the `account` argument with the value of the named address `Owner`
+    fun mint_check_balance<CoinType>(account: &signer) {
+        // let addr = signer::address_of(&account);
+        publish_balance<CoinType>(account);
+        // mint<CoinType>(&account, @Owner, 42);
+        // assert!(balance_of<CoinType>(addr) == 42, 0);
+    }
 
     // #[test(account = @Deployment)]
     // fun publish_balance_has_zero<CoinType>(account: signer) acquires Balance {
