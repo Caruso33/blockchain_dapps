@@ -29,12 +29,12 @@ module Deployment::ManagedCoin {
     }
 
     /// Initialize this module.
-    public fun mint<CoinType>(module_owner: &signer, mint_addr: address, amount: u64) acquires Balance {
+    public fun mint<CoinType>(module_owner: &signer, mint_addr: address, amount: u64): u64 acquires Balance {
         // Only the owner of the module can initialize this module
         assert!(signer::address_of(module_owner) == MODULE_OWNER, ENOT_MODULE_OWNER);
 
         // Deposit `amount` of tokens to `mint_addr`'s balance
-        deposit(mint_addr, Coin<CoinType> { value: amount });
+        deposit<CoinType>(mint_addr, Coin<CoinType> { value: amount })
     }
 
     /// Returns the balance of `owner`.
@@ -87,12 +87,13 @@ module Deployment::ManagedCoin {
     }
 
     /// Deposit `amount` number of tokens to the balance under `addr`.
-    fun deposit<CoinType>(addr: address, check: Coin<CoinType>) acquires Balance {
-        // TODO: follow the implementation of `withdraw` and implement me!
-        let Coin<CoinType> { value: _amount } = check; // unpacks the check
+    fun deposit<CoinType>(addr: address, coin: Coin<CoinType>): u64 acquires Balance {
+        let Coin<CoinType> { value: amount } = coin; // unpacks the coin
 
         let balance_ref = &mut borrow_global_mut<Balance<CoinType>>(addr).coin.value;
-        *balance_ref = *balance_ref + _amount;
+        *balance_ref = *balance_ref + amount;
+
+        *balance_ref
     }
 
     spec deposit {
@@ -106,6 +107,11 @@ module Deployment::ManagedCoin {
         ensures balance_post == balance + check_value;
     }
 
+    #[test_only]
+    struct TestCoin {
+        value: u64,
+    }
+
     #[test(account = @Deployment)] // Creates a signer for the `account` argument with address `@0x1`
     #[expected_failure] // This test should abort
     fun mint_non_owner<CoinType>(account: signer) acquires Balance {
@@ -116,12 +122,15 @@ module Deployment::ManagedCoin {
         mint<CoinType>(&account, @0x1, 10);
     }
 
-    #[test(account = @Owner)] // Creates a signer for the `account` argument with the value of the named address `Owner`
-    fun mint_check_balance<CoinType>(account: &signer) {
-        // let addr = signer::address_of(&account);
-        publish_balance<CoinType>(account);
-        // mint<CoinType>(&account, @Owner, 42);
-        // assert!(balance_of<CoinType>(addr) == 42, 0);
+    #[test(module_owner = @Owner, account = @TestAccount)] // Creates a signer for the `account` argument with the value of the named address `Owner`
+    fun mint_check_balance(module_owner: &signer, account: &signer) acquires Balance {
+        let addr = signer::address_of(account);
+        let amount = 42;
+        publish_balance<TestCoin>(account);
+        
+        let balance = mint<TestCoin>(module_owner, addr, amount);
+        assert!(balance == amount, 0);
+        assert!(balance_of<TestCoin>(addr) == amount, 0);
     }
 
     // #[test(account = @Deployment)]

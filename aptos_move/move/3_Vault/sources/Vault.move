@@ -13,7 +13,7 @@ module Deployment::Vault {
         is_running: bool
     }
 
-    public fun init(account: &signer, amount: u64) {
+    public entry fun init(account: &signer, amount: u64) {
         move_to(account, VaultStatus { is_running: true });
 
         ManagedCoin::publish_balance<VaultCoin<u64>>(account);
