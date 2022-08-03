@@ -53,14 +53,14 @@ module Deployment::Vault {
     public fun pause(account: &signer) acquires VaultStatus {
         require_is_owner(account);
 
-        let vault_status = borrow_global_mut<VaultStatus>(signer::address_of(account));
+        let vault_status = borrow_global_mut<VaultStatus>(MODULE_OWNER);
         vault_status.is_running = false;
     }
 
     public fun unpause(account: &signer) acquires VaultStatus {
         require_is_owner(account);
 
-        let vault_status = borrow_global_mut<VaultStatus>(signer::address_of(account));
+        let vault_status = borrow_global_mut<VaultStatus>(MODULE_OWNER);
         vault_status.is_running = true;
     }
 
