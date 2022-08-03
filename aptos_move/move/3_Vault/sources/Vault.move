@@ -76,15 +76,6 @@ module Deployment::Vault {
     /*
         TEST
     */
-    // #[test_only]
-    // struct TestCoin has drop {
-    //     value: u64,
-    // }
-
-    // #[test_only]
-    // struct TestStatus has key {
-    //     is_running: bool
-    // }
 
     // init
     #[test(owner = @Owner)]
