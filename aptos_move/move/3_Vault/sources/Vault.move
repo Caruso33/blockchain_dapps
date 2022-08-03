@@ -137,6 +137,8 @@ module Deployment::Vault {
     #[test(owner = @Owner, account = @TestAccount)]
     #[expected_failure]
     public fun module_cant_init_account_twice<VaultCoin>(owner: &signer, account: &signer) acquires VaultStatus {
+        init(owner, 10);
+
         init_account(owner, account);
         init_account(owner, account);
     }
