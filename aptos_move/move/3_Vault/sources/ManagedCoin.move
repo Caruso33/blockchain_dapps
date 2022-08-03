@@ -49,8 +49,8 @@ module Deployment::ManagedCoin {
 
     /// Transfers `amount` of tokens from `from` to `to`.
     public fun transfer<CoinType: drop>(from: &signer, to: address, amount: u64) acquires Balance {
-        let check = withdraw(signer::address_of(from), amount);
-        deposit<CoinType>(to, check);
+        let withdrawn_coin = withdraw(signer::address_of(from), amount);
+        deposit<CoinType>(to, withdrawn_coin);
     }
 
     spec transfer {
@@ -118,12 +118,12 @@ module Deployment::ManagedCoin {
     // minting
     #[test(account = @Deployment)] // Creates a signer for the `account` argument with address `@0x1`
     #[expected_failure] // This test should abort
-    fun mint_non_owner<CoinType>(account: &signer) acquires Balance {
+    fun mint_non_owner(account: &signer) acquires Balance {
         // Make sure the address we've chosen doesn't match the module
         // owner address
-        publish_balance<CoinType>(account);
+        publish_balance<TestCoin>(account);
         assert!(signer::address_of(account) != MODULE_OWNER, 0);
-        mint<CoinType>(account, @0x1, 10);
+        mint<TestCoin>(account, @0x1, 10);
     }
 
     #[test(module_owner = @Owner, account = @TestAccount)] // Creates a signer for the `account` argument with the value of the named address `Owner`
