@@ -37,10 +37,10 @@ module.exports = {
             // forking: {
             //   url: MAINNET_RPC_URL
             // }
-            chainId: 31337,
+            chainId: 1337,
         },
         localhost: {
-            chainId: 31337,
+            chainId: 1337,
         },
         kovan: {
             url: KOVAN_RPC_URL,
@@ -107,7 +107,7 @@ module.exports = {
     solidity: {
         compilers: [
             {
-                version: "0.8.7",
+                version: "0.8.9",
             },
             {
                 version: "0.4.24",

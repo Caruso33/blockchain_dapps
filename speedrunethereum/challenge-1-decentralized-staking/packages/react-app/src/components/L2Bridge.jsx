@@ -405,7 +405,7 @@ const L1BridgeMetadata = {
     },
   },
   // Optimism Contract's
-  31337: {
+  1337: {
     contracts: {
       OVM_L1StandardBridge: {
         address: "0x998abeb3E57409262aE5b751f60747921B33613E",

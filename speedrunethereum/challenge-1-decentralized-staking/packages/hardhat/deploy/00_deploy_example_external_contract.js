@@ -47,7 +47,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   // todo: verification with etherscan
   // Verification
-  // if (chainId !== "31337") {
+  // if (chainId !== "1337") {
   //   try {
   //     console.log(" 🎫 Verifing Contract on Etherscan... ");
   //     await sleep(5000); // wait 5 seconds for deployment to propagate

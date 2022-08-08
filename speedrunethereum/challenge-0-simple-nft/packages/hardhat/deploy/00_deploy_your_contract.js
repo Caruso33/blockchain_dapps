@@ -18,7 +18,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const yourCollectible = await ethers.getContract("YourCollectible", deployer);
 
   // ToDo: Verify your contract with Etherscan for public chains
-  // if (chainId !== "31337") {
+  // if (chainId !== "1337") {
   //   try {
   //     console.log(" 🎫 Verifing Contract on Etherscan... ");
   //     await sleep(3000); // wait 3 seconds for deployment to propagate bytecode

@@ -39,7 +39,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const ownershipResult = await ownershipTransaction.wait();
 
   // ToDo: Verify your contract with Etherscan for public chains
-  if (chainId !== "31337") {
+  if (chainId !== "1337") {
     try {
       console.log(" 🎫 Verifing Contract on Etherscan... ");
       await sleep(5000); // wait 5 seconds for deployment to propagate
