@@ -108,7 +108,7 @@ const config: HardhatUserConfig = {
         ],
     },
     mocha: {
-        timeout: 500000, // 500 seconds max for running tests
+        timeout: 300000, // 300 seconds max for running tests
     },
 }
 export default config

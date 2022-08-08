@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
@@ -169,6 +170,10 @@ contract Raffle is VRFConsumerBaseV2 {
 
     function getPlayers() public view returns (address payable[] memory) {
         return s_players;
+    }
+
+    function getPlayer(uint256 playerId) public view returns (address payable) {
+        return s_players[playerId];
     }
 
     function getNumberOfPlayers() public view returns (uint256) {

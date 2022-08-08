@@ -1,3 +1,4 @@
+import { Contract } from "ethers"
 import { network, ethers } from "hardhat"
 import {
     developmentChains,
@@ -6,9 +7,7 @@ import {
 } from "../hardhat-helper-config"
 import { verify } from "../utils/verify"
 
-networkConfig as any
-
-const FUND_AMOUNT = "1000000000000000000000"
+const FUND_AMOUNT = ethers.utils.parseEther("30")
 
 const raffleDeploy = async ({
     getNamedAccounts,
@@ -23,11 +22,14 @@ const raffleDeploy = async ({
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId!
-    let vrfCoordinatorV2Address, subscriptionId
 
-    if (chainId == 1337) {
+    let vrfCoordinatorV2Mock: Contract | undefined
+    let vrfCoordinatorV2Address: string
+    let subscriptionId: string
+
+    if (developmentChains.includes(network.name)) {
         // create VRFV2 Subscription
-        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
+        vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
         const transactionResponse = await vrfCoordinatorV2Mock.createSubscription()
         const transactionReceipt = await transactionResponse.wait()
@@ -60,6 +62,14 @@ const raffleDeploy = async ({
         log: true,
         waitConfirmations: waitBlockConfirmations,
     })
+
+    log(`Raffle contract is deployed: ${raffle.address}`)
+
+    if (developmentChains.includes(network.name) && vrfCoordinatorV2Mock) {
+        await vrfCoordinatorV2Mock.addConsumer(subscriptionId, raffle.address)
+
+        log("Consumer is added")
+    }
 
     // Verify the deployment
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
