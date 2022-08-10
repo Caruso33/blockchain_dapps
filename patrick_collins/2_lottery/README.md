@@ -13,6 +13,11 @@
 QmaSCQVsNg5UPQchy8oeHCvuSa5GHNbcLT97c75DKwFdGF out - folder
 QmUNm1jDvcgrpuKhccysUrKCTJXFJ6ucYRf9mUeEG7yGNN out/index.html
 
+(Browser friendly base32 encoded CID:
+`ipfs cid base32 QmaSCQVsNg5UPQchy8oeHCvuSa5GHNbcLT97c75DKwFdGF`)
+
+[IPFS web hosted](https://ipfs.io/ipfs/QmaSCQVsNg5UPQchy8oeHCvuSa5GHNbcLT97c75DKwFdGF)
+
 #### Vercel
 
 [Vercel deployment](https://raffle-lottery-dapp.vercel.app/)
