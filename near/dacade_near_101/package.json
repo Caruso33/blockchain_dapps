@@ -1,0 +1,14 @@
+{
+  "name": "dacade_near_101",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "asbuild": "^0.2.0",
+    "assemblyscript": "^0.21.2",
+    "near-cli": "^3.4.2"
+  },
+  "devDependencies": {
+    "near-sdk-as": "^3.2.3"
+  }
+}
