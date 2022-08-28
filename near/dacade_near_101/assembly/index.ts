@@ -1,11 +1,19 @@
-import { PersistentUnorderedMap } from "near-sdk-as"
+import { Product, listedProducts } from "./model"
 
-export const products = new PersistentUnorderedMap<string, string>("PRODUCTS")
+export function setProduct(product: Product): void {
+  let storedProduct = listedProducts.get(product.id)
 
-export function setProduct(id: string, productName: string): void {
-  products.set(id, productName)
+  if (storedProduct !== null) {
+    throw new Error(`a product with ${product.id} already exists`)
+  }
+
+  listedProducts.set(product.id, Product.fromPayload(product))
 }
 
-export function getProduct(id: string): string | null {
-  return products.get(id)
+export function getProduct(id: string): Product | null {
+  return listedProducts.get(id)
+}
+
+export function getProducts(): Product[] {
+  return listedProducts.values()
 }
