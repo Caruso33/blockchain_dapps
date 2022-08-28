@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "login": "yarn near login",
+    "create:subaccount": "yarn near create-account ${SUBACCOUNT_ID}.${ACCOUNT_ID} --masterAccount ${ACCOUNT_ID} --initialBalance ${INITIAL_BALANCE}",
+    "asb": "asb",
+    "deploy": "near deploy --accountId=${ACCOUNT_ID} --wasmFile=${PATH_TO_WASM}",
+    "call": "near call ${CONTRACT_ACCOUNT_ID} ${METHOD_NAME} ${PAYLOAD} --accountId=${ACCOUNT_ID}",
+    "view": "near view ${CONTRACT_ACCOUNT_ID} ${METHOD_NAME} ${PAYLOAD}"
+  },
   "dependencies": {
     "asbuild": "^0.2.0",
     "assemblyscript": "^0.21.2",
